@@ -1,0 +1,106 @@
+name: 'pretiumdata_dbt_semantic_layer'
+version: '1.0.0'
+config-version: 2
+
+profile: 'pretiumdata_dbt_semantic_layer'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+docs-paths: ["docs"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+require-dbt-version: [">=1.8.0", "<2.0.0"]
+
+vars:
+  semantic_database_map:
+    dev: MART_DEV
+    staging: MART_STAGING
+    prod: MART_PROD
+  semantic_schema_name: SEMANTIC
+  enable_semantic_registry_checks: true
+  enable_semantic_exposure_checks: true
+  semantic_release_version: "1.0.0"
+
+quoting:
+  database: false
+  schema: false
+  identifier: false
+
+models:
+  pretiumdata_dbt_semantic_layer:
+    +persist_docs:
+      relation: true
+      columns: true
+    +on_schema_change: fail
+
+    sources:
+      +materialized: view
+      +tags: ["sources"]
+
+    intermediate:
+      +materialized: view
+      +schema: INTERMEDIATE
+      +tags: ["intermediate"]
+
+      semantic_prep:
+        +tags: ["intermediate", "semantic_prep"]
+
+    mart:
+      +schema: "{{ var('semantic_schema_name') }}"
+      +database: "{{ var('semantic_database_map')[target.name] }}"
+      +tags: ["mart", "semantic"]
+
+      semantic:
+        +materialized: table
+        +schema: "{{ var('semantic_schema_name') }}"
+        +database: "{{ var('semantic_database_map')[target.name] }}"
+        +tags: ["semantic"]
+
+        entity:
+          +tags: ["semantic", "entity"]
+
+        dim:
+          +tags: ["semantic", "dim"]
+
+        bridge:
+          +tags: ["semantic", "bridge"]
+
+        registry:
+          +tags: ["semantic", "registry"]
+
+        glossary:
+          +tags: ["semantic", "glossary"]
+
+        explain:
+          +tags: ["semantic", "explain"]
+
+        retrieval:
+          +tags: ["semantic", "retrieval"]
+
+seeds:
+  pretiumdata_dbt_semantic_layer:
+    +quote_columns: false
+    semantic:
+      +schema: "{{ var('semantic_schema_name') }}"
+      +database: "{{ var('semantic_database_map')[target.name] }}"
+      +tags: ["seed", "semantic"]
+
+snapshots:
+  pretiumdata_dbt_semantic_layer:
+    +target_schema: "{{ var('semantic_schema_name') }}"
+    +target_database: "{{ var('semantic_database_map')[target.name] }}"
+
+on-run-start:
+  - "{{ log('Starting run for target: ' ~ target.name, info=True) }}"
+  - "{{ log('Resolved semantic database: ' ~ var('semantic_database_map')[target.name], info=True) }}"
+
+on-run-end:
+  - "{{ log('Completed run for target: ' ~ target.name, info=True) }}"
