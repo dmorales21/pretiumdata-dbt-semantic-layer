@@ -1,0 +1,372 @@
+version: 2
+
+seeds:
+  - name: absorption_tier
+    description: Absorption rate tier classification for supply/demand analytics
+    config:
+      schema: CATALOG
+    columns:
+      - name: absorption_tier_id
+        tests: [not_null, unique]
+      - name: absorption_tier_code
+        tests: [not_null, unique]
+      - name: absorption_tier_label
+        tests: [not_null]
+      - name: rate_min
+        tests: [not_null]
+      - name: rate_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: amenity_tier
+    description: Property amenity quality classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: amenity_tier_id
+        tests: [not_null, unique]
+      - name: amenity_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [basic, standard, premium, luxury]
+      - name: amenity_tier_label
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: bath_type
+    description: Bathroom count classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: bath_type_id
+        tests: [not_null, unique]
+      - name: bath_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [1ba, 1_5ba, 2ba, 2_5ba, 3ba_plus]
+      - name: bath_type_label
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: bedroom_type
+    description: Bedroom count classification with SFR/MF applicability flags
+    config:
+      schema: CATALOG
+    columns:
+      - name: bedroom_type_id
+        tests: [not_null, unique]
+      - name: bedroom_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [studio, 1br, 2br, 3br, 4br_plus]
+      - name: bedroom_type_label
+        tests: [not_null]
+      - name: bedroom_count_min
+        tests: [not_null]
+      - name: bedroom_count_max
+        description: Null = unbounded (4br_plus)
+      - name: is_single_family_relevant
+        tests: [not_null]
+      - name: is_multifamily_relevant
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: class
+    description: Property class A+ through D with amenity and rent tier linkage
+    config:
+      schema: CATALOG
+    columns:
+      - name: class_id
+        tests: [not_null, unique]
+      - name: class_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [a_plus, a, a_minus, b_plus, b, b_minus, c_plus, c, c_minus, d]
+      - name: class_label
+        tests: [not_null]
+      - name: class_tier
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [A, B, C, D]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: rent_tier_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('rent_tier')
+                field: rent_tier_code
+              severity: warn
+      - name: amenity_tier_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('amenity_tier')
+                field: amenity_tier_code
+              severity: warn
+
+  - name: parking_type
+    description: Parking type classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: parking_type_id
+        tests: [not_null, unique]
+      - name: parking_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [none, surface, covered, garage, structured]
+      - name: parking_type_label
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: property_condition
+    description: Physical condition classification with capex multiplier
+    config:
+      schema: CATALOG
+    columns:
+      - name: condition_id
+        tests: [not_null, unique]
+      - name: condition_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [excellent, good, fair, poor, distressed]
+      - name: condition_label
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: capex_multiplier
+        tests: [not_null]
+
+  - name: renovation_type
+    description: Renovation scope classification with cost PSF range
+    config:
+      schema: CATALOG
+    columns:
+      - name: renovation_type_id
+        tests: [not_null, unique]
+      - name: renovation_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [light, moderate, heavy, gut_rehab]
+      - name: renovation_type_label
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: cost_psf_min
+        tests: [not_null]
+      - name: cost_psf_max
+        description: Null = unbounded
+
+  - name: vintage
+    description: Construction decade classification with default capex PSF
+    config:
+      schema: CATALOG
+    columns:
+      - name: vintage_id
+        tests: [not_null, unique]
+      - name: vintage_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [pre_1950, 1950s, 1960s, 1970s, 1980s, 1990s, 2000s, 2010s, 2020s]
+      - name: vintage_label
+        tests: [not_null]
+      - name: year_min
+        description: Null for pre_1950
+      - name: year_max
+        description: Null for current decade
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: typical_capex_psf
+        tests: [not_null]
+
+  - name: units_in_structure
+    description: ACS-aligned units-in-structure classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: units_id
+        tests: [not_null, unique]
+      - name: units_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: ['1', 2_to_4, 5_to_19, 20_to_49, 50_to_199, 200_to_349, 350_plus]
+      - name: units_label
+        tests: [not_null]
+      - name: range_min
+        tests: [not_null]
+      - name: range_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: hoa_type
+    description: HOA type classification with underwriting impact flags
+    config:
+      schema: CATALOG
+    columns:
+      - name: hoa_type_id
+        tests: [not_null, unique]
+      - name: hoa_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [none, voluntary, mandatory, cdd]
+      - name: hoa_type_label
+        tests: [not_null]
+      - name: has_dues
+        tests: [not_null]
+      - name: affects_underwriting
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: zoning_type
+    description: Zoning classification with residential and ADU flags
+    config:
+      schema: CATALOG
+    columns:
+      - name: zoning_type_id
+        tests: [not_null, unique]
+      - name: zoning_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [sf_residential, mf_residential, mixed_use, commercial, industrial, agricultural, planned_development]
+      - name: zoning_type_label
+        tests: [not_null]
+      - name: allows_residential
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: allows_adu
+        tests: [not_null]
+
+  - name: tenancy
+    description: Occupancy/tenancy status classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: tenancy_id
+        tests: [not_null, unique]
+      - name: tenancy_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [owner, renter, vacant, seasonally_vacant]
+      - name: tenancy_label
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: occupancy_status
+    description: Operational unit occupancy status with revenue flag
+    config:
+      schema: CATALOG
+    columns:
+      - name: occupancy_status_id
+        tests: [not_null, unique]
+      - name: occupancy_status_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [occupied, vacant, notice_to_vacate, eviction, down_unit]
+      - name: occupancy_status_label
+        tests: [not_null]
+      - name: is_revenue_generating
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: utility_type
+    description: Utility type classification with owner vs tenant paid flag
+    config:
+      schema: CATALOG
+    columns:
+      - name: utility_type_id
+        tests: [not_null, unique]
+      - name: utility_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [water, sewer, trash, electric, gas, internet]
+      - name: utility_type_label
+        tests: [not_null]
+      - name: is_owner_paid
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]

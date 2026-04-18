@@ -1,0 +1,4 @@
+market_tier_id,market_tier_code,market_tier_label,description,sort_order,is_active,cbsa_count
+MT_001,primary,Primary,Top 25 CBSAs by population and liquidity,1,TRUE,25
+MT_002,secondary,Secondary,CBSAs 26–75 by population,2,TRUE,50
+MT_003,tertiary,Tertiary,CBSAs outside top 75,3,TRUE,

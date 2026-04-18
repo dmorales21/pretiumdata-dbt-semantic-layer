@@ -1,0 +1,6 @@
+frequency_id,frequency_code,frequency_label,days_interval,sort_order,is_active
+FRQ_001,daily,Daily,1,1,TRUE
+FRQ_002,weekly,Weekly,7,2,TRUE
+FRQ_003,monthly,Monthly,30,3,TRUE
+FRQ_004,quarterly,Quarterly,90,4,TRUE
+FRQ_005,annual,Annual,365,5,TRUE

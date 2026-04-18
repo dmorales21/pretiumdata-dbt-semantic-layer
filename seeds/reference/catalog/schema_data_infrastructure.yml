@@ -1,0 +1,253 @@
+version: 2
+
+seeds:
+  - name: geo_level
+    description: Canonical geography grain vocabulary
+    config:
+      schema: CATALOG
+    columns:
+      - name: geo_level_id
+        tests: [not_null, unique]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [property, zip, county, cbsa, state, national]
+      - name: geo_level_label
+        tests: [not_null]
+      - name: grain_rank
+        tests: [not_null]
+      - name: fips_available
+        tests: [not_null]
+      - name: h3_available
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: frequency
+    description: Canonical time grain vocabulary
+    config:
+      schema: CATALOG
+    columns:
+      - name: frequency_id
+        tests: [not_null, unique]
+      - name: frequency_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [daily, weekly, monthly, quarterly, annual]
+      - name: frequency_label
+        tests: [not_null]
+      - name: days_interval
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: concept
+    description: Canonical concept vocabulary
+    config:
+      schema: CATALOG
+    columns:
+      - name: concept_id
+        tests: [not_null, unique]
+      - name: concept_code
+        tests: [not_null, unique]
+      - name: concept_label
+        tests: [not_null]
+      - name: domain
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [demand, supply, macro, portfolio]
+      - name: unit
+        tests: [not_null]
+      - name: direction
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [positive, negative, neutral]
+      - name: is_active
+        tests: [not_null]
+      - name: geo_level_codes
+        tests: [not_null]
+      - name: frequency_codes
+        tests: [not_null]
+      - name: metric_category_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('metric_category')
+                field: category_code
+      - name: vertical_codes
+        description: Null = applies to all verticals
+
+  - name: metric_category
+    description: Leading/lagging/coincident classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: category_id
+        tests: [not_null, unique]
+      - name: category_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [leading, lagging, coincident]
+      - name: category_label
+        tests: [not_null]
+      - name: description
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: function
+    description: Controlled vocabulary for FEATURE function types
+    config:
+      schema: CATALOG
+    columns:
+      - name: function_id
+        tests: [not_null, unique]
+      - name: function_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [index, score, rank, delta, pct, flag, smooth]
+      - name: function_label
+        tests: [not_null]
+      - name: description
+        tests: [not_null]
+      - name: output_unit
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [index, pct, boolean, float, integer, varies]
+      - name: is_active
+        tests: [not_null]
+
+  - name: model_type
+    description: Controlled vocabulary for MODEL types
+    config:
+      schema: CATALOG
+    columns:
+      - name: model_type_id
+        tests: [not_null, unique]
+      - name: model_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [score, composite, forecast, cluster, regression]
+      - name: model_type_label
+        tests: [not_null]
+      - name: description
+        tests: [not_null]
+      - name: output_type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [float, integer, label]
+      - name: is_active
+        tests: [not_null]
+
+  - name: estimate_type
+    description: Controlled vocabulary for ESTIMATE types
+    config:
+      schema: CATALOG
+    columns:
+      - name: estimate_type_id
+        tests: [not_null, unique]
+      - name: estimate_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [point, lower, upper, scenario_base, scenario_bull, scenario_bear]
+      - name: estimate_type_label
+        tests: [not_null]
+      - name: is_interval
+        tests: [not_null]
+      - name: scenario_group
+        description: Null for point/lower/upper
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: data_status
+    description: Lifecycle status governing read and promotion permissions
+    config:
+      schema: CATALOG
+    columns:
+      - name: data_status_id
+        tests: [not_null, unique]
+      - name: data_status_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [active, deprecated, under_review, blocked]
+      - name: data_status_label
+        tests: [not_null]
+      - name: allows_read
+        tests: [not_null]
+      - name: allows_promotion
+        tests: [not_null]
+      - name: description
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: promotion_gate
+    description: DEV/STAGE/PROD promotion gate rules
+    config:
+      schema: CATALOG
+    columns:
+      - name: gate_id
+        tests: [not_null, unique]
+      - name: gate_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [dev, stage, prod]
+      - name: gate_label
+        tests: [not_null]
+      - name: required_qa_status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0_errors]
+      - name: allows_warn
+        tests: [not_null]
+      - name: promotion_target
+        description: Null for prod (terminal gate)
+      - name: approver
+        tests: [not_null]
+      - name: writes_to_pipeline_alert
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: min_row_count
+        tests: [not_null]

@@ -1,0 +1,6 @@
+market_status_id,market_status_code,market_status_label,description,allows_new_acquisition,vertical_code,sort_order,is_active
+MKS_001,active,Active,Actively deploying capital per IC approval,TRUE,,1,TRUE
+MKS_002,emerging,Emerging,Identified for future entry; monitoring underway,FALSE,,2,TRUE
+MKS_003,mature,Mature,Fully deployed; selective acquisitions only,TRUE,,3,TRUE
+MKS_004,exiting,Exiting,Disposition mode; no new acquisitions,FALSE,,4,TRUE
+MKS_005,restricted,Restricted,Excluded by IC; no activity permitted,FALSE,,5,TRUE

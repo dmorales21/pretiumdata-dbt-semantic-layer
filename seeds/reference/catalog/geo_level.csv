@@ -1,0 +1,7 @@
+geo_level_id,geo_level_code,geo_level_label,grain_rank,fips_available,h3_available,is_active
+GEO_001,property,Property,1,FALSE,TRUE,TRUE
+GEO_002,zip,ZIP Code,2,TRUE,TRUE,TRUE
+GEO_003,county,County,3,TRUE,TRUE,TRUE
+GEO_004,cbsa,CBSA,4,TRUE,TRUE,TRUE
+GEO_005,state,State,5,TRUE,FALSE,TRUE
+GEO_006,national,National,6,FALSE,FALSE,TRUE

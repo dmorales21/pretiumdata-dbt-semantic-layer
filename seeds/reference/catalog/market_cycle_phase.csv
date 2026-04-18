@@ -1,0 +1,5 @@
+phase_id,phase_code,phase_label,description,sort_order,is_active,typical_vacancy_direction,typical_rent_direction
+MCP_001,recovery,Recovery,Vacancy falling from peak; rents flat to slightly rising,1,TRUE,falling,flat
+MCP_002,expansion,Expansion,Vacancy tightening; rents rising; new construction starts,2,TRUE,falling,rising
+MCP_003,hyper_supply,Hyper Supply,New supply exceeds demand; vacancy rising; rent growth slowing,3,TRUE,rising,flat
+MCP_004,recession,Recession,Vacancy elevated; rents falling or flat; construction halted,4,TRUE,rising,falling

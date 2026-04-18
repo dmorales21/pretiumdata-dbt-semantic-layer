@@ -1,0 +1,11 @@
+sector_id,sector_code,sector_label,naics_code,is_high_wage,sort_order,is_active,demand_weight
+EMP_001,tech,Technology,54,TRUE,1,TRUE,
+EMP_002,finance,Finance & Insurance,52,TRUE,2,TRUE,
+EMP_003,healthcare,Healthcare,62,FALSE,3,TRUE,
+EMP_004,education,Education,61,FALSE,4,TRUE,
+EMP_005,government,Government,92,FALSE,5,TRUE,
+EMP_006,manufacturing,Manufacturing,31,FALSE,6,TRUE,
+EMP_007,retail,Retail,44,FALSE,7,TRUE,
+EMP_008,construction,Construction,23,FALSE,8,TRUE,
+EMP_009,hospitality,Hospitality & Leisure,72,FALSE,9,TRUE,
+EMP_010,logistics,Logistics & Warehousing,49,FALSE,10,TRUE,

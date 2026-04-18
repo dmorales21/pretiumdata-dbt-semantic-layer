@@ -1,0 +1,21 @@
+concept_id,concept_code,concept_label,domain,unit,direction,is_active,geo_level_codes,frequency_codes,metric_category_code,vertical_codes
+CON_001,rent,Rent,demand,usd,positive,TRUE,"zip,county,cbsa,state","monthly,quarterly,annual",lagging,
+CON_002,occupancy,Occupancy,demand,pct,positive,TRUE,"zip,county,cbsa,state","monthly,quarterly,annual",lagging,
+CON_003,vacancy,Vacancy,supply,pct,negative,TRUE,"zip,county,cbsa,state","monthly,quarterly,annual",lagging,
+CON_004,employment,Employment,macro,count,positive,TRUE,"county,cbsa,state","monthly,quarterly,annual",coincident,
+CON_005,unemployment,Unemployment Rate,macro,pct,negative,TRUE,"county,cbsa,state","monthly,quarterly,annual",coincident,
+CON_006,permits,Building Permits,supply,count,neutral,TRUE,"county,cbsa,state","monthly,quarterly,annual",leading,
+CON_007,migration,Migration,demand,count,positive,TRUE,"county,cbsa,state","annual",leading,
+CON_008,population,Population,demand,count,positive,TRUE,"zip,county,cbsa,state","annual",coincident,
+CON_009,home_price,Home Price,macro,usd,neutral,TRUE,"zip,county,cbsa,state","monthly,quarterly,annual",coincident,
+CON_010,absorption,Absorption,demand,pct,positive,TRUE,"county,cbsa","monthly,quarterly",leading,
+CON_011,supply_pipeline,Supply Pipeline,supply,count,negative,TRUE,"county,cbsa","monthly,quarterly",leading,
+CON_012,crime,Crime Index,macro,index,negative,TRUE,"zip,county","annual",lagging,
+CON_013,school_quality,School Quality,macro,index,positive,TRUE,"zip,county","annual",lagging,
+CON_014,income,Household Income,macro,usd,positive,TRUE,"zip,county,cbsa,state","annual",coincident,
+CON_015,noi,Net Operating Income,portfolio,usd,positive,TRUE,"property","monthly,quarterly,annual",lagging,"resi,req"
+CON_016,dscr,Debt Service Coverage Ratio,portfolio,index,positive,TRUE,"property","monthly,quarterly,annual",lagging,red
+CON_017,cap_rate,Cap Rate,portfolio,pct,neutral,TRUE,"property,zip,county,cbsa","quarterly,annual",lagging,
+CON_018,ltv,Loan to Value,portfolio,pct,negative,TRUE,"property","monthly,quarterly,annual",lagging,red
+CON_019,delinquency,Delinquency Rate,portfolio,pct,negative,TRUE,"property,zip,county,cbsa","monthly,quarterly",lagging,"resi,req"
+CON_020,concession,Concession,demand,pct,negative,TRUE,"zip,county,cbsa","monthly,quarterly",lagging,

@@ -1,0 +1,569 @@
+version: 2
+
+seeds:
+  - name: cap_rate_tier
+    description: Cap rate band classification; vertical-specific
+    config:
+      schema: CATALOG
+    columns:
+      - name: cap_rate_tier_id
+        tests: [not_null, unique]
+      - name: cap_rate_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [sub_4, 4_to_5, 5_to_6, 6_to_7, 7_plus]
+      - name: cap_rate_tier_label
+        tests: [not_null]
+      - name: rate_min
+        tests: [not_null]
+      - name: rate_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: vertical_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+              severity: warn
+
+  - name: dscr_tier
+    description: Debt service coverage ratio tier classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: dscr_tier_id
+        tests: [not_null, unique]
+      - name: dscr_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [sub_1, 1_to_1_25, 1_25_to_1_5, 1_5_plus]
+      - name: dscr_tier_label
+        tests: [not_null]
+      - name: rate_min
+        tests: [not_null]
+      - name: rate_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: ltv_tier
+    description: Loan-to-value ratio tier classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: ltv_tier_id
+        tests: [not_null, unique]
+      - name: ltv_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [sub_50, 50_to_60, 60_to_70, 70_to_80, 80_plus]
+      - name: ltv_tier_label
+        tests: [not_null]
+      - name: rate_min
+        tests: [not_null]
+      - name: rate_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: noi_tier
+    description: Net operating income tier classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: noi_tier_id
+        tests: [not_null, unique]
+      - name: noi_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [sub_500k, 500k_1m, 1m_2m, 2m_5m, 5m_plus]
+      - name: noi_tier_label
+        tests: [not_null]
+      - name: noi_min
+        tests: [not_null]
+      - name: noi_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: price_tier
+    description: Acquisition price tier classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: price_tier_id
+        tests: [not_null, unique]
+      - name: price_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [sub_100k, 100k_150k, 150k_200k, 200k_250k, 250k_350k, 350k_500k, 500k_750k, 750k_1m, 1m_plus]
+      - name: price_tier_label
+        tests: [not_null]
+      - name: price_min
+        tests: [not_null]
+      - name: price_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('geo_level')
+                field: geo_level_code
+              severity: warn
+
+  - name: rent_tier
+    description: Monthly rent band classification; product-type-specific
+    config:
+      schema: CATALOG
+    columns:
+      - name: rent_tier_id
+        tests: [not_null, unique]
+      - name: rent_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: ['sub_800', '800_1000', '1000_1250', '1250_1500', '1500_1750', '1750_2000', '2000_2500', '2500_3000', '3000_4000', '4000_plus']
+      - name: rent_tier_label
+        tests: [not_null]
+      - name: rent_min
+        tests: [not_null]
+      - name: rent_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: product_type_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('product_type')
+                field: product_type_code
+              severity: warn
+
+  - name: income_band
+    description: Household income band aligned with ACS tiers
+    config:
+      schema: CATALOG
+    columns:
+      - name: income_band_id
+        tests: [not_null, unique]
+      - name: income_band_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [sub_10k, 10k_15k, 15k_25k, 25k_35k, 35k_50k, 50k_75k, 75k_100k, 100k_125k, 125k_150k, 150k_200k, 200k_plus]
+      - name: income_band_label
+        tests: [not_null]
+      - name: ami_pct_min
+        tests: [not_null]
+      - name: ami_pct_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: is_workforce_housing
+        tests: [not_null]
+
+  - name: delinquency_bucket
+    description: Rent delinquency aging bucket classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: bucket_id
+        tests: [not_null, unique]
+      - name: bucket_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [current, 30_days, 60_days, 90_days, 90_plus]
+      - name: bucket_label
+        tests: [not_null]
+      - name: days_min
+        tests: [not_null]
+      - name: days_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: opco_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('opco')
+                field: opco_code
+              severity: warn
+
+  - name: loan_type
+    description: Loan type with rate type and LTV tier linkage
+    config:
+      schema: CATALOG
+    columns:
+      - name: loan_type_id
+        tests: [not_null, unique]
+      - name: loan_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [agency, bridge, construction, mezz, preferred_equity, hard_money]
+      - name: loan_type_label
+        tests: [not_null]
+      - name: vertical_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+      - name: is_senior
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: rate_type_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('rate_type')
+                field: rate_type_code
+      - name: ltv_tier_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('ltv_tier')
+                field: ltv_tier_code
+
+  - name: rate_type
+    description: Interest rate type classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: rate_type_id
+        tests: [not_null, unique]
+      - name: rate_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [fixed, floating, hybrid]
+      - name: rate_type_label
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: risk_rating
+    description: Risk rating with max LTV ceiling
+    config:
+      schema: CATALOG
+    columns:
+      - name: risk_rating_id
+        tests: [not_null, unique]
+      - name: risk_rating_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [low, moderate, elevated, high, critical]
+      - name: risk_rating_label
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: max_ltv_pct
+        tests: [not_null]
+
+  - name: score_tier
+    description: Composite score tier linked to risk rating
+    config:
+      schema: CATALOG
+    columns:
+      - name: score_tier_id
+        tests: [not_null, unique]
+      - name: score_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [tier_1, tier_2, tier_3, tier_4, tier_5]
+      - name: score_tier_label
+        tests: [not_null]
+      - name: score_min
+        tests: [not_null]
+      - name: score_max
+        tests: [not_null]
+      - name: risk_rating_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('risk_rating')
+                field: risk_rating_code
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: concept_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('concept')
+                field: concept_code
+              severity: warn
+
+  - name: hold_period
+    description: Investment hold period classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: hold_period_id
+        tests: [not_null, unique]
+      - name: hold_period_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [short_term, medium_term, long_term, permanent]
+      - name: hold_period_label
+        tests: [not_null]
+      - name: year_min
+        tests: [not_null]
+      - name: year_max
+        description: Null = permanent
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: exit_strategy
+    description: Investment exit strategy classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: exit_strategy_id
+        tests: [not_null, unique]
+      - name: exit_strategy_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [bulk_sale, individual_sale, refinance, recapitalization, ipo]
+      - name: exit_strategy_label
+        tests: [not_null]
+      - name: vertical_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+              severity: warn
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: investment_strategy
+    description: Investment strategy with hold period and exit linkage
+    config:
+      schema: CATALOG
+    columns:
+      - name: strategy_id
+        tests: [not_null, unique]
+      - name: strategy_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [core, core_plus, value_add, opportunistic]
+      - name: strategy_label
+        tests: [not_null]
+      - name: vertical_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+              severity: warn
+      - name: risk_rank
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: hold_period_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hold_period')
+                field: hold_period_code
+      - name: exit_strategy_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('exit_strategy')
+                field: exit_strategy_code
+
+  - name: deal_status
+    description: Deal pipeline status classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: deal_status_id
+        tests: [not_null, unique]
+      - name: deal_status_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [prospecting, under_loi, under_contract, closed, passed]
+      - name: deal_status_label
+        tests: [not_null]
+      - name: is_active_deal
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: vertical_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+              severity: warn
+      - name: opco_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('opco')
+                field: opco_code
+              severity: warn
+
+  - name: portfolio_size_tier
+    description: Portfolio unit count tier classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: portfolio_size_tier_id
+        tests: [not_null, unique]
+      - name: portfolio_size_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: ['sub_100', '100_500', '500_2000', '2000_5000', '5000_plus']
+      - name: portfolio_size_tier_label
+        tests: [not_null]
+      - name: unit_min
+        tests: [not_null]
+      - name: unit_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: product_type_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('product_type')
+                field: product_type_code
+              severity: warn
+
+  - name: lease_term
+    description: Lease term classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: lease_term_id
+        tests: [not_null, unique]
+      - name: lease_term_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [month_to_month, 6mo, 12mo, 24mo_plus]
+      - name: lease_term_label
+        tests: [not_null]
+      - name: months_min
+        tests: [not_null]
+      - name: months_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: ownership_type
+    description: Owner entity type for competitive supply analysis
+    config:
+      schema: CATALOG
+    columns:
+      - name: ownership_type_id
+        tests: [not_null, unique]
+      - name: ownership_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [individual, institutional, reit, fund, opco, government]
+      - name: ownership_type_label
+        tests: [not_null]
+      - name: is_institutional
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]

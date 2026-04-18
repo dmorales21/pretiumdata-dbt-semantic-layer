@@ -1,0 +1,5 @@
+strategy_id,strategy_code,strategy_label,vertical_code,risk_rank,sort_order,is_active,hold_period_code,exit_strategy_code
+STR_001,core,Core,,1,1,TRUE,long_term,refinance
+STR_002,core_plus,Core Plus,,2,2,TRUE,medium_term,bulk_sale
+STR_003,value_add,Value Add,,3,3,TRUE,medium_term,bulk_sale
+STR_004,opportunistic,Opportunistic,,4,4,TRUE,short_term,individual_sale

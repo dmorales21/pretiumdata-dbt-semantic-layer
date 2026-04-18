@@ -13,17 +13,16 @@ snapshot-paths: ["snapshots"]
 docs-paths: ["docs"]
 
 target-path: "target"
-clean-targets:
-  - "target"
-  - "dbt_packages"
+clean-targets: ["target", "dbt_packages"]
 
 require-dbt-version: [">=1.8.0", "<2.0.0"]
 
+# ============================================================
+# VARS — informational; schema resolution handled by macro
+# ============================================================
 vars:
-  semantic_database_map:
-    dev: MART_DEV
-    staging: MART_STAGING
-    prod: MART_PROD
+  reference_database: REFERENCE
+  serving_database: SERVING
   semantic_schema_name: SEMANTIC
   enable_semantic_registry_checks: true
   enable_semantic_exposure_checks: true
@@ -34,6 +33,12 @@ quoting:
   schema: false
   identifier: false
 
+# ============================================================
+# MODELS
+# Schema resolution: see macros/generate_schema_name.sql
+# analytics/* → DBT_DEV / DBT_STAGE / DBT_PROD (by target)
+# mart/semantic/* → SEMANTIC
+# ============================================================
 models:
   pretiumdata_dbt_semantic_layer:
     +persist_docs:
@@ -41,66 +46,91 @@ models:
       columns: true
     +on_schema_change: fail
 
-    sources:
-      +materialized: view
-      +tags: ["sources"]
+    # ANALYTICS — Alex owns
+    # DB: ANALYTICS | Schema: DBT_DEV / DBT_STAGE / DBT_PROD
+    # Prefix governs type: FEATURE_ MODEL_ ESTIMATE_ BI_ AI_ QA_
+    analytics:
+      +database: ANALYTICS
+      +schema: DBT_DEV
+      +tags: ["analytics"]
+      feature:
+        +materialized: view
+        +tags: ["analytics", "feature"]
+      model:
+        +materialized: view
+        +tags: ["analytics", "model"]
+      estimate:
+        +materialized: table
+        +tags: ["analytics", "estimate"]
+      bi:
+        +materialized: view
+        +tags: ["analytics", "bi"]
+      ai:
+        +materialized: table
+        +tags: ["analytics", "ai"]
+
+    # MART SEMANTIC — Alex + Spencer
+    # DB: MART_DEV / MART_STAGING / MART_PROD | Schema: SEMANTIC
+    mart:
+      +schema: SEMANTIC
+      +tags: ["mart", "semantic"]
+      semantic:
+        +materialized: table
+        +tags: ["semantic"]
+        entity:
+          +tags: ["semantic", "entity"]
+        dim:
+          +tags: ["semantic", "dim"]
+        bridge:
+          +tags: ["semantic", "bridge"]
+        registry:
+          +tags: ["semantic", "registry"]
+        glossary:
+          +tags: ["semantic", "glossary"]
+        explain:
+          +tags: ["semantic", "explain"]
+        retrieval:
+          +tags: ["semantic", "retrieval"]
 
     intermediate:
       +materialized: view
       +schema: INTERMEDIATE
       +tags: ["intermediate"]
-
       semantic_prep:
         +tags: ["intermediate", "semantic_prep"]
 
-    mart:
-      +schema: "{{ var('semantic_schema_name') }}"
-      +database: "{{ var('semantic_database_map')[target.name] }}"
-      +tags: ["mart", "semantic"]
+    sources:
+      +materialized: view
+      +tags: ["sources"]
 
-      semantic:
-        +materialized: table
-        +schema: "{{ var('semantic_schema_name') }}"
-        +database: "{{ var('semantic_database_map')[target.name] }}"
-        +tags: ["semantic"]
-
-        entity:
-          +tags: ["semantic", "entity"]
-
-        dim:
-          +tags: ["semantic", "dim"]
-
-        bridge:
-          +tags: ["semantic", "bridge"]
-
-        registry:
-          +tags: ["semantic", "registry"]
-
-        glossary:
-          +tags: ["semantic", "glossary"]
-
-        explain:
-          +tags: ["semantic", "explain"]
-
-        retrieval:
-          +tags: ["semantic", "retrieval"]
-
+# ============================================================
+# SEEDS
+# REFERENCE.CATALOG and REFERENCE.DRAFT — no env variation
+# Schema resolution handled by generate_schema_name macro
+# ============================================================
 seeds:
   pretiumdata_dbt_semantic_layer:
     +quote_columns: false
+
+    reference:
+      +database: REFERENCE
+      +tags: ["seed", "reference"]
+      catalog:
+        +schema: CATALOG
+        +tags: ["seed", "reference", "catalog"]
+      draft:
+        +schema: DRAFT
+        +tags: ["seed", "reference", "draft"]
+
     semantic:
-      +schema: "{{ var('semantic_schema_name') }}"
-      +database: "{{ var('semantic_database_map')[target.name] }}"
+      +schema: SEMANTIC
       +tags: ["seed", "semantic"]
 
 snapshots:
   pretiumdata_dbt_semantic_layer:
-    +target_schema: "{{ var('semantic_schema_name') }}"
-    +target_database: "{{ var('semantic_database_map')[target.name] }}"
+    +target_schema: SEMANTIC
 
 on-run-start:
-  - "{{ log('Starting run for target: ' ~ target.name, info=True) }}"
-  - "{{ log('Resolved semantic database: ' ~ var('semantic_database_map')[target.name], info=True) }}"
-
+  - "{{ log('Starting run — target: ' ~ target.name, info=True) }}"
 on-run-end:
-  - "{{ log('Completed run for target: ' ~ target.name, info=True) }}"
+  - "{{ log('Completed run — target: ' ~ target.name, info=True) }}"

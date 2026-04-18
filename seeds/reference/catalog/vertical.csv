@@ -1,0 +1,4 @@
+vertical_id,vertical_code,vertical_label,description,sort_order,is_active
+VRT_001,resi,RESI,Residential equity — single-family and multifamily operating portfolios,1,TRUE
+VRT_002,req,REQ,Residential equity and debt — build-to-rent and development,2,TRUE
+VRT_003,red,RED,Real estate debt — mortgage lending and structured credit,3,TRUE

@@ -1,0 +1,7 @@
+ownership_type_id,ownership_type_code,ownership_type_label,is_institutional,min_unit_threshold,sort_order,is_active
+OWN_001,individual,Individual,FALSE,1,1,TRUE
+OWN_002,institutional,Institutional,TRUE,100,2,TRUE
+OWN_003,reit,REIT,TRUE,500,3,TRUE
+OWN_004,fund,Private Fund,TRUE,100,4,TRUE
+OWN_005,opco,Operating Company,TRUE,1000,5,TRUE
+OWN_006,government,Government,FALSE,,6,TRUE

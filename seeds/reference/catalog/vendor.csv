@@ -1,0 +1,41 @@
+vendor_id,vendor_code,vendor_label,definition,data_type,refresh_cadence,contract_status,source_schema,is_active,contract_expiry_date,data_share_type,is_motherduck_served,vertical_codes
+VND_001,acs,US Census Bureau — ACS,American Community Survey 5-year estimates covering demographics household income tenure and housing characteristics at tract block group CBSA and ZIP grain,administrative,annual,active,RAW.ACS,TRUE,,s3,FALSE,
+VND_002,bls,Bureau of Labor Statistics,BLS employment and labor data including LAUS QCEW and OES series at county CBSA and national grain,administrative,monthly,active,RAW.BLS,TRUE,,s3,FALSE,
+VND_003,census,US Census Bureau — Decennial / PEP,Population Estimates Program and County Business Patterns data at county and CBSA grain,administrative,annual,active,RAW.CENSUS,TRUE,,s3,FALSE,
+VND_004,fred,Federal Reserve — FRED,FRED macro economic series covering interest rates treasury yields and broad macro indicators,administrative,daily,active,RAW.FRED,TRUE,,api,FALSE,
+VND_005,hud,HUD,HUD Fair Market Rents Housing Choice Vouchers Qualified Census Tracts and Difficult Development Areas,administrative,annual,active,RAW.HUD,TRUE,,s3,FALSE,
+VND_006,fema,FEMA,FEMA National Risk Index hazard risk scores by tract and county including flood wildfire wind and composite risk,administrative,annual,active,RAW.FEMA,TRUE,,s3,FALSE,
+VND_007,onet,O*NET — Department of Labor,O*NET occupational data covering work activities skills tasks and automation exposure by SOC code,administrative,annual,active,RAW.ONET,TRUE,,s3,FALSE,
+VND_008,redfin,Redfin,Redfin residential housing market data covering median sale price DOM inventory and list-to-sale ratio at MSA and ZIP grain,transactional,weekly,active,RAW.REDFIN,TRUE,,s3,TRUE,
+VND_009,zillow,Zillow,Zillow Home Value Index ZORI rent index and affordability series at MSA county city and ZIP grain,transactional,monthly,active,RAW.ZILLOW,TRUE,,s3,TRUE,
+VND_010,realtor,Realtor.com,Realtor.com inventory hotness and listing metrics at MSA and ZIP grain,transactional,weekly,active,RAW.REALTOR,TRUE,,s3,FALSE,
+VND_011,cherre,Cherre,Cherre property data platform covering MLS recorder tax assessor AVM rent roll demographics and unit availability,transactional,daily,active,RAW.CHERRE,TRUE,,snowflake_share,FALSE,
+VND_012,bkfs,Black Knight Financial Services,Black Knight McDash loan-level mortgage data including loan characteristics current performance delinquency history and property attributes,transactional,monthly,active,RAW.BKFS,TRUE,,s3,FALSE,red
+VND_013,costar,CoStar,CoStar multifamily market export property metrics fund metrics and scenario forecasts,survey,quarterly,active,RAW.COSTAR,TRUE,,s3,FALSE,
+VND_014,markerr,Markerr,Markerr RealRent property-level rent listings forecast SFR income employment crime and MF permits at property and ZIP grain,transactional,monthly,active,RAW.MARKERR,TRUE,,s3,FALSE,
+VND_015,zonda,Zonda,Zonda new construction BTR project tracking starts closings plans deeds and survey data at property and CBSA grain,survey,monthly,active,RAW.TPANALYTICS,TRUE,,snowflake_share,TRUE,
+VND_016,parcllabs,Parcl Labs,Parcl Labs SFR housing stock ownership demand pricing supply and institutional ownership analytics at CBSA and ZIP grain,transactional,monthly,active,RAW.PARCLLABS,TRUE,,api,FALSE,
+VND_017,green_street,Green Street Advisors,Green Street market projections HPA scenarios macro rates fundamental valuation and US debt data covering CMBS ABS and high yield,survey,quarterly,active,RAW.GREEN_STREET,TRUE,,s3,FALSE,
+VND_018,oxford_economics,Oxford Economics,Oxford Economics AMREG residential market forecasts and WDMARCO macro series at CBSA and national grain,survey,quarterly,active,SOURCE_ENTITY.PRETIUM,TRUE,,sftp,FALSE,
+VND_019,jbrec,John Burns Research & Consulting,JBREC SFR multifamily BTR and national housing research data at CBSA and national grain,survey,monthly,active,RAW.JBREC,TRUE,,s3,FALSE,
+VND_020,cotality,Cotality,Cotality crime and school quality tract-level time series data,transactional,annual,active,RAW.COTALITY,TRUE,,s3,FALSE,
+VND_021,apartmentiq,ApartmentIQ,ApartmentIQ multifamily property and unit KPI competitive market data for BH OpCo,survey,monthly,active,SOURCE_ENTITY.BH,TRUE,,snowflake_share,FALSE,resi
+VND_022,overture,Overture Maps,Overture Maps open geospatial data covering POI places building footprints land use and transportation,spatial,annual,active,RAW.OVERTURE,TRUE,,snowflake_share,FALSE,
+VND_023,first_street,First Street Foundation,First Street climate risk scores at property grain covering flood wildfire wind and heat risk,spatial,annual,active,RAW.FIRST_STREET,TRUE,,s3,FALSE,
+VND_024,epoch_ai,Epoch AI,Epoch AI model capabilities registry tracking AI system performance across standardized benchmarks,administrative,annual,active,RAW.EPOCH_AI,TRUE,,s3,FALSE,
+VND_025,apartment_list,Apartment List,Apartment List rent estimates rent growth MoM/YoY vacancy index and time on market at CBSA and national grain,survey,monthly,active,RAW.APARTMENT_LIST,TRUE,,s3,FALSE,resi
+VND_026,tax_foundation,Tax Foundation,Tax Foundation property tax rates by county and state covering effective rates and collections,administrative,annual,active,RAW.TAX_FOUNDATION,TRUE,,s3,FALSE,
+VND_027,bankrate,Bankrate,Bankrate homeowners insurance rate estimates by state,survey,annual,active,RAW.BANKRATE,TRUE,,s3,FALSE,
+VND_028,quadrant,Quadrant Information Services,Quadrant insurance rate data by state used for underwriting expense modeling,survey,annual,active,RAW.QUADRANT,TRUE,,s3,FALSE,
+VND_029,sp_global,S&P Global,S&P Global rent vs own cost comparison at national grain,survey,annual,active,RAW.SP_GLOBAL,TRUE,,api,FALSE,
+VND_030,yardi,Yardi Systems,Yardi property management operational data covering unit occupancy lease rent payments and work orders for Progress and BH portfolios,operational,daily,active,SOURCE_ENTITY.PROGRESS,TRUE,,snowflake_share,FALSE,resi
+VND_031,salesforce,Salesforce,Salesforce CRM data covering opportunities accounts and property records for Progress pipeline,operational,daily,active,SOURCE_ENTITY.PROGRESS,TRUE,,snowflake_share,FALSE,resi
+VND_032,funnel,Funnel Leasing,Funnel property management platform data for BH Living covering leasing pipeline units applicants and online leasing transactions,operational,daily,active,SOURCE_ENTITY.BH,TRUE,,snowflake_share,FALSE,resi
+VND_033,anchor_loans,Anchor Loans,Anchor Loans deal pipeline and active loan portfolio for RED vertical,operational,monthly,active,SOURCE_ENTITY.ANCHOR_LOANS,TRUE,,manual,FALSE,red
+VND_034,selene,Selene Finance,Selene Finance servicer-level property data for RED mortgage servicing portfolio,operational,monthly,active,SOURCE_ENTITY.SELENE,TRUE,,manual,FALSE,red
+VND_035,preqin,Preqin,Preqin private markets news and intelligence data,survey,daily,active,RAW.NEWS,TRUE,,api,FALSE,
+VND_036,education_nces,NCES — National Center for Education Statistics,K-12 public school data from EDGE and CCD covering school locations characteristics enrollment and geocoded addresses,administrative,annual,active,RAW.EDUCATION,TRUE,,s3,FALSE,
+VND_037,nhpd,National Housing Preservation Database,NHPD affordable housing inventory covering federally assisted properties HUD programs and Low Income Housing Tax Credit projects,administrative,annual,active,RAW.NHPD,TRUE,,s3,FALSE,
+VND_038,cps_nber,NBER / CPS,Current Population Survey microdata accessed via NBER covering household demographics labor force status and income,administrative,monthly,active,RAW.NBER,TRUE,,s3,FALSE,
+VND_039,lehd,US Census Bureau — LEHD,LEHD LODES origin-destination employment statistics at block grain covering jobs by industry and worker characteristics,administrative,annual,active,RAW.LEHD,TRUE,,s3,FALSE,
+VND_040,internal,Pretium Internal,Pretium-generated derived datasets including governance audit tables portfolio footprint and news intelligence,operational,daily,active,TRANSFORM.FACT,TRUE,,manual,FALSE,

@@ -1,0 +1,6 @@
+model_type_id,model_type_code,model_type_label,description,output_type,is_active
+MOD_001,score,Score,Weighted combination of input features normalized to 0–100,float,TRUE
+MOD_002,composite,Composite,Multi-dimensional index combining scores across domains,float,TRUE
+MOD_003,forecast,Forecast,Time-series projection of a metric forward in time,float,TRUE
+MOD_004,cluster,Cluster,Unsupervised grouping of geographies by similarity,label,TRUE
+MOD_005,regression,Regression,Statistical relationship between predictor and outcome variables,float,TRUE

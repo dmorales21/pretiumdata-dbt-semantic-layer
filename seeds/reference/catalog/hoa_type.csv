@@ -1,0 +1,5 @@
+hoa_type_id,hoa_type_code,hoa_type_label,has_dues,affects_underwriting,sort_order,is_active
+HOA_001,none,None,FALSE,FALSE,1,TRUE
+HOA_002,voluntary,Voluntary HOA,FALSE,FALSE,2,TRUE
+HOA_003,mandatory,Mandatory HOA,TRUE,TRUE,3,TRUE
+HOA_004,cdd,Community Development District,TRUE,TRUE,4,TRUE

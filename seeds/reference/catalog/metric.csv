@@ -1,0 +1,1 @@
+metric_id,metric_code,metric_label,definition,concept_code,vendor_code,is_derived,source_vendor_codes,unit,direction,geo_level_code,frequency_code,is_active,data_status_code,snowflake_column,table_path,metric_category_code,is_opco_metric

@@ -1,0 +1,6 @@
+construction_status_id,construction_status_code,construction_status_label,is_in_pipeline,sort_order,is_active,product_type_code,geo_level_code
+CS_001,planned,Planned,TRUE,1,TRUE,,cbsa
+CS_002,permitted,Permitted,TRUE,2,TRUE,,county
+CS_003,under_construction,Under Construction,TRUE,3,TRUE,,county
+CS_004,delivered,Delivered,FALSE,4,TRUE,,county
+CS_005,stabilized,Stabilized,FALSE,5,TRUE,,county

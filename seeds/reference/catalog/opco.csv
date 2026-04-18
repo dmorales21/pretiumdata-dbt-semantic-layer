@@ -1,0 +1,8 @@
+opco_id,opco_code,opco_label,opco_full_name,vertical_code,is_external,is_active,parent_entity,strategy_code,primary_product_type_code,geo_status_code,unit_count
+OPC_001,progress,Progress,Progress Residential,resi,FALSE,TRUE,Pretium Partners,core_plus,sf_scattered,,
+OPC_002,bh,BH,BH Management Services,resi,FALSE,TRUE,Pretium Partners,core_plus,mf_garden,,
+OPC_003,imagine,Imagine,Imagine Homes,resi,FALSE,TRUE,Pretium Partners,value_add,sf_scattered,,
+OPC_004,anchor,Anchor,Anchor Loans,red,FALSE,TRUE,Pretium Partners,opportunistic,,,
+OPC_005,selene,Selene,Selene Finance,red,FALSE,TRUE,Pretium Partners,core,,,
+OPC_006,deephaven,Deephaven,Deephaven Mortgage,red,FALSE,TRUE,Pretium Partners,core,,,
+OPC_007,pretium,Pretium,Pretium Partners,,FALSE,TRUE,,,,,

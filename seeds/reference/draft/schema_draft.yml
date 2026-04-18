@@ -1,0 +1,51 @@
+version: 2
+
+# REFERENCE.DRAFT seeds — Alex owns
+# Objects here are in-progress; promote to REFERENCE.CATALOG on owner approval
+# dim_metric_dev promotes to metric in REFERENCE.CATALOG once TRANSFORM.FACT exists
+
+seeds:
+  - name: dim_metric_dev
+    description: >
+      Working metric registry for development. Header-only until TRANSFORM.FACT is built.
+      Promotes to REFERENCE.CATALOG.metric once canonical fact tables exist and
+      snowflake_column + table_path can be populated accurately.
+    config:
+      schema: DRAFT
+    columns:
+      - name: metric_id
+        tests: [not_null, unique]
+      - name: metric_code
+        tests: [not_null, unique]
+      - name: metric_label
+        tests: [not_null]
+      - name: definition
+        tests: [not_null]
+      - name: concept_code
+        tests: [not_null]
+      - name: vendor_code
+        description: Null if is_derived = TRUE
+      - name: is_derived
+        tests: [not_null]
+      - name: source_vendor_codes
+        description: Comma-separated when is_derived = TRUE
+      - name: unit
+        tests: [not_null]
+      - name: direction
+        tests: [not_null]
+      - name: geo_level_code
+        tests: [not_null]
+      - name: frequency_code
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: data_status_code
+        tests: [not_null]
+      - name: snowflake_column
+        description: Exact column name; populate once TRANSFORM.FACT tables exist
+      - name: table_path
+        description: Fully qualified TRANSFORM.FACT path; populate once tables exist
+      - name: metric_category_code
+        tests: [not_null]
+      - name: is_opco_metric
+        tests: [not_null]

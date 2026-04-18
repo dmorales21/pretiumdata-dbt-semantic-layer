@@ -1,0 +1,7 @@
+loan_type_id,loan_type_code,loan_type_label,vertical_code,is_senior,sort_order,is_active,rate_type_code,ltv_tier_code
+LN_001,agency,Agency,red,TRUE,1,TRUE,fixed,60_to_70
+LN_002,bridge,Bridge,red,TRUE,2,TRUE,floating,70_to_80
+LN_003,construction,Construction,red,TRUE,3,TRUE,floating,70_to_80
+LN_004,mezz,Mezzanine,red,FALSE,4,TRUE,floating,80_plus
+LN_005,preferred_equity,Preferred Equity,red,FALSE,5,TRUE,floating,80_plus
+LN_006,hard_money,Hard Money,red,TRUE,6,TRUE,fixed,50_to_60

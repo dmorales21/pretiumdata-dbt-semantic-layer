@@ -1,0 +1,6 @@
+condition_id,condition_code,condition_label,sort_order,is_active,capex_multiplier
+CON_001,excellent,Excellent,1,TRUE,0.5
+CON_002,good,Good,2,TRUE,1.0
+CON_003,fair,Fair,3,TRUE,1.5
+CON_004,poor,Poor,4,TRUE,2.5
+CON_005,distressed,Distressed,5,TRUE,4.0

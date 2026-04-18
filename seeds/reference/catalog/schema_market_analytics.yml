@@ -1,0 +1,402 @@
+version: 2
+
+seeds:
+  - name: vacancy_tier
+    description: Vacancy rate tier classification; product-type-specific
+    config:
+      schema: CATALOG
+    columns:
+      - name: vacancy_tier_id
+        tests: [not_null, unique]
+      - name: vacancy_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [sub_3pct, 3_to_5pct, 5_to_8pct, 8_to_12pct, 12pct_plus]
+      - name: vacancy_tier_label
+        tests: [not_null]
+      - name: rate_min
+        tests: [not_null]
+      - name: rate_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: product_type_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('product_type')
+                field: product_type_code
+              severity: warn
+
+  - name: market_tier
+    description: Market tier classification (primary/secondary/tertiary)
+    config:
+      schema: CATALOG
+    columns:
+      - name: market_tier_id
+        tests: [not_null, unique]
+      - name: market_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [primary, secondary, tertiary]
+      - name: market_tier_label
+        tests: [not_null]
+      - name: description
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: cbsa_count
+        description: Approximate number of CBSAs in this tier
+
+  - name: market_cycle_phase
+    description: Mueller market cycle phase with vacancy and rent direction indicators
+    config:
+      schema: CATALOG
+    columns:
+      - name: phase_id
+        tests: [not_null, unique]
+      - name: phase_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [recovery, expansion, hyper_supply, recession]
+      - name: phase_label
+        tests: [not_null]
+      - name: description
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: typical_vacancy_direction
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [rising, falling, flat]
+      - name: typical_rent_direction
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [rising, falling, flat]
+
+  - name: market_status
+    description: IC-level market lifecycle status; controls acquisition permissions
+    config:
+      schema: CATALOG
+    columns:
+      - name: market_status_id
+        tests: [not_null, unique]
+      - name: market_status_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [active, emerging, mature, exiting, restricted]
+      - name: market_status_label
+        tests: [not_null]
+      - name: description
+        tests: [not_null]
+      - name: allows_new_acquisition
+        tests: [not_null]
+      - name: vertical_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+              severity: warn
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: geography_status
+    description: IC-approved acquisition status per geography
+    config:
+      schema: CATALOG
+    columns:
+      - name: geo_status_id
+        tests: [not_null, unique]
+      - name: geo_status_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [target, watch, approved, avoid, restricted]
+      - name: geo_status_label
+        tests: [not_null]
+      - name: description
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: vertical_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+              severity: warn
+      - name: opco_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('opco')
+                field: opco_code
+              severity: warn
+
+  - name: migration_type
+    description: Migration flow type classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: migration_type_id
+        tests: [not_null, unique]
+      - name: migration_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [domestic_inflow, domestic_outflow, international_inflow, net]
+      - name: migration_type_label
+        tests: [not_null]
+      - name: direction
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [positive, negative, neutral]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: population_segment
+    description: Generational cohort classification with renter propensity flag
+    config:
+      schema: CATALOG
+    columns:
+      - name: segment_id
+        tests: [not_null, unique]
+      - name: segment_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [gen_alpha, gen_z, millennial, gen_x, boomer, silent]
+      - name: segment_label
+        tests: [not_null]
+      - name: birth_year_min
+        tests: [not_null]
+      - name: birth_year_max
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: is_renter_likely
+        tests: [not_null]
+
+  - name: employment_sector
+    description: Employment sector with NAICS code and demand weight
+    config:
+      schema: CATALOG
+    columns:
+      - name: sector_id
+        tests: [not_null, unique]
+      - name: sector_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [tech, finance, healthcare, education, government, manufacturing, retail, construction, hospitality, logistics]
+      - name: sector_label
+        tests: [not_null]
+      - name: naics_code
+        tests: [not_null]
+      - name: is_high_wage
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: demand_weight
+        description: Null until calibrated
+
+  - name: construction_status
+    description: Supply pipeline construction status
+    config:
+      schema: CATALOG
+    columns:
+      - name: construction_status_id
+        tests: [not_null, unique]
+      - name: construction_status_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [planned, permitted, under_construction, delivered, stabilized]
+      - name: construction_status_label
+        tests: [not_null]
+      - name: is_in_pipeline
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: product_type_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('product_type')
+                field: product_type_code
+              severity: warn
+      - name: geo_level_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('geo_level')
+                field: geo_level_code
+              severity: warn
+
+  - name: permit_type
+    description: Building permit type with supply signal flag
+    config:
+      schema: CATALOG
+    columns:
+      - name: permit_type_id
+        tests: [not_null, unique]
+      - name: permit_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [new_construction, addition, alteration, demolition, accessory]
+      - name: permit_type_label
+        tests: [not_null]
+      - name: is_supply_signal
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: walk_score_tier
+    description: Walk Score tier classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: walk_score_tier_id
+        tests: [not_null, unique]
+      - name: walk_score_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [walkers_paradise, very_walkable, walkable, some_errands, car_dependent]
+      - name: walk_score_tier_label
+        tests: [not_null]
+      - name: score_min
+        tests: [not_null]
+      - name: score_max
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: transit_score_tier
+    description: Transit Score tier classification
+    config:
+      schema: CATALOG
+    columns:
+      - name: transit_score_tier_id
+        tests: [not_null, unique]
+      - name: transit_score_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [excellent, good, some_transit, minimal, car_dependent]
+      - name: transit_score_tier_label
+        tests: [not_null]
+      - name: score_min
+        tests: [not_null]
+      - name: score_max
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: school_rating_tier
+    description: School quality tier based on GreatSchools 1-10 scale
+    config:
+      schema: CATALOG
+    columns:
+      - name: school_rating_tier_id
+        tests: [not_null, unique]
+      - name: school_rating_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [tier_1, tier_2, tier_3, tier_4, tier_5]
+      - name: school_rating_tier_label
+        tests: [not_null]
+      - name: rating_min
+        tests: [not_null]
+      - name: rating_max
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: crime_tier
+    description: Crime index tier; safest=1
+    config:
+      schema: CATALOG
+    columns:
+      - name: crime_tier_id
+        tests: [not_null, unique]
+      - name: crime_tier_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [very_low, low, moderate, high, very_high]
+      - name: crime_tier_label
+        tests: [not_null]
+      - name: index_min
+        tests: [not_null]
+      - name: index_max
+        description: Null = unbounded
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]

@@ -1,0 +1,4 @@
+category_id,category_code,category_label,description,is_active
+MC_001,leading,Leading,Predictive of future market conditions; changes before the economy,TRUE
+MC_002,coincident,Coincident,Moves in line with current economic conditions,TRUE
+MC_003,lagging,Lagging,Confirms trends after they have occurred,TRUE

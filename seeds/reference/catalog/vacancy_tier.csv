@@ -1,0 +1,6 @@
+vacancy_tier_id,vacancy_tier_code,vacancy_tier_label,rate_min,rate_max,sort_order,is_active,product_type_code
+VAC_001,sub_3pct,Sub 3%,0.0,3.0,1,TRUE,
+VAC_002,3_to_5pct,3–5%,3.0,5.0,2,TRUE,
+VAC_003,5_to_8pct,5–8%,5.0,8.0,3,TRUE,
+VAC_004,8_to_12pct,8–12%,8.0,12.0,4,TRUE,
+VAC_005,12pct_plus,12%+,12.0,,5,TRUE,

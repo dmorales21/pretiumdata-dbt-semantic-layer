@@ -1,0 +1,6 @@
+parking_type_id,parking_type_code,parking_type_label,sort_order,is_active
+PRK_001,none,None,5,TRUE
+PRK_002,surface,Surface,4,TRUE
+PRK_003,covered,Covered,3,TRUE
+PRK_004,garage,Garage,2,TRUE
+PRK_005,structured,Structured,1,TRUE

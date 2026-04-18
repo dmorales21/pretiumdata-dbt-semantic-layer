@@ -1,0 +1,6 @@
+cap_rate_tier_id,cap_rate_tier_code,cap_rate_tier_label,rate_min,rate_max,sort_order,is_active,vertical_code
+CAP_001,sub_4,Sub 4%,0.0,4.0,1,TRUE,
+CAP_002,4_to_5,4–5%,4.0,5.0,2,TRUE,
+CAP_003,5_to_6,5–6%,5.0,6.0,3,TRUE,
+CAP_004,6_to_7,6–7%,6.0,7.0,4,TRUE,
+CAP_005,7_plus,7%+,7.0,,5,TRUE,

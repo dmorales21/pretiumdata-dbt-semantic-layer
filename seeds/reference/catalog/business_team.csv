@@ -1,0 +1,8 @@
+business_team_id,business_team_code,business_team_label,opco_code,team_type,snowflake_role,is_active,motherduck_access
+BT_001,progress_bi,Progress BI,progress,bi,progress_bi_role,TRUE,TRUE
+BT_002,progress_ds,Progress Data Science,progress,ds,progress_ds_role,TRUE,FALSE
+BT_003,bh_bi,BH BI,bh,bi,bh_bi_role,TRUE,TRUE
+BT_004,bh_ds,BH Data Science,bh,ds,bh_ds_role,TRUE,FALSE
+BT_005,pretium_ic,Pretium IC,pretium,ic,pretium_ic_role,TRUE,TRUE
+BT_006,pretium_bi,Pretium BI,pretium,bi,pretium_bi_role,TRUE,TRUE
+BT_007,pretium_ds,Pretium Data Science,pretium,ds,pretium_ds_role,TRUE,FALSE

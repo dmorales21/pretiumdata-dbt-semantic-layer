@@ -1,0 +1,159 @@
+version: 2
+
+seeds:
+  - name: vertical
+    description: Pretium investment vertical registry (RED, REQ, RESI)
+    config:
+      schema: CATALOG
+    columns:
+      - name: vertical_id
+        tests: [not_null, unique]
+      - name: vertical_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [resi, req, red]
+      - name: vertical_label
+        tests: [not_null]
+      - name: description
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: product_type
+    description: Investment product type with vertical, SFR/MF flags, and bedroom/size defaults
+    config:
+      schema: CATALOG
+    columns:
+      - name: product_type_id
+        tests: [not_null, unique]
+      - name: product_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [btr, sf_scattered, townhome, duplex_quadplex, mf_garden, mf_midrise, mf_highrise, mf_tower, mf_skyscraper]
+      - name: product_type_label
+        tests: [not_null]
+      - name: vertical_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+      - name: is_single_family
+        tests: [not_null]
+      - name: is_multifamily
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: market_tier_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('market_tier')
+                field: market_tier_code
+              severity: warn
+      - name: bedroom_type_codes
+        description: Comma-separated applicable bedroom types
+      - name: typical_unit_size_sqft
+        description: Typical unit size for underwriting defaults
+
+  - name: opco
+    description: Operating company registry
+    config:
+      schema: CATALOG
+    columns:
+      - name: opco_id
+        tests: [not_null, unique]
+      - name: opco_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [progress, bh, imagine, anchor, selene, deephaven, pretium]
+      - name: opco_label
+        tests: [not_null]
+      - name: opco_full_name
+        tests: [not_null]
+      - name: vertical_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+              severity: warn
+      - name: is_external
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: parent_entity
+        description: Null for Pretium itself
+      - name: strategy_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('investment_strategy')
+                field: strategy_code
+              severity: warn
+      - name: primary_product_type_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('product_type')
+                field: product_type_code
+              severity: warn
+      - name: geo_status_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('geography_status')
+                field: geo_status_code
+              severity: warn
+      - name: unit_count
+        description: Total units owned; populate from portfolio source of truth
+
+  - name: business_team
+    description: Consumer team registry with Snowflake role and MotherDuck access flag
+    config:
+      schema: CATALOG
+    columns:
+      - name: business_team_id
+        tests: [not_null, unique]
+      - name: business_team_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [progress_bi, progress_ds, bh_bi, bh_ds, pretium_ic, pretium_bi, pretium_ds]
+      - name: business_team_label
+        tests: [not_null]
+      - name: opco_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('opco')
+                field: opco_code
+      - name: team_type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [bi, ds, ic]
+      - name: snowflake_role
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: motherduck_access
+        tests: [not_null]

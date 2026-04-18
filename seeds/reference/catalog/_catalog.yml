@@ -1,0 +1,166 @@
+version: 2
+
+# ============================================================
+# REFERENCE.CATALOG — seed documentation
+# Owner: Alex
+# All 67 seed tables live here. This file documents them as
+# dbt sources so models can ref() them via source() calls.
+# Naming convention: source('catalog', '<table_name>')
+# ============================================================
+
+sources:
+  - name: catalog
+    database: REFERENCE
+    schema: CATALOG
+    description: >
+      Controlled vocabulary and dimension registry for the Pretium data warehouse.
+      All prefixes, grain values, and dimension codes used anywhere in the warehouse
+      must exist as active rows here before use.
+      Owner: Alex. Seeded via dbt seed --target reference.
+
+    tables:
+      # Wave 1 — no FK dependencies
+      - name: vertical
+        description: Investment vertical registry (RED, REQ, RESI)
+      - name: frequency
+        description: Canonical time grain vocabulary
+      - name: geo_level
+        description: Canonical geography grain vocabulary; property through national
+      - name: data_status
+        description: Lifecycle status governing read and promotion permissions
+      - name: metric_category
+        description: Leading / lagging / coincident classification for IC scoring
+      - name: risk_rating
+        description: Risk rating with max LTV ceiling for underwriting
+      - name: rate_type
+        description: Interest rate type (fixed, floating, hybrid)
+
+      # Wave 2 — depend on Wave 1
+      - name: product_type
+        description: Investment product type with vertical, SFR/MF flags, bedroom defaults
+      - name: concept
+        description: Canonical concept vocabulary with supported grain and frequency
+      - name: function
+        description: Controlled vocabulary for FEATURE function types
+      - name: model_type
+        description: Controlled vocabulary for MODEL types
+      - name: estimate_type
+        description: Controlled vocabulary for ESTIMATE types with scenario grouping
+      - name: hold_period
+        description: Investment hold period classification
+      - name: exit_strategy
+        description: Investment exit strategy classification
+      - name: amenity_tier
+        description: Property amenity quality classification
+      - name: rent_tier
+        description: Monthly rent band classification; product-type-specific
+      - name: ltv_tier
+        description: Loan-to-value ratio tier classification
+      - name: market_tier
+        description: Primary / secondary / tertiary market classification
+      - name: flood_zone
+        description: FEMA flood zone classification
+      - name: natural_hazard_type
+        description: Natural hazard type with FEMA NRI tracking flag
+
+      # Wave 3 — depend on Wave 2
+      - name: opco
+        description: Operating company registry; unit_count requires manual population
+      - name: class
+        description: Property class A+ through D with amenity and rent tier linkage
+      - name: investment_strategy
+        description: Core / core-plus / value-add / opportunistic with hold and exit linkage
+      - name: loan_type
+        description: Loan type with rate type and LTV tier linkage
+      - name: score_tier
+        description: Composite score tier linked to risk rating
+      - name: insurance_type
+        description: Insurance type with required flag and hazard linkage
+      - name: construction_status
+        description: Supply pipeline construction status
+      - name: vacancy_tier
+        description: Vacancy rate tier; product-type-specific
+      - name: cap_rate_tier
+        description: Cap rate band; vertical-specific
+
+      # Wave 4 — depend on Wave 3
+      - name: business_team
+        description: Consumer team registry with Snowflake role and MotherDuck access flag
+      - name: geography_status
+        description: IC-approved acquisition status per geography
+      - name: deal_status
+        description: Deal pipeline status classification
+      - name: delinquency_bucket
+        description: Rent delinquency aging bucket classification
+      - name: portfolio_size_tier
+        description: Portfolio unit count tier classification
+      - name: renovation_type
+        description: Renovation scope with cost PSF range for underwriting
+      - name: property_condition
+        description: Physical condition with capex multiplier for underwriting
+
+      # Wave 5 — no FK dependencies
+      - name: absorption_tier
+        description: Absorption rate tier classification
+      - name: bath_type
+        description: Bathroom count classification
+      - name: bedroom_type
+        description: Bedroom count with SFR/MF applicability flags
+      - name: crime_tier
+        description: Crime index tier; safest=1
+      - name: dscr_tier
+        description: Debt service coverage ratio tier
+      - name: employment_sector
+        description: Employment sector with NAICS code and demand weight
+      - name: hoa_type
+        description: HOA type with dues and underwriting impact flags
+      - name: income_band
+        description: Household income band aligned with ACS tiers; includes AMI pct
+      - name: lease_term
+        description: Lease term classification
+      - name: market_cycle_phase
+        description: Mueller market cycle phase with vacancy and rent direction indicators
+      - name: market_status
+        description: IC-level market lifecycle status; controls acquisition permissions
+      - name: migration_type
+        description: Migration flow type classification
+      - name: noi_tier
+        description: Net operating income tier classification
+      - name: occupancy_status
+        description: Operational unit occupancy status with revenue flag
+      - name: ownership_type
+        description: Owner entity type for competitive supply analysis
+      - name: parking_type
+        description: Parking type classification
+      - name: permit_type
+        description: Building permit type with supply signal flag
+      - name: population_segment
+        description: Generational cohort with renter propensity flag
+      - name: price_tier
+        description: Acquisition price tier classification
+      - name: promotion_gate
+        description: DEV/STAGE/PROD gate rules; enforces QA requirements and row count minimums
+      - name: school_rating_tier
+        description: School quality tier based on GreatSchools 1-10 scale
+      - name: tenancy
+        description: Occupancy/tenancy status classification
+      - name: transit_score_tier
+        description: Transit Score tier classification
+      - name: units_in_structure
+        description: ACS-aligned units-in-structure classification
+      - name: utility_type
+        description: Utility type with owner vs tenant paid flag
+      - name: vintage
+        description: Construction decade with default capex PSF for underwriting
+      - name: walk_score_tier
+        description: Walk Score tier classification
+      - name: zoning_type
+        description: Zoning classification with residential and ADU flags
+
+      # Wave 6 — manual population required before seeding
+      - name: vendor
+        description: Vendor registry; populate manually before seeding
+      - name: dataset
+        description: Dataset registry; populate after vendor; one row per vendor x concept x geo x frequency
+      - name: metric
+        description: Metric registry; populate after dataset; requires snowflake_column and table_path

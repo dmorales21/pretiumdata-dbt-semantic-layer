@@ -1,0 +1,98 @@
+# Catalog Seed Order
+# REFERENCE.CATALOG seed wave order — must be respected to avoid FK failures
+# Run: dbt seed --target reference --select reference.catalog.<table>
+
+## Wave 1 — no FK dependencies
+dbt seed --target reference --select \
+  reference.catalog.vertical \
+  reference.catalog.frequency \
+  reference.catalog.geo_level \
+  reference.catalog.data_status \
+  reference.catalog.metric_category \
+  reference.catalog.risk_rating \
+  reference.catalog.rate_type
+
+## Wave 2 — depend on Wave 1
+dbt seed --target reference --select \
+  reference.catalog.product_type \
+  reference.catalog.concept \
+  reference.catalog.function \
+  reference.catalog.model_type \
+  reference.catalog.estimate_type \
+  reference.catalog.hold_period \
+  reference.catalog.exit_strategy \
+  reference.catalog.amenity_tier \
+  reference.catalog.rent_tier \
+  reference.catalog.ltv_tier \
+  reference.catalog.market_tier \
+  reference.catalog.flood_zone \
+  reference.catalog.natural_hazard_type
+
+## Wave 3 — depend on Wave 2
+dbt seed --target reference --select \
+  reference.catalog.opco \
+  reference.catalog.class \
+  reference.catalog.investment_strategy \
+  reference.catalog.loan_type \
+  reference.catalog.score_tier \
+  reference.catalog.insurance_type \
+  reference.catalog.construction_status \
+  reference.catalog.vacancy_tier \
+  reference.catalog.cap_rate_tier
+
+## Wave 4 — depend on Wave 3
+dbt seed --target reference --select \
+  reference.catalog.business_team \
+  reference.catalog.geography_status \
+  reference.catalog.deal_status \
+  reference.catalog.delinquency_bucket \
+  reference.catalog.portfolio_size_tier \
+  reference.catalog.renovation_type \
+  reference.catalog.property_condition
+
+## Wave 5 — no FK dependencies (simple dimension tables)
+dbt seed --target reference --select \
+  reference.catalog.absorption_tier \
+  reference.catalog.bath_type \
+  reference.catalog.bedroom_type \
+  reference.catalog.crime_tier \
+  reference.catalog.dscr_tier \
+  reference.catalog.employment_sector \
+  reference.catalog.hoa_type \
+  reference.catalog.income_band \
+  reference.catalog.lease_term \
+  reference.catalog.market_cycle_phase \
+  reference.catalog.market_status \
+  reference.catalog.migration_type \
+  reference.catalog.noi_tier \
+  reference.catalog.occupancy_status \
+  reference.catalog.ownership_type \
+  reference.catalog.parking_type \
+  reference.catalog.permit_type \
+  reference.catalog.population_segment \
+  reference.catalog.price_tier \
+  reference.catalog.promotion_gate \
+  reference.catalog.school_rating_tier \
+  reference.catalog.tenancy \
+  reference.catalog.transit_score_tier \
+  reference.catalog.units_in_structure \
+  reference.catalog.utility_type \
+  reference.catalog.vintage \
+  reference.catalog.walk_score_tier \
+  reference.catalog.zoning_type
+
+## Wave 6 — manual population required first
+# Populate vendor.csv, dataset.csv, metric.csv before running
+dbt seed --target reference --select reference.catalog.vendor
+dbt seed --target reference --select reference.catalog.dataset
+dbt seed --target reference --select reference.catalog.metric
+
+## Run all tests after seeding
+dbt test --target reference --select reference.catalog.*
+
+## Enforcement
+# - All CATALOG seeds target REFERENCE.CATALOG regardless of dbt target
+# - DRAFT seeds target REFERENCE.DRAFT — for Alex's in-progress objects
+# - Promotion from DRAFT to CATALOG requires owner approval
+# - No object in ANALYTICS or SERVING may use a dimension code
+#   that does not have an active row in REFERENCE.CATALOG

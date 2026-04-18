@@ -1,0 +1,6 @@
+permit_type_id,permit_type_code,permit_type_label,is_supply_signal,sort_order,is_active
+PRM_001,new_construction,New Construction,TRUE,1,TRUE
+PRM_002,addition,Addition,TRUE,2,TRUE
+PRM_003,alteration,Alteration,FALSE,3,TRUE
+PRM_004,demolition,Demolition,FALSE,4,TRUE
+PRM_005,accessory,Accessory Structure,FALSE,5,TRUE

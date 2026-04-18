@@ -1,0 +1,5 @@
+tenancy_id,tenancy_code,tenancy_label,sort_order,is_active
+TEN_001,owner,Owner,1,TRUE
+TEN_002,renter,Renter,2,TRUE
+TEN_003,vacant,Vacant,3,TRUE
+TEN_004,seasonally_vacant,Seasonally Vacant,4,TRUE

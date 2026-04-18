@@ -1,0 +1,6 @@
+geo_status_id,geo_status_code,geo_status_label,description,is_active,vertical_code,opco_code
+GS_001,target,Target,IC-approved acquisition target market,TRUE,,
+GS_002,watch,Watch,Monitoring for entry; not yet approved,TRUE,,
+GS_003,approved,Approved,Approved for deployment,TRUE,,
+GS_004,avoid,Avoid,Explicitly excluded by IC,TRUE,,
+GS_005,restricted,Restricted,Regulatory or legal restriction on acquisition,TRUE,,

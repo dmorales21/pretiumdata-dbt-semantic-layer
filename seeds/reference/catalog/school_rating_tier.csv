@@ -1,0 +1,6 @@
+school_rating_tier_id,school_rating_tier_code,school_rating_tier_label,rating_min,rating_max,sort_order,is_active
+SCH_001,tier_1,Tier 1 (Top 20%),8.0,10.0,1,TRUE
+SCH_002,tier_2,Tier 2 (60–80th Pctile),6.0,8.0,2,TRUE
+SCH_003,tier_3,Tier 3 (40–60th Pctile),4.0,6.0,3,TRUE
+SCH_004,tier_4,Tier 4 (20–40th Pctile),2.0,4.0,4,TRUE
+SCH_005,tier_5,Tier 5 (Bottom 20%),0.0,2.0,5,TRUE

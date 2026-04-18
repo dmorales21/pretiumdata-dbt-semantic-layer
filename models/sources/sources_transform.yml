@@ -1,0 +1,138 @@
+version: 2
+
+# ============================================================
+# UPSTREAM SOURCES — read-only declarations
+# These objects are owned by Jon (TRANSFORM) and are referenced
+# by ANALYTICS models via source() calls. New repo never writes
+# to these schemas.
+# ============================================================
+
+sources:
+
+  # ----------------------------------------------------------
+  # TRANSFORM.FACT — canonical grain tables
+  # Jon owns. Naming: [vendor]_[dataset]_[geo_level]_[frequency]
+  # ----------------------------------------------------------
+  - name: transform_fact
+    database: TRANSFORM
+    schema: FACT
+    description: >
+      Canonical grain fact tables. All ANALYTICS FEATURE_ models
+      read from here. Do not read from TRANSFORM.[VENDOR] directly.
+
+    tables:
+      - name: redfin_avm_zip_monthly
+      - name: redfin_housing_market_zip_monthly
+      - name: cherre_tax_assessor_property_all_ts
+      - name: cherre_avm_property_all_ts
+      - name: cherre_housing_market_zip_all_ts
+      - name: cherre_mls_listing_events_all_ts
+      - name: bkfs_loan_monthly
+      - name: bkfs_property_all_ts
+      - name: bps_cbsa_permits_monthly
+      - name: bps_county_permits_monthly
+      - name: bls_laus_county_monthly
+      - name: bls_laus_cbsa_monthly
+      - name: census_pep_county_annual
+      - name: census_pep_cbsa_annual
+      - name: cybersyn_irs_migration_county_annual
+      - name: cybersyn_fbi_crime_county_annual
+      - name: costar_mf_market_cbsa_monthly
+      - name: fhfa_hpi_cbsa_quarterly
+      - name: cotality_crime_school_zip_annual
+      - name: amreg_cbsa_economics_monthly
+      - name: apartmentiq_pricing_cbsa_monthly
+      - name: zonda_btr_plans_cbsa_monthly
+
+  # ----------------------------------------------------------
+  # TRANSFORM.CONCEPT — vendor-agnostic blended datasets
+  # Jon owns. Naming: [concept]_[geo_level]_[frequency]
+  # ----------------------------------------------------------
+  - name: transform_concept
+    database: TRANSFORM
+    schema: CONCEPT
+    description: >
+      Vendor-agnostic blended concept datasets. ANALYTICS MODEL_ objects
+      prefer reading from here over TRANSFORM.FACT where available.
+
+    tables:
+      - name: rent_cbsa_monthly
+      - name: rent_zip_monthly
+      - name: occupancy_cbsa_monthly
+      - name: vacancy_cbsa_monthly
+      - name: employment_cbsa_monthly
+      - name: employment_county_monthly
+      - name: permits_cbsa_monthly
+      - name: permits_county_monthly
+      - name: migration_county_annual
+      - name: population_cbsa_annual
+      - name: population_county_annual
+      - name: home_price_zip_monthly
+      - name: home_price_cbsa_monthly
+
+  # ----------------------------------------------------------
+  # TRANSFORM.REF — crosswalks and lookup tables
+  # Jon owns.
+  # ----------------------------------------------------------
+  - name: transform_ref
+    database: TRANSFORM
+    schema: REF
+    description: >
+      Canonical crosswalks and lookup tables. Use for geo resolution
+      and vendor ID mapping. H3_XWALK_6810_CANON is the canonical
+      ZIP → county → CBSA crosswalk.
+
+    tables:
+      - name: h3_xwalk_6810_canon
+      - name: ref_bps_cbsa_xwalk
+      - name: ref_bps_county_xwalk
+      - name: ref_bkfs_zip_cbsa
+      - name: ref_county_cbsa_complete
+
+  # ----------------------------------------------------------
+  # REFERENCE.GEOGRAPHY — canonical geographic attributes
+  # Jon/Alex own.
+  # ----------------------------------------------------------
+  - name: reference_geography
+    database: REFERENCE
+    schema: GEOGRAPHY
+    description: >
+      Canonical geographic attribute tables and crosswalks.
+      Updated on Census TIGER vintage release.
+
+    tables:
+      - name: county
+      - name: cbsa
+      - name: zip
+      - name: state
+      - name: zip_county_xwalk
+      - name: county_cbsa_xwalk
+      - name: zip_h3_polyfill
+      - name: zip_h3_centroid
+
+  # ----------------------------------------------------------
+  # REFERENCE.CATALOG — controlled vocabulary
+  # Alex owns. Seeded from seeds/reference/catalog/
+  # ----------------------------------------------------------
+  - name: reference_catalog
+    database: REFERENCE
+    schema: CATALOG
+    description: >
+      Controlled vocabulary and dimension registry. All prefix
+      tokens and dimension codes must have active rows here.
+
+    tables:
+      - name: concept
+      - name: geo_level
+      - name: frequency
+      - name: function
+      - name: model_type
+      - name: estimate_type
+      - name: vertical
+      - name: opco
+      - name: business_team
+      - name: product_type
+      - name: vendor
+      - name: dataset
+      - name: metric
+      - name: data_status

@@ -1,0 +1,6 @@
+ltv_tier_id,ltv_tier_code,ltv_tier_label,rate_min,rate_max,sort_order,is_active
+LTV_001,sub_50,Sub 50%,0.0,50.0,1,TRUE
+LTV_002,50_to_60,50–60%,50.0,60.0,2,TRUE
+LTV_003,60_to_70,60–70%,60.0,70.0,3,TRUE
+LTV_004,70_to_80,70–80%,70.0,80.0,4,TRUE
+LTV_005,80_plus,80%+,80.0,,5,TRUE

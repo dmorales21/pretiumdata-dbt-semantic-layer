@@ -1,0 +1,6 @@
+occupancy_status_id,occupancy_status_code,occupancy_status_label,is_revenue_generating,sort_order,is_active
+OCS_001,occupied,Occupied,TRUE,1,TRUE
+OCS_002,vacant,Vacant,FALSE,2,TRUE
+OCS_003,notice_to_vacate,Notice to Vacate,TRUE,3,TRUE
+OCS_004,eviction,Eviction,FALSE,4,TRUE
+OCS_005,down_unit,Down Unit,FALSE,5,TRUE

@@ -1,0 +1,8 @@
+function_id,function_code,function_label,description,output_unit,is_active
+FUN_001,index,Index,Normalizes metric to 0–100 scale relative to benchmark,index,TRUE
+FUN_002,score,Score,Weighted composite of multiple inputs on 0–100 scale,index,TRUE
+FUN_003,rank,Rank,Ordinal rank of geo within peer set,integer,TRUE
+FUN_004,delta,Delta,Absolute change from prior period,varies,TRUE
+FUN_005,pct,Percent Change,Percentage change from prior period,pct,TRUE
+FUN_006,flag,Flag,Binary indicator of condition meeting threshold,boolean,TRUE
+FUN_007,smooth,Smooth,Rolling average to reduce period noise,varies,TRUE

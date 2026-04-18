@@ -1,0 +1,6 @@
+bath_type_id,bath_type_code,bath_type_label,sort_order,is_active
+BAT_001,1ba,1BA,1,TRUE
+BAT_002,1_5ba,1.5BA,2,TRUE
+BAT_003,2ba,2BA,3,TRUE
+BAT_004,2_5ba,2.5BA,4,TRUE
+BAT_005,3ba_plus,3BA+,5,TRUE

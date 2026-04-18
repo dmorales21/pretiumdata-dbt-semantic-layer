@@ -1,0 +1,4 @@
+rate_type_id,rate_type_code,rate_type_label,sort_order,is_active
+RT_001,fixed,Fixed,1,TRUE
+RT_002,floating,Floating,2,TRUE
+RT_003,hybrid,Hybrid,3,TRUE

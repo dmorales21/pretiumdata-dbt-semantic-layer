@@ -1,0 +1,24 @@
+# Python / dbt
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# dbt artifacts — never commit
+target/
+dbt_packages/
+logs/
+.dbt/
+
+# Credentials — never commit
+profiles.yml
+.env
+*.env
+
+# macOS
+.DS_Store
+
+# IDE
+.cursor/
+.vscode/
+.idea/

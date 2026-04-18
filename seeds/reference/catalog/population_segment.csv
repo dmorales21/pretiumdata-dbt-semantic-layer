@@ -1,0 +1,7 @@
+segment_id,segment_code,segment_label,birth_year_min,birth_year_max,sort_order,is_active,is_renter_likely
+PS_001,gen_alpha,Gen Alpha,2013,2025,1,TRUE,FALSE
+PS_002,gen_z,Gen Z,1997,2012,2,TRUE,TRUE
+PS_003,millennial,Millennial,1981,1996,3,TRUE,TRUE
+PS_004,gen_x,Gen X,1965,1980,4,TRUE,FALSE
+PS_005,boomer,Boomer,1946,1964,5,TRUE,FALSE
+PS_006,silent,Silent,1928,1945,6,TRUE,FALSE

@@ -1,0 +1,9 @@
+hazard_type_id,hazard_type_code,hazard_type_label,fema_tracked,sort_order,is_active
+HAZ_001,flood,Flood,TRUE,1,TRUE
+HAZ_002,wildfire,Wildfire,TRUE,2,TRUE
+HAZ_003,earthquake,Earthquake,TRUE,3,TRUE
+HAZ_004,hurricane,Hurricane,TRUE,4,TRUE
+HAZ_005,tornado,Tornado,TRUE,5,TRUE
+HAZ_006,hail,Hail,FALSE,6,TRUE
+HAZ_007,winter_storm,Winter Storm,TRUE,7,TRUE
+HAZ_008,drought,Drought,TRUE,8,TRUE

@@ -1,0 +1,149 @@
+version: 2
+
+seeds:
+  - name: vendor
+    description: Vendor registry covering all external data suppliers in the Pretium data ecosystem
+    config:
+      schema: CATALOG
+    columns:
+      - name: vendor_id
+        tests: [not_null, unique]
+      - name: vendor_code
+        tests: [not_null, unique]
+      - name: vendor_label
+        tests: [not_null]
+      - name: definition
+        tests: [not_null]
+      - name: data_type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [spatial, transactional, survey, administrative, operational, financial]
+      - name: refresh_cadence
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('frequency')
+                field: frequency_code
+      - name: contract_status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [active, expired, pending]
+      - name: source_schema
+        description: >
+          Fully qualified Snowflake raw landing schema e.g. RAW.REDFIN or SOURCE_ENTITY.PROGRESS.
+          Represents where data first lands — not the canonical TRANSFORM read path.
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: contract_expiry_date
+        description: Required when contract_status = active or pending
+      - name: data_share_type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [s3, api, snowflake_share, motherduck_share, sftp, manual]
+      - name: is_motherduck_served
+        tests: [not_null]
+      - name: vertical_codes
+        description: Comma-separated applicable verticals; null = applies to all
+
+  - name: dataset
+    description: Dataset registry mapping vendor x concept x geo x frequency; one row per distinct dataset grain
+    config:
+      schema: CATALOG
+    columns:
+      - name: dataset_id
+        tests: [not_null, unique]
+      - name: dataset_code
+        tests: [not_null, unique]
+      - name: dataset_label
+        tests: [not_null]
+      - name: definition
+        tests: [not_null]
+      - name: vendor_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('vendor')
+                field: vendor_code
+      - name: concept_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('concept')
+                field: concept_code
+      - name: geo_level_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('geo_level')
+                field: geo_level_code
+      - name: frequency_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('frequency')
+                field: frequency_code
+      - name: source_schema
+        description: >
+          Current readable Snowflake path. For transform_ready datasets this is TRANSFORM.[VENDOR].
+          For source_prod_only this is SOURCE_PROD.[VENDOR]. For transform_dev this is TRANSFORM.DEV.
+        tests: [not_null]
+      - name: pipeline_status
+        description: >
+          Lifecycle status of the data pipeline for this dataset.
+          transform_ready = TRANSFORM.[VENDOR] promoted and canonical.
+          transform_dev = working tables exist in TRANSFORM.DEV only; Alex owns promotion.
+          source_prod_only = no TRANSFORM layer; Jon to build.
+          source_entity_only = SOURCE_ENTITY only; David to build TRANSFORM layer.
+          raw_only = RAW.[VENDOR] exists but no layer above it.
+          blocked = pipeline broken or 0 rows.
+          skeleton = schema registered but no data confirmed.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [transform_ready, transform_dev, source_prod_only, source_entity_only, raw_only, blocked, skeleton]
+      - name: coverage_pct
+        tests: [not_null]
+      - name: first_vintage
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+      - name: data_status_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('data_status')
+                field: data_status_code
+      - name: is_motherduck_served
+        tests: [not_null]
+      - name: last_refresh_date
+        description: Date of most recent successful data refresh
+      - name: opco_code
+        description: Populated only for OpCo-sourced datasets
+        tests:
+          - relationships:
+              arguments:
+                to: ref('opco')
+                field: opco_code
+              severity: warn
+      - name: product_type_codes
+        description: Comma-separated applicable product types; null = all
+      - name: vertical_codes
+        description: Comma-separated applicable verticals; null = all
+
+  # metric is intentionally excluded from REFERENCE.CATALOG until TRANSFORM.FACT exists.
+  # Working draft lives in REFERENCE.DRAFT as dim_metric_dev.
+  # See seeds/reference/draft/dim_metric_dev.csv and seeds/reference/draft/schema_draft.yml.

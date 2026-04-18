@@ -1,0 +1,6 @@
+score_tier_id,score_tier_code,score_tier_label,score_min,score_max,risk_rating_code,sort_order,is_active,concept_code
+SCT_001,tier_1,Tier 1,80.0,100.0,low,1,TRUE,
+SCT_002,tier_2,Tier 2,60.0,80.0,moderate,2,TRUE,
+SCT_003,tier_3,Tier 3,40.0,60.0,elevated,3,TRUE,
+SCT_004,tier_4,Tier 4,20.0,40.0,high,4,TRUE,
+SCT_005,tier_5,Tier 5,0.0,20.0,critical,5,TRUE,

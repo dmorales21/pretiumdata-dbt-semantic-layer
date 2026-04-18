@@ -1,0 +1,10 @@
+product_type_id,product_type_code,product_type_label,vertical_code,is_single_family,is_multifamily,sort_order,is_active,market_tier_code,bedroom_type_codes,typical_unit_size_sqft
+PT_001,btr,BTR,resi,FALSE,FALSE,1,TRUE,,"2br,3br,4br_plus",1800
+PT_002,sf_scattered,SF Scattered,resi,TRUE,FALSE,2,TRUE,,"2br,3br,4br_plus",1500
+PT_003,townhome,Townhome,resi,TRUE,FALSE,3,TRUE,,"2br,3br,4br_plus",1400
+PT_004,duplex_quadplex,Duplex/Quadplex,resi,FALSE,FALSE,4,TRUE,,"1br,2br,3br",1200
+PT_005,mf_garden,MF Garden,resi,FALSE,TRUE,5,TRUE,,"studio,1br,2br,3br",950
+PT_006,mf_midrise,MF Midrise,resi,FALSE,TRUE,6,TRUE,primary,"studio,1br,2br,3br",850
+PT_007,mf_highrise,MF Highrise,resi,FALSE,TRUE,7,TRUE,primary,"studio,1br,2br,3br",800
+PT_008,mf_tower,MF Tower,resi,FALSE,TRUE,8,TRUE,primary,"studio,1br,2br",750
+PT_009,mf_skyscraper,MF Skyscraper,resi,FALSE,TRUE,9,TRUE,primary,"studio,1br,2br",700

@@ -1,0 +1,6 @@
+crime_tier_id,crime_tier_code,crime_tier_label,index_min,index_max,sort_order,is_active
+CRM_001,very_low,Very Low,0.0,20.0,1,TRUE
+CRM_002,low,Low,20.0,40.0,2,TRUE
+CRM_003,moderate,Moderate,40.0,60.0,3,TRUE
+CRM_004,high,High,60.0,80.0,4,TRUE
+CRM_005,very_high,Very High,80.0,,5,TRUE
