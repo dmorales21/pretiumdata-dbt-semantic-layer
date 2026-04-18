@@ -122,6 +122,11 @@ seeds:
         +schema: DRAFT
         +tags: ["seed", "reference", "draft"]
 
+  transform_dev:
+    +database: TRANSFORM
+    +schema: DEV
+    +tags: ["seed", "transform_dev", "xwalk"]
+
     semantic:
       +schema: SEMANTIC
       +tags: ["seed", "semantic"]

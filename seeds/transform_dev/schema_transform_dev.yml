@@ -1,0 +1,62 @@
+version: 2
+
+# TRANSFORM.DEV vendor crosswalk seeds
+# Owner: Alex
+# Rule: Vendor-specific xwalks live here until Jon promotes to TRANSFORM.[VENDOR]
+# Rule: Non-vendor census spine xwalks live in REFERENCE.GEOGRAPHY — not here
+
+seeds:
+  - name: ref_zillow_county_to_fips
+    description: >
+      Zillow county RegionID → census FIPS crosswalk. Maps Zillow's proprietary
+      county integer IDs to 5-digit FIPS, CBSA codes, and Zillow metro RegionIDs.
+      Source: Kaggle / Zillow ZECON dataset. Vendor xwalk — stays in TRANSFORM.DEV
+      until Jon promotes to TRANSFORM.ZILLOW.
+    config:
+      schema: DEV
+    columns:
+      - name: county_region_id
+        description: Zillow proprietary county integer RegionID
+        tests: [not_null, unique]
+      - name: fips_5digit
+        description: Census 5-digit FIPS (state_fips || county_fips zero-padded)
+        tests: [not_null]
+      - name: cbsa_code
+        description: OMB 5-digit CBSA code
+      - name: metro_region_id
+        description: Zillow proprietary metro integer RegionID
+      - name: state_fips
+        description: 2-digit state FIPS
+        tests: [not_null]
+      - name: county_fips
+        description: 3-digit county FIPS within state
+        tests: [not_null]
+      - name: county_name
+        tests: [not_null]
+      - name: state_name
+        tests: [not_null]
+      - name: metro_name_zillow
+        description: Zillow metro label (not canonical — use cbsa_name for display)
+      - name: cbsa_name
+        description: OMB canonical CBSA name
+
+  - name: ref_zillow_city_to_county
+    description: >
+      Zillow city unique ID → county + state mapping. city_name + county_name + state_abbr
+      only — no FIPS. To get county_fips, join county_name + state_abbr to
+      REFERENCE.GEOGRAPHY.COUNTY. Vendor xwalk — stays in TRANSFORM.DEV
+      until Jon promotes to TRANSFORM.ZILLOW.
+    config:
+      schema: DEV
+    columns:
+      - name: unique_city_id
+        description: Zillow slug-style city identifier (e.g. oak_grovechristianky)
+        tests: [not_null, unique]
+      - name: city_name
+        tests: [not_null]
+      - name: county_name
+        description: County name only — join to REFERENCE.GEOGRAPHY.COUNTY for FIPS
+        tests: [not_null]
+      - name: state_abbr
+        description: 2-letter state abbreviation
+        tests: [not_null]
