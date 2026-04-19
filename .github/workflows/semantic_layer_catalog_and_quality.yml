@@ -1,0 +1,87 @@
+# Planned gates: docs/migration/PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md §D (CI order),
+# docs/migration/METRIC_INTAKE_CHECKLIST.md §3.4 (dbt seed + test on catalog path).
+# Repository root for this workflow must be the dbt project directory that contains dbt_project.yml.
+name: Semantic layer — parse & catalog smoke
+
+on:
+  pull_request:
+    paths:
+      - "dbt_project.yml"
+      - "packages.yml"
+      - "macros/**"
+      - "models/**"
+      - "seeds/**"
+      - "tests/**"
+      - "ci/**"
+      - ".github/workflows/semantic_layer_catalog_and_quality.yml"
+  push:
+    branches: [main, master]
+    paths:
+      - "dbt_project.yml"
+      - "packages.yml"
+      - "macros/**"
+      - "models/**"
+      - "seeds/**"
+      - "tests/**"
+      - "ci/**"
+      - ".github/workflows/semantic_layer_catalog_and_quality.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: semantic-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DBT_PROFILES_DIR: ${{ github.workspace }}/ci
+
+jobs:
+  dbt_parse_catalog_smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt (Snowflake adapter)
+        run: pip install "dbt-core>=1.8,<2" "dbt-snowflake>=1.8,<2"
+
+      - name: dbt deps
+        run: dbt deps
+
+      - name: dbt parse (no warehouse — validates project + YAML)
+        run: dbt parse
+
+      - name: dbt ls — catalog seeds resolve
+        run: dbt ls --select path:seeds/reference/catalog --resource-type seed
+
+  # Optional: set repository secrets SNOWFLAKE_* (see ci/profiles.yml target `ci`) and
+  # enable this job by removing `if: false` once the org wires CI to Snowflake.
+  dbt_seed_test_catalog_snowflake:
+    if: false
+    runs-on: ubuntu-latest
+    needs: [dbt_parse_catalog_smoke]
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dbt
+        run: pip install "dbt-core>=1.8,<2" "dbt-snowflake>=1.8,<2"
+      - name: dbt deps
+        run: dbt deps
+      - name: dbt seed + test (REFERENCE.CATALOG)
+        run: |
+          dbt seed --target ci --select path:seeds/reference/catalog
+          dbt test --target ci --select path:seeds/reference/catalog
+      - name: dbt compile — analytics feature subgraph
+        run: dbt compile --target ci --select path:models/analytics/feature

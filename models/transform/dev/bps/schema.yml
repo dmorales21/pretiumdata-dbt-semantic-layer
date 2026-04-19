@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: fact_bps_permits_county
+    tests:
+      - dbt_utils.equal_rowcount:
+          name: fact_bps_permits_county_same_rowcount_as_silver
+          arguments:
+            compare_model: "{{ source('transform_bps', 'permits_county') }}"
+          config:
+            severity: warn
+            tags: ['transform_dev', 'bps', 'parity']
+    description: >
+      **Vendor:** U.S. Census Bureau — Building Permits Survey (BPS), not Cybersyn.
+      View in TRANSFORM.DEV over TRANSFORM.BPS.PERMITS_COUNTY. **CBSA-level** building permits
+      (ID_CBSA, CBSA_CODE_OMB, CBSA_NAME); the legacy table name is historical. Do not treat as
+      county-FIPS grain. Uniqueness across all business keys is not asserted here — inventory
+      batch 002 showed duplicate groups on a partial key set; extend keys (e.g. FILE_TYPE) after DE review.
+      Catalog: `REFERENCE.CATALOG.metric` rows MET_001 / dataset DS_003–DS_004 (`vendor_code` census).
+    columns:
+      - name: date_reference
+        description: Row reference date.
+      - name: id_cbsa
+        description: CBSA identifier from BPS / internal spine (join to OMB CBSA via transform REF xwalks when needed).
+      - name: cbsa_code_omb
+        description: OMB CBSA code when populated.
+      - name: building_use
+        description: BPS building use band.
+      - name: measure
+        description: BPS measure code (e.g. permits vs valuation — align to dim_metric when cataloged).
+      - name: estimate_type
+        description: BPS estimate type (e.g. preliminary vs revised).
+      - name: value
+        description: Permit count or valuation per BPS measure semantics.

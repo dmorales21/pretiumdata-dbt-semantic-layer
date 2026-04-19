@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: fact_lodes_od_bg
+    tests:
+      - dbt_utils.equal_rowcount:
+          name: fact_lodes_od_bg_same_rowcount_as_silver
+          arguments:
+            compare_model: "{{ source('transform_lodes', 'od_bg') }}"
+          config:
+            severity: warn
+            tags: ['transform_dev', 'lodes', 'parity']
+    description: >
+      **Vendor:** U.S. Census Bureau — LEHD / LODES (not Cybersyn).
+      View over **TRANSFORM.LODES.OD_BG** (~64M rows). Block-group residence × workplace OD with
+      `JOBS_*` segment columns and `VINTAGE_YEAR`. Do not materialize as table without Alex/DE sign-off.
+      Resolve dual path with **`SOURCE_PROD.LEHD`** / cleaned models before deprecating either read.
+      Catalog: `REFERENCE.CATALOG.metric` MET_007 / dataset DS_074 (`vendor_code` lehd).
+    columns:
+      - name: vintage_year
+        description: LODES release vintage (see batch 002 phase-1 distribution when full inventory run).
+      - name: geo_id_residence_block_group
+        description: Residence block group GEO_ID.
+      - name: geo_id_workplace_block_group
+        description: Workplace block group GEO_ID.
+      - name: lodes_job_type_code
+        description: Job type segment (e.g. JT00); align to corridor / metric catalog when used.
