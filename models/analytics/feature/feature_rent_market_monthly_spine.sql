@@ -1,5 +1,6 @@
 -- ANALYTICS.DBT_* — typed read surface for market-rent cohort math (z-scores, vs-market ratio) on top of
 -- TRANSFORM.DEV `concept_rent_market_monthly`. Extend here; do not duplicate vendor unions in FACT branches.
+-- Consumer contract: **docs/reference/CONTRACT_RENT_AVM_VALUATION.md** (FEATURE = pass-through + cohort stats only).
 -- Relation name: FEATURE_RENT_MARKET_MONTHLY (alias). Re-run `dbt run -s feature_rent_market_monthly_spine`
 -- after changing alias; drop legacy FEATURE_RENT_MARKET_MONTHLY_SPINE in Snowflake if it still exists.
 {{ config(

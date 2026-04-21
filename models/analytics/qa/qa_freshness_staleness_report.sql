@@ -1,4 +1,6 @@
 -- Slug: **freshness_staleness_report** (13) — max period end by vendor × concept surface.
+-- **Excluded:** `concept_avm_market_monthly` (Cherre) — `month_start` is snapshot-aligned, not an observation period;
+-- staleness months-behind would be misleading. See **docs/reference/CONTRACT_RENT_AVM_VALUATION.md**.
 -- Target: ANALYTICS.DBT_DEV.QA_FRESHNESS_STALENESS_REPORT
 {{ config(
     materialized='view',
@@ -14,7 +16,6 @@
     ('concept_unemployment_market_monthly', 'month_start'),
     ('concept_home_price_market_monthly', 'month_start'),
     ('concept_listings_market_monthly', 'month_start'),
-    ('concept_avm_market_monthly', 'month_start'),
     ('concept_valuation_market_monthly', 'month_start'),
     ('concept_transactions_market_monthly', 'month_start'),
     ('concept_delinquency_market_monthly', 'month_start'),

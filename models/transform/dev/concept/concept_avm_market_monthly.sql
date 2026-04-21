@@ -6,6 +6,8 @@
   keys align with other concepts on **``GEOGRAPHY_TYPE = 'MA'``** (5-digit CBSA code in ``GEOGRAPHY_CODE``).
 
   Historical / forecast slots reserved (NULL) until time-series AVM facts (ZIP/CBSA monthly) are promoted.
+
+  **Contract (snapshot time truth, QA exclusions):** ``docs/reference/CONTRACT_RENT_AVM_VALUATION.md``.
 -#}
 
 {{ config(

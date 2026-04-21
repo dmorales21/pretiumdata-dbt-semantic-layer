@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  # Existing **TRANSFORM.DEV** tables (materialized outside or upstream of this repo’s dbt).
+  # Read-only for **concept_*** unions — do not add dbt models with the same **alias** here (would replace tables).
+  - name: transform_dev_corridor_transaction_facts
+    database: TRANSFORM
+    schema: DEV
+    description: >
+      Corridor / transaction FACT tables at H3 or county grain materialized in **TRANSFORM.DEV** for
+      **concept_transactions_market_monthly** (CBSA rollups) and **concept_supply_pipeline_market_monthly**.
+
+    tables:
+      - name: fact_cherre_recorder_sfr_h3_r8_monthly
+        identifier: FACT_CHERRE_RECORDER_SFR_H3_R8_MONTHLY
+      - name: fact_cherre_recorder_mf_h3_r8_monthly
+        identifier: FACT_CHERRE_RECORDER_MF_H3_R8_MONTHLY
+      - name: fact_rca_mf_transactions_h3_r8_monthly
+        identifier: FACT_RCA_MF_TRANSACTIONS_H3_R8_MONTHLY
+      - name: fact_zonda_deeds_h3_r8_monthly
+        identifier: FACT_ZONDA_DEEDS_H3_R8_MONTHLY
+      - name: fact_markerr_rent_listings_county_monthly
+        identifier: FACT_MARKERR_RENT_LISTINGS_COUNTY_MONTHLY
+      - name: fact_rca_mf_construction_county_monthly
+        identifier: FACT_RCA_MF_CONSTRUCTION_COUNTY_MONTHLY
+      - name: fact_zonda_sfr_h3_r8_monthly
+        identifier: FACT_ZONDA_SFR_H3_R8_MONTHLY

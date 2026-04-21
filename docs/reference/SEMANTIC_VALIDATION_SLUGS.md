@@ -35,4 +35,6 @@ Ad hoc SQL equivalents for full-market ACF sweeps remain under `scripts/sql/vali
 
 **FEATURE development** (parity, sparsity, schema CI, golden fixtures, window grep): [`FEATURE_DEVELOPMENT_GUARDRAILS.md`](./FEATURE_DEVELOPMENT_GUARDRAILS.md).
 
+**Rent / AVM / valuation** — concept contracts, freshness exclusions, bridge QA: [`CONTRACT_RENT_AVM_VALUATION.md`](./CONTRACT_RENT_AVM_VALUATION.md).
+
 See also: [`CONCEPT_FEATURE_STATISTICAL_METADATA_AND_AUTOCORRELATION.md`](./CONCEPT_FEATURE_STATISTICAL_METADATA_AND_AUTOCORRELATION.md) §3.

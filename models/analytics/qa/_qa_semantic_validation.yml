@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: qa_freshness_staleness_report
-    description: "Slug **freshness_staleness_report** (13) — max `month_start` staleness by vendor × market concept."
+    description: "Slug **freshness_staleness_report** (13) — max `month_start` staleness by vendor × market concept. **Excludes** `concept_avm_market_monthly` (Cherre snapshot month — see CONTRACT_RENT_AVM_VALUATION)."
   - name: qa_partition_rowcount_regression
     description: "Slug **partition_rowcount_regression** (14) — current row counts by vendor × grain (baseline for % change between runs)."
   - name: qa_series_collision_detection
@@ -51,3 +51,7 @@ models:
     description: "Slug **geo_rollup_sensitivity** (11) — ZILLOW ZIP vs CBSA rent alignment when `cbsa_id` is present."
   - name: qa_vendor_blend_ablation_rent
     description: "Slug **vendor_blend_ablation** (12) — per-key vendor mean rent for leave-one-out workflows."
+  - name: qa_rent_property_market_bridge
+    description: "Slug **rent_property_market_bridge** — APARTMENTIQ property vs CBSA market join integrity (orphan / fan-out counts)."
+  - name: qa_cherre_avm_valuation_ratio_bounds
+    description: "Slug **cherre_avm_valuation_ratio_bounds** — Cherre median AVM vs average valuation ratio summary (wide-band outliers)."

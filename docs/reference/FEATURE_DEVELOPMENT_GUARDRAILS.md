@@ -2,6 +2,8 @@
 
 Companion to [`SEMANTIC_VALIDATION_SLUGS.md`](./SEMANTIC_VALIDATION_SLUGS.md) (market `CONCEPT_*` QA views). This page tracks **feature-specific** slugs: materialized **ANALYTICS.DBT_DEV** views under `models/analytics/qa/`, **singular tests** under `tests/qa/`, and **CI scripts** under `scripts/ci/`.
 
+**Rent / AVM / valuation concept contracts** (grain, `month_start` semantics, Cherre overlap, FEATURE vs CONSUME routing, `equal_rowcount` drift policy): [`CONTRACT_RENT_AVM_VALUATION.md`](./CONTRACT_RENT_AVM_VALUATION.md).
+
 ## Implemented (repo)
 
 | # | Slug | Artifact | Purpose |

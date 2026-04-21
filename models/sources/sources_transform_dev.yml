@@ -17,3 +17,9 @@ sources:
           Wide MF CoStar DataExport at CBSA-monthly grain (**DS_034**). Physical name may differ by account;
           if yours differs, add a **sources** patch in `packages.yml` / dbt project override or land a synonym view
           **`FACT_COSTAR_CBSA_MONTHLY`** in **TRANSFORM.DEV**.
+
+      - name: fact_markerr_crime_h3_r8_snapshot
+        identifier: FACT_MARKERR_CRIME_H3_R8_SNAPSHOT
+        description: >
+          Markerr crime indices at H3 R8 hex grain (national snapshot). Consumed by **concept_crime_market_annual**
+          for CBSA means across hexes.

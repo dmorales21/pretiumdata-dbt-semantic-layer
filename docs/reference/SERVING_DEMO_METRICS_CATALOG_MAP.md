@@ -6,7 +6,7 @@
 
 **Concept codes:** This repo’s `concept.csv` uses codes like **`rent`**, **`income`**, **`absorption`** — not every **synthetic bundle** name from the population list (e.g. `labor_growth_access`). The **“closest concept”** column maps bundles to existing **`concept_code`** rows or **`—`** if you must add a `concept.csv` row first (per `SCHEMA_RULES` §1).
 
-**Bundle names with no `concept_code` row today:** `labor_growth_access`, `household_demographics_demand`, `transactions_sale_volume`, `affordability_ceiling`, `location_amenity_access`, `national_macro` (treat as **playbook groupings**; register a `concept` only if you promote them as first-class governed concepts). Granular codes such as **`rent`**, **`employment`**, **`migration`**, **`home_price`** already exist.
+**Bundle names with no `concept_code` row today:** `labor_growth_access`, `household_demographics_demand`, `transactions_sale_volume`, `affordability_ceiling`, `location_amenity_access`, `national_macro` (treat as **playbook groupings**; register a `concept` only if you promote them as first-class governed concepts). Granular codes such as **`rent`**, **`employment`**, **`migration`**, **`home_price`**, **`transactions`** (**CON_028** — property sale counts/volumes) already exist.
 
 **Related:** dev **`SERVING.DEMO`** object targets and Iceberg gaps — [`SERVING_DEMO_ICEBERG_TARGETS.md`](./SERVING_DEMO_ICEBERG_TARGETS.md). Wishlist / build order for new metrics — [`CATALOG_WISHLIST_DATA_MODEL_PRIORITIES.md`](./CATALOG_WISHLIST_DATA_MODEL_PRIORITIES.md).
 
@@ -25,6 +25,8 @@
 | Absorption / listings velocity (partial) | `days_on_market_listings` | **`MET_042`** `zillow_days_on_market_and_price_cuts_metric_value` |
 | Listings / volume proxy | transaction-adjacent demand | **`MET_043`** `zillow_for_sale_listings_metric_value` (`home_price` concept in seed — verify product fit vs “sale volume”) |
 | Construction | `permit_volume` | **`MET_001`** `bps_permits_measure_value` |
+| Transactions / sale counts (CBSA monthly) | `transaction_volume` (vendor observe) | **`MET_127`–`MET_129`** on **`TRANSFORM.DEV.CONCEPT_TRANSACTIONS_MARKET_MONTHLY`** (Cherre SFR/MF + RCA MF); **`MET_130`** Zonda deeds **`under_review`** until FACT rows > 0 |
+| Supply pipeline (CBSA monthly) | listings / UC | **`MET_131`** Markerr listings + **`MET_132`** RCA MF units under construction on **`TRANSFORM.DEV.CONCEPT_SUPPLY_PIPELINE_MARKET_MONTHLY`** |
 | Value / HPI / UAD | AVM / price stack | **`MET_011`**, **`MET_016`**, **`MET_019`–`MET_020`** |
 | National rates | `rate_index_level` | **`MET_012`** `freddie_mac_housing_timeseries_value` (`cap_rate` concept in seed — verify product fit vs “national macro” / rates) |
 | Delinquency / stress (partial) | `ltv_stress_proxy` adjacencies | **`MET_017`–`MET_018`** |
@@ -101,7 +103,8 @@ CI profile in `ci/profiles.yml` exposes **`parse`** and **`ci`** only; full cata
 | Population `metric_id` | Catalog mapping | Status |
 |--------------------------|-----------------|--------|
 | `vacancy_rate` | HUD long-form **`MET_008`/`MET_013`** (`occupancy` concept) — pick VARIABLE rows for vacancy | **Partial** |
-| `absorption_pace` / `net_absorption` / `uc_units` / `pipeline_burndown_ratio` / `inventory_months_supply` | — | **Not registered** — **`CON_010`** `absorption`, **`CON_011`** `supply_pipeline`; need MET_* or `metric_derived` when FACTs exist. |
+| `absorption_pace` / `net_absorption` / `pipeline_burndown_ratio` / `inventory_months_supply` | — | **Not registered** — **`CON_010`** `absorption`, **`CON_011`** `supply_pipeline`; need **MET_*** or **`metric_derived`** when FACTs exist. |
+| `uc_units` (MF construction tape) | **`MET_132`** `concept_supply_pipeline_rca_mf_uc_units_cbsa_monthly` on **`TRANSFORM.DEV.CONCEPT_SUPPLY_PIPELINE_MARKET_MONTHLY`** | **Registered (vendor-specific)** — RCA MF UC only; other UC / pipeline slugs still **gap**. |
 | DOM / listings velocity (related) | **`MET_042`** `zillow_days_on_market_and_price_cuts_metric_value` | **Registered** (`absorption`) |
 
 ---
@@ -110,7 +113,7 @@ CI profile in `ci/profiles.yml` exposes **`parse`** and **`ci`** only; full cata
 
 | Population `metric_id` | Catalog mapping | Status |
 |--------------------------|-----------------|--------|
-| `uc_units` | — | **Gap** (supply pipeline) |
+| `uc_units` | **`MET_132`** (RCA MF UC on **`CONCEPT_SUPPLY_PIPELINE_MARKET_MONTHLY`**) | **Partial — registered** for RCA MF UC; broader UC / stock ratios still **gap** |
 | `permit_volume` | **`MET_001`** `bps_permits_measure_value` | **Registered** (`permits`) |
 | `permit_to_stock_ratio` / `regulatory_supply_index` / `construction_cost_index` | — | **Not registered** |
 
@@ -120,7 +123,7 @@ CI profile in `ci/profiles.yml` exposes **`parse`** and **`ci`** only; full cata
 
 | Population `metric_id` | Catalog mapping | Status |
 |--------------------------|-----------------|--------|
-| `transaction_volume` | — | **Gap** — no **`transactions`** `concept_code` in `concept.csv`; Cherre / recorder paths need **`metric`** + `concept` intake when promoted. |
+| `transaction_volume` | **`MET_127`–`MET_129`** on **`TRANSFORM.DEV.CONCEPT_TRANSACTIONS_MARKET_MONTHLY`** (`transactions` / **CON_028**); **`MET_130`** Zonda **`under_review`** (warehouse rollup **0** rows as of 2026-04-21) | **Registered** (Cherre SFR/MF + RCA MF observe); **Deferred** Zonda path until FACT populated |
 | `days_on_market_listings` | **`MET_042`** (DOM) | **Registered** |
 | `for_sale_listings_level` (proxy) | **`MET_043`** `zillow_for_sale_listings_metric_value` | **Registered** (`home_price` in seed — relabel or add sibling **`metric`** if product insists on absorption/supply concept) |
 
@@ -210,7 +213,7 @@ Layout and column contract: [`CATALOG_METRIC_DERIVED_LAYOUT.md`](./CATALOG_METRI
 | Category | Count |
 |----------|------:|
 | Population raw slugs listed (§1–11) | ~55 |
-| Clear **`metric.csv`** match or strong proxy | ~22 (includes **MET_024–MET_028**, **MET_043**, Progress **MET_029–040** where relevant to §7) |
+| Clear **`metric.csv`** match or strong proxy | ~26 (adds **MET_127**–**MET_132** transactions + supply-pipeline observe family; includes **MET_024–MET_028**, **MET_043**, Progress **MET_029–040** where relevant to §7) |
 | Composite / concept-only / must add **`metric`** or **`metric_derived`** | remainder |
 
 *Re-count when new **MET_*** rows ship (e.g. ACS income, Cherre transactions, corridor composites).*
@@ -225,3 +228,4 @@ Layout and column contract: [`CATALOG_METRIC_DERIVED_LAYOUT.md`](./CATALOG_METRI
 | **0.2** | Quick-reference table by area; **MET_024–MET_028** + **MET_043** in §2/§6; bundle names without `concept` rows; **MDV_001–003** table; cross-links (`SERVING_DEMO_ICEBERG_TARGETS`, wishlist); fixed §3 markdown row; summary count bump. |
 | **0.3** | **MDV_004** + **`metric_derived_input`** (WL_040); **bridge_product_type_metric** rows **64–108** for **MET_044–MET_048**; listings velocity FEATURE spine. |
 | **0.4** | Linked **[SERVING_METRICS_GAP_MIGRATION_PLAN.md](../migration/SERVING_METRICS_GAP_MIGRATION_PLAN.md)** — T0–T4 work packages, milestones M0–M4, geography → catalog → delivery sequencing. |
+| **0.5** | **M1 (partial) / M2:** §4 `uc_units` **RCA MF** path via **MET_132**; §5–§6 **`transaction_volume`** via **MET_127**–**MET_129** + Zonda **MET_130** deferred; quick-ref table + **CON_028** `transactions` note. Validated rollups 2026-04-21 (`snowsql -c pretium`, `vet_concept_cherre_rca_zonda_rollups_pretium.sql`). |

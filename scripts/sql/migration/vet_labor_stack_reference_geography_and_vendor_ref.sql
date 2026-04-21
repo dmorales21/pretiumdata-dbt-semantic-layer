@@ -2,6 +2,9 @@
 -- Run from inner repo root:
 --   snowsql -c pretium -f scripts/sql/migration/vet_labor_stack_reference_geography_and_vendor_ref.sql
 -- Pairing: docs/runbooks/RUN_LABOR_AUTOMATION_RISK_STACK_DBT.md
+--
+-- **Last Pretium run (2026-04-21):** COUNTY ~42k, STATE 56, COUNTY_CBSA_XWALK YEAR=2024 ~5.1k,
+-- REF_ONET_SOC_TO_NAICS ~6.5k rows (non-zero).
 
 -- ---------------------------------------------------------------------------
 -- G) REFERENCE.GEOGRAPHY — county / state / county_cbsa_xwalk (YEAR = 2024 default)

@@ -41,6 +41,7 @@ models:
     config:
       tags: ['analytics', 'feature', 'rent', 'rent_market']
     tests:
+      # Drift closure: document allowlisted keys or fix SQL — **docs/reference/CONTRACT_RENT_AVM_VALUATION.md** § Rent.
       - dbt_utils.equal_rowcount:
           arguments:
             compare_model: ref('concept_rent_market_monthly')

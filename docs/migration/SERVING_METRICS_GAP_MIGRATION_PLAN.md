@@ -54,7 +54,7 @@ flowchart TD
 | **T1.R2 — Rent derived** | YoY / 3y–5y CAGR, **rent_to_income_ratio** | After T1.R1 + income inputs (Tier 2 partial) | **`metric_derived`** + **`metric_derived_input`** rows; no orphan inputs |
 | **T1.A1 — Absorption / tightness** | `absorption_pace`, `net_absorption`, **uc_units**, `pipeline_burndown_ratio`, **inventory_months_supply** | **FACT** promotion order: inventory MOS → pipeline → net absorption as vendor truth allows | **CON_010** / **CON_011** metrics registered or explicitly `metric_derived` with documented proxies |
 | **T1.A2 — Vacancy / HUD** | **MET_008 / MET_013** VARIABLE choice | Governance note + seed filter doc | Consistent vacancy series per product |
-| **T1.A3 — Listings concept fit** | **MET_043** aligned to **`absorption`** (listings velocity / liquidity proxy) | Keep **`MET_042`** DOM/price-cuts + **MDV_004** spine as the paired read surface | Single agreed `concept_code` per slug in map |
+| **T1.A3 — Listings concept fit** | **MET_043** tagged **`home_price`** vs supply narrative | Product decision: relabel concept or add sibling **MET_*** | Single agreed `concept_code` per slug in map |
 | **T1.V1 — AVM / collateral** | Cherre (or agreed) AVM **FACT** beyond FHFA/UAD | Cherre WL + AVM inventory | Extra **`metric`** rows with real `snowflake_column` |
 | **T1.V2 — Derived HPA / LTV stress** | `hpa_trailing`, `hpa_cumulative`, **ltv_stress_proxy** | **metric_derived** where FACTs insufficient | Inputs listed; MDV rows versioned |
 
@@ -117,8 +117,23 @@ To produce a **checklist keyed only to §1–§7 `metric_id` slugs** from the ma
 
 ---
 
+## Snowflake validation log (operator)
+
+| Date | Command bundle | Result (summary) |
+|------|----------------|------------------|
+| **2026-04-21** | `snowsql -c pretium` — `vet_labor_stack_reference_geography_and_vendor_ref.sql` | **T0 spine:** REFERENCE.GEOGRAPHY county/state/COUNTY_CBSA_XWALK(2024) non-zero; **REF_ONET_SOC_TO_NAICS** non-zero. |
+| **2026-04-21** | `vet_p1_met_enabling_sources_pretium.sql` | **B:** All listed TRANSFORM/SOURCE_PROD objects exist **except** `TRANSFORM.DEV.FACT_RATES_MACRO_NATIONAL_DAILY` (build from pretium-ai-dbt when env has `SNOWFLAKE_*`). **D–E:** LAUS/QCEW/SOC/AI risk + rates raw rowcounts non-zero; LAUS county monthly columns as expected. |
+| **2026-04-21** | `vet_concept_cherre_rca_zonda_rollups_pretium.sql` | Cherre/RCA/Markerr/RCA-construction rollups non-zero; **Zonda** CBSA-month rollup **0** — aligns **MET_130** `under_review`. |
+| **2026-04-21** | `catalog_metric_registration_coverage.sql` | KPI snapshot — many **GAP:** DEV objects without a metric `table_path` (inventory query, not a failure gate). |
+| **2026-04-21** | `catalog_concept_metric_assignment_coverage.sql` | **transactions** / **supply_pipeline** concepts **OK** in coverage section; disposition/education unknown-concept rows unchanged backlog. |
+
+**Milestone posture:** **M0** — **G1/G2** evidence green from labor/geo + P1 existence (add corridor polyfill script when that stack is in scope). **C1** still blocked on **FACT_RATES_MACRO_NATIONAL_DAILY** for rates-linked **MET_*** truth. **M1/M2** map updates for transactions / partial UC pipeline: see [SERVING_DEMO_METRICS_CATALOG_MAP.md](../reference/SERVING_DEMO_METRICS_CATALOG_MAP.md) changelog **0.5**.
+
+---
+
 ## Changelog
 
 | Version | Notes |
 |---------|--------|
 | **0.1** | Initial plan: T0–T4 work packages, milestones M0–M4, dependency spine. |
+| **0.2** | Snowflake validation log (2026-04-21) + M0/M1/M2 posture note tied to SERVING map **0.5**. |

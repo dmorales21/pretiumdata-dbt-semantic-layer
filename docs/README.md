@@ -24,11 +24,13 @@ This **`docs/`** tree is the **canonical** place for migration governance, opera
 | **New metric intake** (REFERENCE.CATALOG checklist) | [migration/METRIC_INTAKE_CHECKLIST.md](./migration/METRIC_INTAKE_CHECKLIST.md) |
 | **`metric.csv` SoT + vendor-by-vendor catalog intake** | [migration/MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md](./migration/MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md) |
 | **Analytics features from catalog** (FACT→CONCEPT→FEATURE, four chains, Pilot A, CI) | [migration/PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md](./migration/PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md) |
+| **Rent / AVM / valuation — concept contract + QA alignment** | [reference/CONTRACT_RENT_AVM_VALUATION.md](./reference/CONTRACT_RENT_AVM_VALUATION.md) · feature QA: [reference/FEATURE_DEVELOPMENT_GUARDRAILS.md](./reference/FEATURE_DEVELOPMENT_GUARDRAILS.md) |
 | **`SIGNALS` / `MODELS` catalog (design-only)** | [reference/CATALOG_SIGNALS_LAYOUT.md](./reference/CATALOG_SIGNALS_LAYOUT.md), [reference/CATALOG_MODELS_LAYOUT.md](./reference/CATALOG_MODELS_LAYOUT.md) |
 | **`catalog_wishlist`** (REFERENCE.CATALOG backlog / blocked items) | [reference/CATALOG_WISHLIST.md](./reference/CATALOG_WISHLIST.md) |
 | **Wishlist → data/model priorities** (WL_020 / 047 / 048 first; tiers 0–5) | [reference/CATALOG_WISHLIST_DATA_MODEL_PRIORITIES.md](./reference/CATALOG_WISHLIST_DATA_MODEL_PRIORITIES.md) |
 | **Duck Lake + catalog — P0 inventory & share targets** | [reference/DUCKLAKE_CATALOG_INVENTORY_PRIORITY.md](./reference/DUCKLAKE_CATALOG_INVENTORY_PRIORITY.md) |
 | **`SERVING.DEMO` — Iceberg/Parquet targets & gaps (Alex rows 81–83)** | [reference/SERVING_DEMO_ICEBERG_TARGETS.md](./reference/SERVING_DEMO_ICEBERG_TARGETS.md) |
+| **`SERVING.DEMO` release bundle — dbt gates before Iceberg** | [runbooks/SERVING_DEMO_RELEASE_BUNDLE_ICEBERG_GATE.md](./runbooks/SERVING_DEMO_RELEASE_BUNDLE_ICEBERG_GATE.md) |
 | **When is work “done”?** (canonical repo only) | [migration/CANONICAL_COMPLETION_DEFINITION.md](./migration/CANONICAL_COMPLETION_DEFINITION.md) |
 | **PR CI — parse + catalog smoke** | [`.github/workflows/semantic_layer_catalog_and_quality.yml`](../.github/workflows/semantic_layer_catalog_and_quality.yml); local: [`scripts/ci/run_catalog_quality_checks.sh`](../scripts/ci/run_catalog_quality_checks.sh) |
 | **Concept methods — FACT-only prioritized backlog** | [migration/MIGRATION_TASKS_CONCEPT_METHOD_FACT_PRIORITIES.md](./migration/MIGRATION_TASKS_CONCEPT_METHOD_FACT_PRIORITIES.md) |

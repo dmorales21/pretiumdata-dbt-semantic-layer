@@ -2,8 +2,6 @@
 -- (column contract + **mart_updated_at** alias from **dbt_updated_at**). Source: **concept_disposition_yield_property**.
 {{ config(
     materialized='view',
-    database=var('serving_database', 'SERVING'),
-    schema='DEMO',
     alias='DISPOSITION_YIELD_PROPERTY',
     enabled=var('transform_dev_enable_disposition_yield_stack', false),
     tags=['serving', 'demo', 'disposition', 'ic_market_analysis'],

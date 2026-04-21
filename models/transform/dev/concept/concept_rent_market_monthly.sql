@@ -27,6 +27,8 @@
 
   Vars: ``concept_rent_market_zillow_metric_pattern``, ``concept_rent_market_yardi_matrix_datatype_like``,
   CoStar vars in ``dbt_project.yml``.
+
+  **Contract:** ``docs/reference/CONTRACT_RENT_AVM_VALUATION.md`` (grain, slots, add-a-vendor checklist).
 -#}
 
 {{ config(

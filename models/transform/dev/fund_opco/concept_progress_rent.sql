@@ -29,7 +29,8 @@ WITH spine AS (
 unittype_by_scode AS (
     SELECT
         NULLIF(TRIM({{ adapter.quote('SCODE') }}::VARCHAR), '') AS join_scode,
-        AVG(TRY_TO_DOUBLE({{ adapter.quote('SRENT') }})) AS entity_avg_unittype_srent_by_scode,
+        AVG(TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR({{ adapter.quote('SRENT') }})), '')))
+            AS entity_avg_unittype_srent_by_scode,
         COUNT(*)::BIGINT AS entity_unittype_row_count_by_scode
     FROM {{ ref('fact_se_yardi_unit_type_market_rent') }}
     GROUP BY 1
@@ -38,7 +39,8 @@ unittype_by_scode AS (
 unittype_by_hproperty AS (
     SELECT
         TRY_TO_NUMBER(NULLIF(TRIM({{ adapter.quote('HPROPERTY') }}::VARCHAR), '')) AS yardi_property_hkey,
-        AVG(TRY_TO_DOUBLE({{ adapter.quote('SRENT') }})) AS entity_avg_unittype_srent_by_hproperty
+        AVG(TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR({{ adapter.quote('SRENT') }})), '')))
+            AS entity_avg_unittype_srent_by_hproperty
     FROM {{ ref('fact_se_yardi_unit_type_market_rent') }}
     WHERE NULLIF(TRIM({{ adapter.quote('HPROPERTY') }}::VARCHAR), '') IS NOT NULL
     GROUP BY 1
@@ -47,7 +49,7 @@ unittype_by_hproperty AS (
 entity_unit_agg AS (
     SELECT
         TRY_TO_NUMBER(NULLIF(TRIM({{ adapter.quote('HPROPERTY') }}::VARCHAR), '')) AS yardi_property_hkey,
-        AVG(TRY_TO_DOUBLE({{ adapter.quote('SRENT') }})) AS entity_avg_unit_srent,
+        AVG(TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR({{ adapter.quote('SRENT') }})), ''))) AS entity_avg_unit_srent,
         COUNT(*)::BIGINT AS entity_unit_row_count
     FROM {{ ref('fact_se_yardi_unit_master') }}
     WHERE NULLIF(TRIM({{ adapter.quote('HPROPERTY') }}::VARCHAR), '') IS NOT NULL
@@ -58,7 +60,7 @@ entity_unit_agg AS (
 silver_unit_agg AS (
     SELECT
         u.HPROPERTY AS yardi_property_hkey,
-        AVG(u.SRENT::FLOAT) AS silver_avg_unit_contract_rent,
+        AVG(TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(u.SRENT)), ''))) AS silver_avg_unit_contract_rent,
         COUNT(*)::BIGINT AS silver_unit_row_count
     FROM {{ source('transform_yardi', 'UNIT_PROGRESS') }} AS u
     GROUP BY 1
@@ -80,27 +82,32 @@ SELECT
     NULLIF(TRIM(s.{{ adapter.quote(_sfdc_prop_code) }}::VARCHAR), '') AS progress_property_code,
     TRY_TO_NUMBER(NULLIF(TRIM(s.yardi_propattr__HPROPERTY::VARCHAR), '')) AS yardi_property_hkey,
 
-    TRY_TO_DOUBLE(s.sf_properties__APPROVED_RENT__C) AS rent_approved_amount,
-    TRY_TO_DOUBLE(s.sf_properties__MARKET_RENT__C) AS rent_market_amount,
-    TRY_TO_DOUBLE(s.sf_properties__YARDI_MARKET_RENT__C) AS rent_yardi_market_amount,
-    TRY_TO_DOUBLE(s.sf_properties__ACTUAL_RENT__C) AS rent_actual_amount,
-    TRY_TO_DOUBLE(s.sf_properties__RENT__C) AS rent_generic_amount,
-    TRY_TO_DOUBLE(s.sf_properties__UNDERWRITTEN_RENT__C) AS rent_underwritten_amount,
-    TRY_TO_DOUBLE(s.sf_properties__ESTIMATED_SPOT_RENT__C) AS rent_estimated_spot_amount,
-    TRY_TO_DOUBLE(s.sf_properties__DAM_APPROVED_RENT__C) AS rent_dam_approved_amount,
-    TRY_TO_DOUBLE(s.sf_properties__RENT_IF_OCCUPIED__C) AS rent_if_occupied_amount,
-    TRY_TO_DOUBLE(s.sf_properties__PRICING_TOOL_RENT__C) AS rent_pricing_tool_amount,
-    TRY_TO_DOUBLE(s.sf_properties__PMC_ESTIMATED_SPOT_RENT__C) AS rent_pmc_estimated_spot_amount,
-    TRY_TO_DOUBLE(s.sf_properties__PMC_MARKETING_RENT__C) AS rent_pmc_marketing_amount,
-    TRY_TO_DOUBLE(s.sf_properties__MAX_TENANT_RENT__C) AS rent_max_tenant_amount,
-    TRY_TO_DOUBLE(s.sf_properties__YARDI_TENANT_RENT__C) AS rent_yardi_tenant_amount,
-    TRY_TO_DOUBLE(s.sf_properties__ORIGINAL_YARDI_MARKET_RENT__C) AS rent_original_yardi_market_amount,
-    TRY_TO_DOUBLE(s.sf_properties__PREVIOUS_YARDI_MARKET_RENT__C) AS rent_previous_yardi_market_amount,
-    TRY_TO_DOUBLE(s.sf_properties__AFFORDABLE_UNDERWRITTEN_RENT__C) AS rent_affordable_underwritten_amount,
-    TRY_TO_DOUBLE(s.sf_properties__RENT_PER_SF__C) AS rent_per_sf,
-    TRY_TO_DOUBLE(s.sf_properties__YARDI_TENANT_RENT_PER_SF__C) AS rent_yardi_tenant_per_sf,
-    TRY_TO_DOUBLE(s.sf_properties__SEASONALLY_ADJUSTED_RENT__C) AS rent_seasonally_adjusted_amount,
-    TRY_TO_DOUBLE(s.sf_properties__ANNUALIZED_RENTAL_INCOME__C) AS annualized_rental_income_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__APPROVED_RENT__C)), '')) AS rent_approved_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__MARKET_RENT__C)), '')) AS rent_market_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__YARDI_MARKET_RENT__C)), '')) AS rent_yardi_market_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__ACTUAL_RENT__C)), '')) AS rent_actual_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__RENT__C)), '')) AS rent_generic_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__UNDERWRITTEN_RENT__C)), '')) AS rent_underwritten_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__ESTIMATED_SPOT_RENT__C)), '')) AS rent_estimated_spot_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__DAM_APPROVED_RENT__C)), '')) AS rent_dam_approved_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__RENT_IF_OCCUPIED__C)), '')) AS rent_if_occupied_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__PRICING_TOOL_RENT__C)), '')) AS rent_pricing_tool_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__PMC_ESTIMATED_SPOT_RENT__C)), '')) AS rent_pmc_estimated_spot_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__PMC_MARKETING_RENT__C)), '')) AS rent_pmc_marketing_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__MAX_TENANT_RENT__C)), '')) AS rent_max_tenant_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__YARDI_TENANT_RENT__C)), '')) AS rent_yardi_tenant_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__ORIGINAL_YARDI_MARKET_RENT__C)), ''))
+        AS rent_original_yardi_market_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__PREVIOUS_YARDI_MARKET_RENT__C)), ''))
+        AS rent_previous_yardi_market_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__AFFORDABLE_UNDERWRITTEN_RENT__C)), ''))
+        AS rent_affordable_underwritten_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__RENT_PER_SF__C)), '')) AS rent_per_sf,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__YARDI_TENANT_RENT_PER_SF__C)), '')) AS rent_yardi_tenant_per_sf,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__SEASONALLY_ADJUSTED_RENT__C)), ''))
+        AS rent_seasonally_adjusted_amount,
+    TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__ANNUALIZED_RENTAL_INCOME__C)), ''))
+        AS annualized_rental_income_amount,
 
     TRY_TO_DATE(s.sf_properties__APPROVED_RENT_DATE__C::VARCHAR) AS rent_approved_effective_date,
     TRY_TO_DATE(s.sf_properties__MARKET_RENT_DATE__C::VARCHAR) AS rent_market_effective_date,
@@ -116,11 +123,11 @@ SELECT
     su.silver_unit_row_count,
 
     COALESCE(
-        TRY_TO_DOUBLE(s.sf_properties__APPROVED_RENT__C),
-        TRY_TO_DOUBLE(s.sf_properties__MARKET_RENT__C),
-        TRY_TO_DOUBLE(s.sf_properties__YARDI_MARKET_RENT__C),
-        TRY_TO_DOUBLE(s.sf_properties__ACTUAL_RENT__C),
-        TRY_TO_DOUBLE(s.sf_properties__RENT__C)
+        TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__APPROVED_RENT__C)), '')),
+        TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__MARKET_RENT__C)), '')),
+        TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__YARDI_MARKET_RENT__C)), '')),
+        TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__ACTUAL_RENT__C)), '')),
+        TRY_TO_DOUBLE(NULLIF(TRIM(TO_VARCHAR(s.sf_properties__RENT__C)), ''))
     ) AS {{ concept_metric_slot('rent', 'current') }},
     CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('rent', 'historical') }},
     CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('rent', 'forecast') }},

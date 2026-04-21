@@ -7,6 +7,10 @@
 
   This is intentionally a mixed vendor concept layer so downstream feature/model surfaces can consume
   a single valuation concept object while preserving ``metric_id_observe`` / ``vendor_code`` lineage.
+
+  **Contract + consumer routing:** ``docs/reference/CONTRACT_RENT_AVM_VALUATION.md``.
+  **FHFA UAD:** optional ``vars.concept_valuation_fhfa_uad_variable_regex`` (empty = no extra filter) to keep only
+  month-comparable variables in this concept; see contract doc.
 -#}
 
 {{ config(
@@ -14,6 +18,8 @@
     alias='concept_valuation_market_monthly',
     tags=['semantic', 'concept', 'valuation', 'valuation_market', 'cherre']
 ) }}
+
+{% set _valuation_uad_rx = var('concept_valuation_fhfa_uad_variable_regex', '') | replace("'", "''") %}
 
 WITH snapshot_month AS (
     SELECT DATE_TRUNC('month', CURRENT_TIMESTAMP())::DATE AS month_start
@@ -181,6 +187,9 @@ fhfa_uniform_appraisal_cbsa AS (
     WHERE f.date_reference IS NOT NULL
       AND f.geo_id IS NOT NULL
       AND f.value IS NOT NULL
+    {% if _valuation_uad_rx | trim != '' %}
+      AND REGEXP_LIKE(LOWER(TRIM(TO_VARCHAR(f.variable))), LOWER('{{ _valuation_uad_rx }}'))
+    {% endif %}
 ),
 
 fhfa_uniform_appraisal_valuation AS (

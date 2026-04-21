@@ -2,8 +2,6 @@
 -- **mart_updated_at** ← **dbt_updated_at** on **model_disposition_yield_portfolio**.
 {{ config(
     materialized='view',
-    database=var('serving_database', 'SERVING'),
-    schema='DEMO',
     alias='DISPOSITION_YIELD_PORTFOLIO',
     enabled=var('transform_dev_enable_disposition_yield_stack', false),
     tags=['serving', 'demo', 'disposition', 'ic_market_analysis'],

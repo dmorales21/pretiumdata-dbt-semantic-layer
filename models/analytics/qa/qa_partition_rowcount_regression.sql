@@ -18,6 +18,7 @@
     'concept_avm_market_monthly',
     'concept_valuation_market_monthly',
     'concept_transactions_market_monthly',
+    'concept_supply_pipeline_market_monthly',
     'concept_delinquency_market_monthly',
     'concept_migration_market_annual',
 ] %}

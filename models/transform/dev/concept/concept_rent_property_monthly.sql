@@ -9,6 +9,8 @@
   - **Cherre** — typed zero-row scaffold until parcel/assessor rent is wired.
 
   Join market-level rent at CBSA via ``cbsa_id`` / ``county_fips`` shared with ``concept_rent_market_monthly``.
+
+  **Contract + bridge QA:** ``docs/reference/CONTRACT_RENT_AVM_VALUATION.md``; ``QA_RENT_PROPERTY_MARKET_BRIDGE``.
 -#}
 
 {{ config(

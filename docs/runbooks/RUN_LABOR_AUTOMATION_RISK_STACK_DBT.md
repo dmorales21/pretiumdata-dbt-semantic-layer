@@ -11,12 +11,14 @@ From the **inner** repo root (`pretiumdata-dbt-semantic-layer/pretiumdata-dbt-se
 ```bash
 snowsql -c pretium -f scripts/sql/migration/vet_source_prod_bls_qcew_onet_for_workforce_facts.sql
 snowsql -c pretium -f scripts/sql/migration/vet_labor_stack_reference_geography_and_vendor_ref.sql
+snowsql -c pretium -f scripts/sql/migration/vet_p1_met_enabling_sources_pretium.sql
 ```
 
 | Script | What it checks |
 |--------|----------------|
 | `vet_source_prod_bls_qcew_onet_for_workforce_facts.sql` | `SOURCE_PROD.BLS.QCEW_COUNTY_RAW` row count; **VARIANT** sample probes **B** (strict 5-digit county FIPS failures) and **D** (null/non-positive employment) — **large B/D in the 1M-row sample are expected noise** (CBSA codes, state totals, disclosure rows); see script header. O*NET table row counts. |
 | `vet_labor_stack_reference_geography_and_vendor_ref.sql` | `REFERENCE.GEOGRAPHY.COUNTY` / `STATE` / `COUNTY_CBSA_XWALK` (YEAR=2024); **`TRANSFORM.DEV.REF_ONET_SOC_TO_NAICS`** row count. |
+| `vet_p1_met_enabling_sources_pretium.sql` | **P1 catalog / SERVING blockers:** existence + row samples for BLS silver + `TRANSFORM.DEV` LAUS/QCEW/SOC/AI risk + Cherre/RCA/Zonda/Markerr pipeline facts + `SOURCE_PROD` BLS/ONET/RATES landings; flags **`FACT_RATES_MACRO_NATIONAL_DAILY`** (often missing until pretium-ai-dbt `fact_rates_macro_national_daily` is run). |
 
 **Exit 0** on both scripts ⇒ account is unblocked for BLS + ONET + geography + landed bridge (same assumptions as `docs/migration/LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md`).
 
@@ -87,37 +89,6 @@ dbt test --select \
 ```
 
 **Semantics vs pretium-ai-dbt `analytics_prod/features`:** these FEATUREs read **`fact_county_ai_replacement_risk`** (new stack), not `fact_economy_automation_risk` / `fact_household_labor_qcew_naics`. **`feature_ai_replacement_risk_cbsa`** uses synthetic **`naics_code = 'ALL'`** per CBSA×date until a real CBSA×NAICS industry feature is ported.
-
----
-
-## P2 / P3 — bivariate FEATURE, dual-index MODEL, mart, AIGE fact (batch **028**)
-
-After P1 FEATUREs validate, build the **bivariate** spine, **MODEL** dual index, **mart**, and the **AIGE** pass-through fact.
-
-| Var | Default | When to set `true` |
-|-----|---------|---------------------|
-| `onet_soc_naics_enabled` | `false` | Same as P1 — FACT + labor analytics. |
-| `aige_counties_enabled` | `false` | Set `true` when **`SOURCE_PROD.AIGE.AIGE_COUNTIES`** is populated and the role can SELECT it; `fact_aige_counties` unpivots VARIANT in dbt (no legacy **TRANSFORM.DEV** clone). |
-
-```bash
-# Minimal chain (O*NET-only dual index — AIGE strand null):
-dbt run --select \
-  fact_aige_counties \
-  fact_bls_qcew_county_naics_quarterly ref_epoch_to_gwa_crosswalk ref_epoch_capability_taxonomy \
-  fact_dol_onet_soc_gwa_activity_risk fact_dol_onet_soc_context_friction fact_dol_onet_soc_ai_exposure \
-  fact_county_soc_employment fact_county_ai_replacement_risk \
-  feature_ai_replacement_risk_county feature_structural_unemployment_risk_county \
-  feature_ai_risk_county_bivariate model_county_ai_risk_dual_index mart_county_ai_automation_risk \
-  --vars '{"onet_soc_naics_enabled": true}'
-
-dbt test --select \
-  fact_aige_counties feature_ai_risk_county_bivariate model_county_ai_risk_dual_index mart_county_ai_automation_risk \
-  --vars '{"onet_soc_naics_enabled": true}'
-```
-
-**Dual AIGE + O*NET strands:** add **`aige_counties_enabled: true`** to the same `--vars` JSON once **SOURCE_PROD.AIGE** grants are in place.
-
-Canonical detail: [LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md](../migration/LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md); artifact [2026-04-20_batch028_labor_ai_p2_p3_model_mart_aige.md](../migration/artifacts/2026-04-20_batch028_labor_ai_p2_p3_model_mart_aige.md).
 
 ---
 

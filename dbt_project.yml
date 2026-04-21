@@ -137,6 +137,14 @@ models:
         +tags: ["analytics", "model"]
       # estimate / bi / ai — add dbt_project subtrees when first model lands under those folders (inherit +database from `analytics`).
 
+    # SERVING.DEMO — `models/serving/demo/*` thin delivery views (must not inherit ANALYTICS target defaults).
+    serving:
+      demo:
+        +database: "{{ var('serving_database', 'SERVING') }}"
+        +schema: DEMO
+        +materialized: view
+        +tags: ["serving", "demo"]
+
     # MART SEMANTIC — Alex + Spencer
     # DB: MART_DEV / MART_STAGING / MART_PROD | Schema: SEMANTIC
     mart:
@@ -254,6 +262,19 @@ models:
           +schema: DEV
           +materialized: table
           +tags: ["transform", "transform_dev", "qa", "catalog"]
+        # County / entity grain FACT_* (not under a vendor subtree) — must match **TRANSFORM.DEV** (not profile default ANALYTICS).
+        entity:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: table
+          +tags: ["transform", "transform_dev", "entity", "fact_entity"]
+        # CONCEPT_* unions (`models/transform/dev/concept/`) — **must** be TRANSFORM.DEV per `docs/rules/ARCHITECTURE_RULES.md`
+        # (without this block, `dbt run` lands `concept_*` in ANALYTICS.DBT_DEV by target default).
+        concept:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: table
+          +tags: ["transform", "transform_dev", "concept", "semantic"]
 
     # REFERENCE.GEOGRAPHY — canonical Cybersyn-backed geography utilities (Alex).
     reference:

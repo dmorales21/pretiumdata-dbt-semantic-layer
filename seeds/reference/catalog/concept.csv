@@ -7,11 +7,11 @@ CON_005,unemployment,Unemployment Rate,macro,pct,negative,TRUE,"county,cbsa,stat
 CON_006,permits,Building Permits,supply,count,neutral,TRUE,"county,cbsa,state","monthly,quarterly,annual",leading,
 CON_007,migration,Migration,demand,count,positive,TRUE,"county,cbsa,state","annual",leading,
 CON_008,population,Population,demand,count,positive,TRUE,"zip,county,cbsa,state","annual",coincident,
-CON_009,homeprice,Home Price,macro,usd,neutral,TRUE,"zip,county,cbsa,state","monthly,quarterly,annual",coincident,
+CON_009,home_price,Home Price,macro,usd,neutral,TRUE,"zip,county,cbsa,state","monthly,quarterly,annual",coincident,
 CON_010,absorption,Absorption,demand,pct,positive,TRUE,"county,cbsa","monthly,quarterly",leading,
-CON_011,pipeline,Supply Pipeline,supply,count,negative,TRUE,"county,cbsa","monthly,quarterly",leading,
-CON_012,crime,Crime Index,macro,index,negative,TRUE,"zip,county","annual",lagging,
-CON_013,education,School Quality,macro,index,positive,TRUE,"zip,county","annual",lagging,
+CON_011,supply_pipeline,Supply Pipeline,supply,count,negative,TRUE,"county,cbsa","monthly,quarterly",leading,
+CON_012,crime,Crime Index,macro,index,negative,TRUE,"zip,county,cbsa","annual",lagging,
+CON_013,school_quality,School Quality,macro,index,positive,TRUE,"zip,county,cbsa","annual",lagging,
 CON_014,income,Household Income,macro,usd,positive,TRUE,"zip,county,cbsa,state","annual",coincident,
 CON_015,noi,Net Operating Income,portfolio,usd,positive,TRUE,"property","monthly,quarterly,annual",lagging,"resi,req"
 CON_016,dscr,Debt Service Coverage Ratio,portfolio,index,positive,TRUE,"property","monthly,quarterly,annual",lagging,red
@@ -19,14 +19,11 @@ CON_017,cap_rate,Cap Rate,portfolio,pct,neutral,TRUE,"property,zip,county,cbsa",
 CON_018,ltv,Loan to Value,portfolio,pct,negative,TRUE,"property","monthly,quarterly,annual",lagging,red
 CON_019,delinquency,Delinquency Rate,portfolio,pct,negative,TRUE,"property,zip,county,cbsa","monthly,quarterly",lagging,"resi,req"
 CON_020,concession,Concession,demand,pct,negative,TRUE,"zip,county,cbsa","monthly,quarterly",lagging,
-CON_021,automation,Workforce task automation exposure,macro,index,neutral,TRUE,"national","annual",leading,
-CON_022,spine,Fund property spine (Progress SFDC x Yardi ENTITY),portfolio,varies,neutral,TRUE,"property","varies",coincident,resi
-CON_023,underwriting,Acquisition finance due diligence (Progress SFDC),portfolio,varies,neutral,TRUE,"property","varies",coincident,resi
+CON_021,automation,Workforce task automation exposure,macro,index,neutral,TRUE,"national,county,cbsa","annual",leading,
+CON_022,fund_property_spine,Fund property spine (Progress SFDC x Yardi ENTITY),portfolio,varies,neutral,TRUE,"property","varies",coincident,resi
+CON_023,acquisition_underwriting,Acquisition finance due diligence (Progress SFDC),portfolio,varies,neutral,TRUE,"property","varies",coincident,resi
 CON_024,rates,Interest rates and yield curve,macro,pct,neutral,TRUE,"national","daily,monthly",coincident,
 CON_025,inflation,Inflation and price level,macro,varies,neutral,TRUE,"national","daily,monthly,quarterly",coincident,
 CON_026,wages,Wages and payroll earnings,macro,usd,positive,TRUE,"national,county,cbsa,state","daily,monthly,quarterly,annual",coincident,
 CON_027,labor,Labor supply and participation,macro,pct,neutral,TRUE,"county,cbsa,state,national","monthly,quarterly,annual",coincident,
 CON_028,transactions,Property sales transactions and volumes,demand,varies,neutral,TRUE,"zip,county,cbsa,property","monthly,quarterly",coincident,
-CON_029,listings,On-market listings and listing-flow metrics,supply,varies,neutral,TRUE,"zip,county,cbsa","monthly,weekly,quarterly",coincident,
-CON_030,housing_stock,Housing stock (structure/unit/parcel inventory),supply,count,neutral,TRUE,"property,zip,county,cbsa","monthly,quarterly,annual",lagging,
-CON_031,disposition,Disposition exit economics (Progress list-to-close),portfolio,varies,neutral,TRUE,"property","varies",coincident,resi

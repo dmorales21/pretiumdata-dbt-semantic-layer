@@ -6,7 +6,7 @@
     - Seeds under reference/catalog → always CATALOG (no env variation)
     - Seeds under reference/draft   → always DRAFT (no env variation)
     - Analytics models              → DBT_DEV / DBT_STAGE / DBT_PROD by target
-    - Semantic CONCEPT_* / entity   → DEV via dbt_project (+schema: DEV on transform/dev/concept|entity)
+    - Semantic CONCEPT_* (market marts) → **TRANSFORM.DEV** via ``dbt_project.yml`` ``models: ... transform: dev: concept:`` (+database / +schema)
     - Intermediate models           → INTERMEDIATE (always)
     - SERVING demo models           → DEMO (always)
     - No default schema fallback    → explicit config required on all paths

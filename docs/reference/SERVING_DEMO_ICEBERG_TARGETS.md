@@ -32,7 +32,7 @@ Small, analyst-friendly slices that **already exist in this repo’s dbt graph**
 
 | Proposed logical name | Matrix style | Reads from today (Snowflake / dbt) | Why |
 |----------------------|--------------|--------------------------------------|-----|
-| **`demo_concept_rent_market_monthly`** | Row **83** (dev mart data) | **`MART_{env}.SEMANTIC.CONCEPT_RENT_MARKET_MONTHLY`** — dbt: `models/mart/semantic/concept/concept_rent_market_monthly.sql` | Canonical market-rent union; primary consumer for off-SF cohort math. |
+| **`demo_concept_rent_market_monthly`** | Row **83** (dev mart data) | **`TRANSFORM.DEV.CONCEPT_RENT_MARKET_MONTHLY`** via dbt `ref('concept_rent_market_monthly')` — `models/transform/dev/concept/concept_rent_market_monthly.sql` | Canonical market-rent union in semantic-layer **TRANSFORM**; thin `demo_*` pass-through for **`SERVING.DEMO`**. |
 | **`demo_feature_rent_market_monthly`** | Row **82** (thin duplicate OK) | **`ANALYTICS.DBT_DEV.FEATURE_RENT_MARKET_MONTHLY`** (dbt model `feature_rent_market_monthly_spine` with `alias='feature_rent_market_monthly'`) → **`concept_rent_market_monthly`** | Stable **FEATURE_** grain for notebooks; **MDV_001** story. |
 | **`demo_feature_listings_velocity_monthly`** | Row **82** | **`ANALYTICS.DBT_DEV.FEATURE_LISTINGS_VELOCITY_MONTHLY`** (`feature_listings_velocity_monthly_spine`) → Zillow DOM + for-sale listings facts | **MDV_004**; **MET_042** / **MET_043** read surface. |
 | **`demo_mart_county_ai_automation_risk`** | Row **83** | **`TRANSFORM.DEV.FACT_COUNTY_AI_AUTOMATION_RISK`** — `models/transform/dev/entity/fact_county_ai_automation_risk.sql` | Small county table; labor + AIGE demo. |
@@ -49,11 +49,15 @@ Defer until **`collection_name`** (and export consumer) contracts exist and jobs
 
 ---
 
-## Gaps (not built yet)
+## Release bundle + Iceberg gates (this repo)
+
+**Runbook (minimal `dbt` selectors, replication SQL, release pin):** [`../runbooks/SERVING_DEMO_RELEASE_BUNDLE_ICEBERG_GATE.md`](../runbooks/SERVING_DEMO_RELEASE_BUNDLE_ICEBERG_GATE.md).
+
+## Gaps / follow-ups
 
 | Gap | Detail |
 |-----|--------|
-| **No dbt `SERVING.DEMO` models** | No `models/serving/demo/`, no **`+database: SERVING` / `+schema: DEMO`** model subtree in **`dbt_project.yml`**, and **`generate_schema_name.sql`** has no **`DEMO`** branch. Nothing materializes into **`SERVING.DEMO`** yet. |
+| **`SERVING.DEMO` FQN** | All **`models/serving/demo/*`** inherit **`+database`** / **`+schema`** from **`dbt_project.yml`** → **`models.pretiumdata_dbt_semantic_layer.serving.demo`** (**`vars.serving_database`** default **`SERVING`**, schema **`DEMO`**). Override the var if your warehouse uses a different database name. |
 | **No Iceberg / external volume definitions in this repo** | Managed Iceberg (Snowflake or Polaris + S3) needs **external volume**, **catalog**, **stage**, and usually **tasks** or a **sync job** — not implemented as dbt/SQL assets here today. |
 | **No replication dbt pattern** | Thin **`CREATE ICEBERG TABLE … AS SELECT`** (or export to `pret-iceberg` + REST catalog) is **not** wired in CI. [DUCKLAKE_CATALOG_INVENTORY_PRIORITY.md](./DUCKLAKE_CATALOG_INVENTORY_PRIORITY.md) describes **what** to publish to the share, not **how** to replicate to Iceberg. |
 | **Embeddings path (row 81)** | No **`AI_*`** embedding outputs identified for Parquet landing in **`SERVING.DEMO`**. |
@@ -74,6 +78,7 @@ you get **market truth + vocabulary** for lake consumers with minimal moving par
 
 ## Related docs
 
+- [SERVING_DEMO_RELEASE_BUNDLE_ICEBERG_GATE.md](../runbooks/SERVING_DEMO_RELEASE_BUNDLE_ICEBERG_GATE.md) — **release bundle** `dbt` selectors, replication readiness SQL, release pin checklist  
 - [DUCKLAKE_CATALOG_INVENTORY_PRIORITY.md](./DUCKLAKE_CATALOG_INVENTORY_PRIORITY.md) — P0 catalog inventory and Duck Lake / share targets  
 - [SERVING_DEMO_METRICS_CATALOG_MAP.md](./SERVING_DEMO_METRICS_CATALOG_MAP.md) — first metrics / feature population list vs `metric` / `metric_derived`  
 - [PRETIUM_S3_DUCKLAKE_CLAUDE_SCOPE.md](./PRETIUM_S3_DUCKLAKE_CLAUDE_SCOPE.md) — cost framing, Snowflake vs Polaris catalog  
