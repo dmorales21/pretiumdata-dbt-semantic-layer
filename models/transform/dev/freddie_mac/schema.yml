@@ -9,8 +9,11 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
-            combination_of_columns: ['date_reference', 'variable']
+            # Cybersyn timeseries grain is GEO × DATE × VARIABLE (not DATE × VARIABLE alone).
+            combination_of_columns: ['geo_id', 'date_reference', 'variable']
     columns:
+      - name: geo_id
+        description: Normalized Cybersyn GEO_ID from timeseries (nullable only if upstream sends blank geo).
       - name: date_reference
         tests: [not_null]
       - name: variable
