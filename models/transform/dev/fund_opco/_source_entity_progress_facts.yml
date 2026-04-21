@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  # --- Salesforce (fund modeling / CRM custom objects on SOURCE_ENTITY.PROGRESS) ---
+  - name: fact_sfdc_fund_c
+    description: Read-through **SOURCE_ENTITY.PROGRESS.SFDC_FUND__C**; fund-level controls for allocation concepts.
+  - name: fact_sfdc_fund_market_c
+    description: Read-through **SFDC_FUND_MARKET__C**; market weights and allocated capital.
+  - name: fact_sfdc_fund_pipeline_c
+    description: Read-through **SFDC_FUND_PIPELINE__C**; deal pacing / pipeline rows.
+  - name: fact_sfdc_fund_pipeline_summary_c
+    description: Read-through **SFDC_FUND_PIPELINE_SUMMARY__C**; pipeline rollups.
+  - name: fact_sfdc_portfolio_c
+    description: Read-through **SFDC_PORTFOLIO__C**; portfolio / strategy concentration.
+  - name: fact_sfdc_submarket_c
+    description: Read-through **SFDC_SUBMARKET__C**; submarket definitions and caps.
+  - name: fact_sfdc_market_to_submarket_c
+    description: Read-through **SFDC_MARKET_TO_SUBMARKET__C**; market–submarket bridge.
+  - name: fact_sfdc_acquisition_c
+    description: Read-through **SFDC_ACQUISITION__C**; acquisition economics and deploy timing.
+  - name: fact_sfdc_acquisition_history
+    description: Read-through **SFDC_ACQUISITION__HISTORY**; stage-change velocity.
+  - name: fact_sfdc_disposition_c
+    description: Read-through **SFDC_DISPOSITION__C**; exit / disposition economics.
+  - name: fact_sfdc_finance_due_diligence_c
+    description: Read-through **SFDC_FINANCE_DUE_DILIGENCE__C**; UW scenario inputs (yield, cap, growth).
+  - name: fact_sfdc_bpo_c
+    description: Read-through **SFDC_BPO__C**; BPO / mark-to-market inputs.
+  - name: fact_sfdc_hold_c
+    description: Read-through **SFDC_HOLD__C**; hold / pause flags for deploy pacing.
+  - name: fact_sfdc_concession_c
+    description: Read-through **SFDC_CONCESSION__C**; concession assignments.
+  - name: fact_sfdc_properties_c
+    description: Read-through **SFDC_PROPERTIES__C**; property spine — join Yardi on **Yardi_Property_Code__c**.
+
+  # --- Yardi on SOURCE_ENTITY.PROGRESS (`fact_se_yardi_*`: se = SOURCE_ENTITY lineage, not TRANSFORM.YARDI Jon silver) ---
+  - name: fact_se_yardi_strategy_segment
+    description: Strategy / segment taxonomy (**YARDI_SEGMENTS**) for fund allocation weights.
+  - name: fact_se_yardi_property_attribute
+    description: Property attributes and risk-tier inputs (**YARDI_PROPATTRIBUTES**).
+  - name: fact_se_yardi_gl_period_total
+    description: GL period rollups (**YARDI_GLTOTAL**) for returns.
+  - name: fact_se_yardi_gl_line_detail
+    description: GL line detail (**YARDI_GLDETAIL**).
+  - name: fact_se_yardi_cash_ledger_transaction
+    description: Ledger-style cash transactions (**YARDI_TRANS**) from SOURCE_ENTITY — distinct from **TRANS_PROGRESS** silver.
+  - name: fact_se_yardi_charge_payment_detail
+    description: Charge and payment detail (**YARDI_DETAIL**).
+  - name: fact_se_yardi_gl_account_hierarchy
+    description: GL chart / account tree (**YARDI_ACCTTREE**).
+  - name: fact_se_yardi_investment_register_detail
+    description: Investment register and capex lines (**YARDI_GLINVREGDETAIL**).
+  - name: fact_se_yardi_unit_type_market_rent
+    description: Unit-type market rent benchmarks (**YARDI_UNITTYPE**).
+  - name: fact_se_yardi_receivable_aging
+    description: Receivable aging / credit stress (**YARDI_TENANTAGING**).
+  - name: fact_se_yardi_cam_opex_rule
+    description: CAM and OpEx rule baselines (**YARDI_CAMRULE**).
+  - name: fact_se_yardi_unit_master
+    description: Unit master (**YARDI_UNIT**) from SOURCE_ENTITY.
+  - name: fact_se_yardi_lease_history
+    description: Lease history (**YARDI_LEASE_HISTORY**) for deploy pacing.
+  - name: fact_se_yardi_tenant_history
+    description: Tenant history (**YARDI_TENANT_HISTORY**).
+  - name: fact_se_yardi_unit_status_history
+    description: Unit status over time (**YARDI_UNIT_HISTORY**).

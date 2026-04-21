@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: ref_epoch_to_gwa_crosswalk
+    description: Pretium curated Epoch capability dimension → O*NET GWA mapping (exposure weights).
+    columns:
+      - name: capability_dimension
+        tests:
+          - not_null
+      - name: gwa_activity_id
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - capability_dimension
+              - gwa_activity_id
+
+  - name: ref_epoch_capability_taxonomy
+    description: Epoch task name taxonomy grouped into capability dimensions (Pretium pilot).
+    columns:
+      - name: capability_dimension
+        tests:
+          - not_null
+      - name: epoch_task_name
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - capability_dimension
+              - epoch_task_name

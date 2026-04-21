@@ -1,0 +1,5 @@
+tenant_type_id,tenant_type_code,tenant_type_label,definition,sort_order,is_active
+TTP_001,pretium_ic,Pretium IC,Pretium investment committee and portfolio strategy consumers; highest internal governance tier,1,TRUE
+TTP_002,pretium_analytics,Pretium Analytics,Pretium BI and data science teams building features models and QA artifacts,2,TRUE
+TTP_003,opco_partner,OpCo Partner,Operating company Progress BH Imagine Anchor teams consuming approved analytics packs,3,TRUE
+TTP_004,platform_demo,Platform Demo,SERVING demo external pilots and training environments with scoped synthetic or redacted data,4,TRUE

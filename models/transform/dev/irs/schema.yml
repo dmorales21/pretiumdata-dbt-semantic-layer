@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: fact_irs_soi_migration_by_characteristic_annual
+    description: >
+      **Vendor:** IRS SOI migration-by-characteristic (Cybersyn product on **`SOURCE_SNOW.US_REAL_ESTATE`**).
+      Long-form **GEO_ID × DATE_REFERENCE × VARIABLE** with stratifiers from attributes; **all** resolved geography levels.
+      Prefer **`fact_irs_soi_migration_by_characteristic_annual_county`** / **`_annual_cbsa`** for fixed-grain reads.
+    columns:
+      - name: GEO_ID
+        description: Normalized GEO_ID.
+      - name: RETURN_GROUP
+        description: Attribute slice (e.g. All Returns) when present on share.
+      - name: INCOME_BRACKET
+        description: IRS income class bucket from attributes when populated.
+      - name: AGE_GROUP
+        description: Age band from attributes when populated.
+      - name: VALUE
+        description: Numeric measure per VARIABLE / UNIT.
+
+  - name: fact_irs_soi_migration_by_characteristic_annual_county
+    description: >
+      **`GEO_LEVEL_CODE = county`** slice of **`fact_irs_soi_migration_by_characteristic_annual`**.
+      Catalog **DS_080** / **MET_009**.
+
+  - name: fact_irs_soi_migration_by_characteristic_annual_cbsa
+    description: >
+      **`GEO_LEVEL_CODE = cbsa`** slice of **`fact_irs_soi_migration_by_characteristic_annual`** (empty when the feed has no CBSA-level rows).
+      Catalog **DS_080** / **MET_011**.
+
+  - name: fact_irs_soi_origin_destination_migration_annual_county
+    description: >
+      **Vendor:** IRS SOI county-to-county origin–destination migration; **`FROM_GEO_LEVEL_CODE`** and **`TO_GEO_LEVEL_CODE`** both **county**.
+      Grain **FROM_GEO_ID × TO_GEO_ID × DATE_REFERENCE × VARIABLE_NAME**. Respect **SUPPRESSED**.
+      Catalog **DS_081** / **MET_010**.
+
+  - name: fact_irs_soi_origin_destination_migration_annual_cbsa
+    description: >
+      Same underlying OD feed as the county FACT, restricted to flows where **both** county endpoints resolve to a **CBSA_ID**
+      on **`REFERENCE.GEOGRAPHY.GEOGRAPHY_LATEST`** (county×county grain with **FROM_CBSA_ID** / **TO_CBSA_ID** for CBSA work).
+      Catalog **DS_081** / **MET_012**.

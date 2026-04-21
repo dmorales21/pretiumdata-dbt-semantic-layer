@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: feature_ai_risk_county_bivariate
+    description: >
+      County spine joining **`fact_county_ai_replacement_risk`** (strand A) and pivoted **`fact_aige_counties`**
+      (strand B) when **`aige_counties_enabled`**; feeds **`model_county_ai_risk_dual_index`**.
+    columns:
+      - name: county_fips
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - county_fips
+          config:
+            enabled: "{{ var('onet_soc_naics_enabled', false) }}"

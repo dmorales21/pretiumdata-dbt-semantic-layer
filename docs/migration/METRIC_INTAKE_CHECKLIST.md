@@ -1,57 +1,23 @@
-# How to treat each new metric (REFERENCE.CATALOG)
+# Metric intake — REFERENCE.CATALOG checklist
 
-**Purpose:** Single checklist for **every new numeric or categorical signal** that should appear in IC, corridor, or semantic `CONCEPT_*` / `FEATURE_*` surfaces. Use before merging a new `FACT_*` or vendor column.
+**Owner:** Alex  
+**Status:** **canonical index** (single entry point; detailed gates below).
 
-**Related:** `seeds/reference/catalog/metric.csv`, `dataset.csv`, `concept.csv`, `bridge_product_type_metric.csv`, `metric_derived.csv`, `MIGRATION_FACT_SYSTEMIZATION_PLAYBOOK.md`, `MODEL_FEATURE_ESTIMATION_PLAYBOOK.md`, `scripts/sql/validation/dimensional_reference_catalog_and_geography.sql`, **[PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md](./PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md)** (ownership, env, four chains, Pilot A, reconciliation library).
+**Authoritative `metric` seed:** only **`pretiumdata-dbt-semantic-layer/pretiumdata-dbt-semantic-layer/seeds/reference/catalog/metric.csv`** — not copies under **pretium-ai-dbt**. Vendor-by-vendor formatting, SoT policy, and execution steps: **`MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md`**.
 
----
+Use this path before adding or renaming **`metric`**, **`metric_derived`**, **`dataset`**, or other **`REFERENCE.CATALOG`** seeds consumed by **`FACT_*` / `FEATURE_*` / `MODEL_*` / `ESTIMATE_*`**.
 
-## 1. Classify the measurement
+## Checklist (order)
 
-| Step | Question | Action |
-|------|----------|--------|
-| 1.1 | Is it **vendor-native** (raw column) or **Pretium-defined** (ratio, blend, z-score)? | Native → **`metric`** row. Derived stack → **`metric_derived`** (+ optional inputs table later). |
-| 1.2 | What **concept** (`concept_code`) does it answer (rent, home_price, migration, …)? | Must exist in **`concept.csv`**. If taxonomy is wrong, **add or split `concept`** first — do not overload `vacancy` / `cap_rate` for climate, insurance, or rates. |
-| 1.3 | What **grain** (`geo_level_code`) and **time** (`frequency_code`)? | Must exist in **`geo_level`** / **`frequency`**. If Cybersyn `LEVEL` is new, extend **`geo_level.source_snow_cybersyn_level`** and rebuild **`GEOGRAPHY_*`**. |
-| 1.4 | Which **vendor** (`vendor_code`) is accountable? | Row in **`vendor.csv`**; **`refresh_cadence`** must resolve to **`frequency`** (use **`varies`** only for true mixed-cadence umbrellas). |
+1. **Classify** — Native vendor measure vs **derived** analytics output → layout in [reference/CATALOG_METRIC_DERIVED_LAYOUT.md](../reference/CATALOG_METRIC_DERIVED_LAYOUT.md).
+2. **Gates** — All four gates in [rules/ARCHITECTURE_RULES.md](../rules/ARCHITECTURE_RULES.md) § **Metric Registration Gates** (null coverage, history, catalog compliance keys, census geography compliance).
+3. **Seed order** — Load / dependency order: [CATALOG_SEED_ORDER.md](../CATALOG_SEED_ORDER.md).
+4. **Fact wave** — If the measure ships on a new **`FACT_*`**, follow [MIGRATION_FACT_SYSTEMIZATION_PLAYBOOK.md](./MIGRATION_FACT_SYSTEMIZATION_PLAYBOOK.md) per-model checklist.
+5. **Log** — Short row in [MIGRATION_LOG.md](./MIGRATION_LOG.md); evidence in [MIGRATION_BATCH_INDEX.md](./MIGRATION_BATCH_INDEX.md) when non-trivial.
 
----
+## Related
 
-## 2. Register in seeds (order)
-
-1. **`dataset`** — one row per **distinct dataset grain** (vendor × concept × geo × frequency × readable `source_schema`).
-2. **`metric`** — one row per **published `metric_id`** with `table_path`, `snowflake_column`, `concept_code`, `vendor_code`, `geo_level_code`, `frequency_code`, `metric_category_code`, `unit`, `direction`. **Quote CSV fields** that contain commas.
-3. **`bridge_product_type_metric`** — when the metric is **meaningful per product pillar** (SFR vs MF vs BTR); until populated, document applicability in **`dataset.product_type_codes`**.
-4. **`metric_derived`** — when the object is a **composite, model output, or estimate** (see `CATALOG_METRIC_DERIVED_LAYOUT.md`).
-
----
-
-## 3. Wire the pipeline
-
-| Step | Deliverable |
-|------|-------------|
-| 3.1 | **`FACT_*`** (or delivery view) implements the **`metric_id`** or documents the column → `metric_id` map. |
-| 3.2 | **`source()`** in `models/sources/*.yml` matches **`dataset.source_schema`** (no bare FQNs in SQL per `MIGRATION_RULES.md`). |
-| 3.3 | **Geography:** joins use **`ref('geography_index')`** / **`geography_latest`**; no silent ZIP↔ZCTA mix (`geo_level` seed). |
-| 3.4 | **`dbt seed`** + **`dbt test`** on `path:seeds/reference/catalog`. |
-
-**Enforced in CI (parse + catalog smoke):** GitHub Actions workflow **`.github/workflows/semantic_layer_catalog_and_quality.yml`** runs **`dbt deps` → `dbt parse` → `dbt ls`** for `path:seeds/reference/catalog` on PRs touching catalog/models/seeds. Optional Snowflake job (**`dbt_seed_test_catalog_snowflake`**) is disabled until **`SNOWFLAKE_*`** secrets are set; then flip `if: false` → `if: true` and align **`ci/profiles.yml`** with your auth (password or keypair).
-
-**Local / pre-merge gate:** `scripts/ci/run_catalog_quality_checks.sh` (set **`RUN_SNOWFLAKE_CHECKS=1`** to also run seed, test, and feature compile against your **`DBT_TARGET`**).
-
----
-
-## 4. Validate in Snowflake
-
-Run:
-
-`scripts/sql/validation/dimensional_reference_catalog_and_geography.sql`
-
-- **0 failures** on catalog FK checks.
-- Treat **`GEOGRAPHY_INDEX` `unmapped`** row count as a **crosswalk backlog signal**, not a metric defect.
-
----
-
-## 5. Log migration
-
-Append **one row** to **`MIGRATION_LOG.md`** Batch History (short) and the same batch id to **`MIGRATION_BATCH_INDEX.md`** (detail + artifact links).
+- [MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md](./MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md) — **SoT**, column contract, gates, per-vendor execution template.
+- [NAMING_RULES_INDEX.md](../rules/NAMING_RULES_INDEX.md) — how **`SCHEMA_RULES`**, **§4 / §7** in this migration doc, **ARCHITECTURE_RULES**, and lineage docs fit together (no duplicate policy).
+- [MODEL_FEATURE_ESTIMATION_PLAYBOOK.md](./MODEL_FEATURE_ESTIMATION_PLAYBOOK.md) — catalog rows for **`FEATURE_*` / `MODEL_*` / `ESTIMATE_*`** (§4.3 methods, checklist §4.3).
+- [MIGRATION_REGISTRY_VENDORS_DATASETS_METRICS.md](./MIGRATION_REGISTRY_VENDORS_DATASETS_METRICS.md) — vendor × dataset × metric rollup.

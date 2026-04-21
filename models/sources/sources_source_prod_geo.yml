@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  # SOURCE_PROD.GEO — internal geography landings (school district polygon → H3, etc.).
+  - name: source_prod_geo
+    database: SOURCE_PROD
+    schema: GEO
+    description: >
+      Pretium geography staging tables. **MAP_SCHOOLDISTRICT_H3** is produced outside dbt (DuckDB spatial build);
+      see pretium-ai-dbt `ref_school_district_h3_xwalk` / `scripts/geo/school_district_h3_xwalk_build.sql`.
+
+    tables:
+      - name: map_schooldistrict_h3
+        identifier: MAP_SCHOOLDISTRICT_H3
+        description: >
+          Grain (id_geo, h3_8_hex, h3_6_hex, …) — school district Census GEOID ↔ overlapping H3-6/8 cells.

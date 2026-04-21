@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  # Operator-landed copy of the Oxford MSA → Pretium CBSA crosswalk in TRANSFORM.DEV (same column names as
+  # legacy Jon `TRANSFORM_PROD.REF.OXFORD_CBSA_CROSSWALK`). dbt must not read TRANSFORM_PROD; run
+  # `docs/migration/sql/land_oxford_cbsa_crosswalk_transform_dev.sql` once per environment.
+  - name: transform_dev_oxford_ref
+    database: TRANSFORM
+    schema: DEV
+    description: >
+      TRANSFORM.DEV landing for **OXFORD_CBSA_CROSSWALK** — input to `ref_oxford_metro_cbsa` (302-row MSA grain).
+      Not built by dbt from production ref.
+
+    tables:
+      - name: oxford_cbsa_crosswalk
+        identifier: OXFORD_CBSA_CROSSWALK
+        description: >
+          Oxford metro (MSA) to Pretium CBSA mapping. Column contract: pretium-ai-dbt
+          `docs/vendors/amreg/OXFORD_SOURCE_ENTITY_PROFILE_AND_CROSSWALK_JOIN.md` §3–4.

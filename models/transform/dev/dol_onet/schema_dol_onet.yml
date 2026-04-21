@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: fact_dol_onet_soc_context_friction
+    description: DOL / O*NET work-context friction index by SOC (downweight for physical / in-person work).
+    columns:
+      - name: onet_soc_code
+        tests:
+          - not_null
+          - unique
+      - name: friction_index
+        tests:
+          - not_null
+
+  - name: fact_dol_onet_soc_ai_exposure
+    description: >
+      DOL / O*NET SOC-level AI exposure (GWA × friction × Epoch breadth), with percentile tiers.
+    columns:
+      - name: onet_soc_code
+        tests:
+          - not_null
+          - unique
+      - name: friction_adjusted_exposure
+        tests:
+          - not_null
+
+  - name: fact_dol_onet_soc_gwa_activity_risk
+    description: >
+      **Vendor / dataset:** DOL / O*NET. SOC-level GWA activity exposure scores from `WORK_ACTIVITIES_GENERAL`.
+      Port of pretium-ai-dbt `cleaned_onet_gwa_activity_risk.sql`. Grain: one row per `onet_soc_code`.
+    columns:
+      - name: onet_soc_code
+        tests:
+          - not_null
+          - unique
+      - name: gwa_activity_risk_score
+        tests:
+          - not_null

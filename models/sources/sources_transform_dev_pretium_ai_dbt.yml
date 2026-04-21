@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  # Objects materialized by pretium-ai-dbt on TRANSFORM.DEV (migration repo) until fully
+  # re-authored as native semantic-layer FACT_* read-throughs. Read-only.
+  - name: transform_dev_pretium_ai_dbt
+    database: TRANSFORM
+    schema: DEV
+    description: >
+      Pretium-ai-dbt **TRANSFORM.DEV** tables still consumed by **concept_disposition_yield_property**
+      (**FACT_OPCO_PROPERTY_PRESENCE** until OpCo footprint is owned in semantic-layer). Canonical
+      **FACT_PROGRESS_DISPOSITION** / **FACT_PROGRESS_DISPOSITION_LATEST** are built in this repo under
+      **models/transform/dev/progress_crm/** (see **docs/migration/TRANSFORM_DEV_DISPOSITION_PROGRESS_SNOWSQL_DIAGNOSTIC.md**).
+    tables:
+      - name: fact_opco_property_presence
+        identifier: FACT_OPCO_PROPERTY_PRESENCE
+        description: OpCo × property footprint (replaces direct reads of EDW MART_OPCO_PROPERTY_PRESENCE).

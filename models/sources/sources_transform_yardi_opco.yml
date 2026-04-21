@@ -1,0 +1,49 @@
+version: 2
+
+# TRANSFORM.YARDI — Progress vs BH silver (Jon). Used by TRANSFORM.DEV fund_opco FACT_* models.
+# Inventory: docs/migration/MIGRATION_TASKS_YARDI_BH_PROGRESS.md
+sources:
+  - name: transform_yardi
+    database: TRANSFORM
+    schema: YARDI
+    description: >
+      Yardi silver in TRANSFORM.YARDI: BH and Progress parallel tables (PROPERTY_BH, PROPERTY_PROGRESS,
+      UNIT_BH, UNIT_PROGRESS, TRANS_PROGRESS, etc.).
+
+    tables:
+      - name: PROPERTY_BH
+        identifier: PROPERTY_BH
+        description: BH property master (silver).
+      - name: PROPERTY_PROGRESS
+        identifier: PROPERTY_PROGRESS
+        description: Progress property master (silver).
+      - name: TENANT_BH
+        identifier: TENANT_BH
+        description: BH tenant / lease attributes (silver).
+      - name: TENANT_PROGRESS
+        identifier: TENANT_PROGRESS
+        description: Progress tenant / lease attributes (silver).
+      - name: UNIT_BH
+        identifier: UNIT_BH
+        description: BH unit spine (HMY, HPROPERTY, …); parallel to UNIT_PROGRESS.
+      - name: UNIT_PROGRESS
+        identifier: UNIT_PROGRESS
+        description: Progress unit spine (HMY, HPROPERTY, …).
+      - name: UNIT_STATUS_BH
+        identifier: UNIT_STATUS_BH
+        description: BH unit status history (silver).
+      - name: UNIT_STATUS_PROGRESS
+        identifier: UNIT_STATUS_PROGRESS
+        description: Progress unit status history (silver).
+      - name: UNITTYPE_BH
+        identifier: UNITTYPE_BH
+        description: BH unit-type definitions (parallel to UNITTYPE_PROGRESS).
+      - name: UNITTYPE_PROGRESS
+        identifier: UNITTYPE_PROGRESS
+        description: Progress unit-type definitions (silver).
+      - name: TRANS_BH
+        identifier: TRANS_BH
+        description: BH transaction ledger (silver); prefer over legacy yardi_bh.TRANS when available.
+      - name: TRANS_PROGRESS
+        identifier: TRANS_PROGRESS
+        description: Progress transaction / ledger history (silver).

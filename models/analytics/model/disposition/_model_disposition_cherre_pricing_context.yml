@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: model_disposition_cherre_pricing_context
+    description: >
+      **EDW / analytics_prod retirement** — **MODEL_*** read surface for disposition × Cherre × county AVM
+      (replaces pretium-ai-dbt `models/analytics/models/disposition/model_disposition_cherre_pricing_context.sql`).
+      Gated by **`transform_dev_enable_disposition_yield_stack`**.
+    columns:
+      - name: disposition_id
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('transform_dev_enable_disposition_yield_stack', false) }}"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - disposition_id
+          config:
+            enabled: "{{ var('transform_dev_enable_disposition_yield_stack', false) }}"

@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: feature_supply_pressure_cbsa_monthly
+    meta:
+      statistical:
+        upstream_primary: fact_realtor_inventory_cbsa
+        related_concept: concept_listings_market_monthly
+        primary_metric_codes: ["MET_050"]
+        frequency: monthly
+        enabled_by_var: transform_dev_enable_feature_supply_pressure_cbsa
+        expected_level_acf_lag1_range: [0.85, 0.99]
+        ml_prep_recommendation: >
+          DOM and active listing counts are level series — use deltas / YoY or ratio-to-CBSA-median in FEATURE/MODEL
+          before PCA. See docs/reference/CONCEPT_FEATURE_STATISTICAL_METADATA_AND_AUTOCORRELATION.md.
+    description: >
+      CBSA-month supply pressure slice from **FACT_REALTOR_INVENTORY_CBSA** (median days on market + active listings).
+      Column names mirror pretium-ai-dbt ``feature_supply_pressure_cbsa`` for downstream signal parity.
+    config:
+      tags: ["analytics", "feature", "supply_pressure", "realtor"]
+    tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "permits_12m_avg_monthly = median_days_on_market"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "geo_level_code = 'CBSA'"
+    columns:
+      - name: geo_id
+        description: CBSA identifier (string; typically 5-digit CBSA code from Realtor landing).
+      - name: permits_12m_avg_monthly
+        description: Signal-compatible alias holding **median_days_on_market** (DOM proxy).

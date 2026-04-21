@@ -1,0 +1,4 @@
+asset_type_id,asset_type_code,asset_type_label,definition,sort_order,is_active
+AST_001,property_unit,Property / Unit,Single asset or unit economic line the tearsheet is anchored to,1,TRUE
+AST_002,portfolio_aggregate,Portfolio Aggregate,Rolled-up portfolio or fund view across many assets,2,TRUE
+AST_003,geographic_market,Geographic Market,Submarket CBSA or other geography-first scope without a single property anchor,3,TRUE

@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  # fact_progress_disposition* live under models/transform/dev/progress_crm/ (canonical Progress CRM facts on TRANSFORM.DEV).
+
+  - name: concept_disposition_yield_property
+    description: >
+      **EDW retirement** — canonical **TRANSFORM.DEV** replacement for pretium-ai-dbt
+      `mart_disposition_yield_property` (disposition_id grain). Reads pretium-ai-dbt **TRANSFORM.DEV** facts +
+      **SOURCE_ENTITY** SFDC properties. Gated by **`transform_dev_enable_disposition_yield_stack`**.
+    columns:
+      - name: disposition_id
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('transform_dev_enable_disposition_yield_stack', false) }}"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - disposition_id
+          config:
+            enabled: "{{ var('transform_dev_enable_disposition_yield_stack', false) }}"
+
+  - name: ref_disposition_cherre_subject_bridge
+    description: >
+      **EDW retirement** — `TRANSFORM.DEV` **REF_***-style bridge from disposition yield concept to Cherre
+      assessor parcel (replaces `mart_disposition_cherre_subject_bridge`).
+    columns:
+      - name: disposition_id
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('transform_dev_enable_disposition_yield_stack', false) }}"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - disposition_id
+          config:
+            enabled: "{{ var('transform_dev_enable_disposition_yield_stack', false) }}"

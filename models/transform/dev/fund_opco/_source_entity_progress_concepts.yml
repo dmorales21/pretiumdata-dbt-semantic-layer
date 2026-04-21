@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: concept_progress_property
+    description: >
+      **Allocate / Sensitivity** — SFDC property spine joined to Yardi **YARDI_PROPATTRIBUTES** via property code.
+      Confirm join columns with `vet_source_entity_progress_fund_objects.sql`. SQL uses `adapter.quote()` on
+      `concept_progress_sfdc_yardi_property_code_column` / `concept_progress_yardi_propattr_property_code_column` (defaults: `PROPERTYNUMBER__C`, `SCODE`).
+  - name: concept_progress_fund_allocation
+    description: >
+      **Allocate** — **SFDC_FUND__C** left-joined to **SFDC_FUND_MARKET__C** on `ID` = `FUND__C`. Funds with no market rows still appear once (null fund_market columns).
+  - name: concept_progress_market_submarket
+    description: >
+      **Allocate** — **SFDC_MARKET_TO_SUBMARKET__C** left-joined to **SFDC_SUBMARKET__C** on `SUBMARKET__C` = `ID`.
+  - name: concept_progress_acquisition_uw
+    description: >
+      **Returns / Sensitivity** — finance due diligence rows left-joined to acquisition on quoted API columns
+      (`concept_progress_fdd_acquisition_fk_column` default `ENTITY__C`, `concept_progress_sfdc_acquisition_id_column` default `ID`).
+  - name: concept_progress_acquisition_velocity
+    description: >
+      **Deploy** — acquisition field history left-joined to acquisition on `PARENTID` = `ID`.
+  - name: concept_progress_disposition_bpo
+    description: >
+      **Returns / Sensitivity** — disposition left-joined to BPO on `PROPERTY__C`; re-key after vet if BPO uses a different foreign key.
+  - name: concept_disposition_property_varies
+    description: >
+      **Returns / Sensitivity** — canonical **disposition** concept: wide `FACT_SFDC_DISPOSITION_C` with `concept_code`,
+      `property_natural_key` = `PROPERTY__C`, and `month_start` / `disposition_as_of_date` from SFDC timestamps.
+      Pair with market ``concept_*`` marts (listings homeprice avm rent) for disposition pricing APIs; add
+      ``SFDC_DISPOSITION__HISTORY`` dbt model when true Progress time series is required.
+  - name: concept_progress_rent
+    description: >
+      **Allocate / Sensitivity** — Progress **rent** surface on the property spine: typed SFDC rent measures,
+      SOURCE_ENTITY YARDI_UNITTYPE / YARDI_UNIT roll-ups (by property code and `HPROPERTY`), and optional
+      Jon `UNIT_PROGRESS` contract-rent averages (same silver as `fact_progress_yardi_unit`; gated via
+      `transform_dev_enable_fund_opco_facts` in-SQL so disabling that fact does not disable this concept).
+      Full `concept_progress_property` columns are included via `dbt_utils.star` for drill-down; join keys
+      match `concept_progress_property` (`concept_progress_*` vars on SFDC / Yardi property code columns).

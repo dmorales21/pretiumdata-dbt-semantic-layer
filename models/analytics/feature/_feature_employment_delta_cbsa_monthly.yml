@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: feature_employment_delta_cbsa_monthly
+    meta:
+      statistical:
+        upstream_primary: fact_bls_laus_county
+        reference_geography: county_cbsa_xwalk
+        primary_metric_codes: ["MET_004", "MET_003", "MET_005", "MET_002"]
+        frequency: monthly
+        output_columns_are_yoy_or_rate: true
+        ml_prep_recommendation: >
+          CBSA employment_growth_yoy_pct and derived unemployment_rate are already YoY / ratio constructs vs raw LAUS
+          levels — expect lower lag-1 ACF than on raw employment counts. Safe-ish for PCA relative to level series;
+          still check residual ACF on long CBSA panels — see docs/reference/CONCEPT_FEATURE_STATISTICAL_METADATA_AND_AUTOCORRELATION.md.
+    description: >
+      **MIGRATION_PLAN** Layer 2 successor to pretium **`feature_economic_momentum_cbsa`** — CBSA × month from
+      **`fact_bls_laus_county`** + **`REFERENCE.GEOGRAPHY.county_cbsa_xwalk`** (OMB CBSA). v1 is **LAUS-only**
+      (employment YoY via 12-month lag; CBSA unemployment from summed county unemployed / labor force).
+      **`wage_growth_yoy_pct`** is null until a governed QCEW / CONCEPT wage series is wired.
+    columns:
+      - name: geo_id
+        description: Five-digit OMB CBSA code (string-aligned).
+        data_tests:
+          - not_null
+      - name: date_reference
+        description: BLS LAUS observation month.
+        data_tests:
+          - not_null
+      - name: employment_growth_yoy_pct
+        description: Year-over-year percent change in summed county employment (12-month lag).
+      - name: unemployment_rate
+        description: CBSA-level unemployment rate approximated as sum(unemployed) / sum(labor_force) × 100.
+
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - geo_id
+              - date_reference

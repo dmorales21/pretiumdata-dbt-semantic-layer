@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: fact_progress_disposition
+    description: >
+      Progress **DISPOSITION__C** + latest **BPO__C** per property from **SOURCE_ENTITY.PROGRESS**
+      (`sfdc_disposition__c`, `sfdc_bpo__c`). Canonical implementation under **models/transform/dev/progress_crm/**.
+      Gated by **`transform_dev_enable_disposition_yield_stack`** (default false in `dbt_project.yml`).
+  - name: fact_progress_disposition_latest
+    description: >
+      **TRANSFORM.DEV.FACT_PROGRESS_DISPOSITION_LATEST** — one row per **disposition_id** (latest by **last_modified_date**);
+      feeds **concept_disposition_yield_property** and downstream disposition MODELs. Same gate as **fact_progress_disposition**.

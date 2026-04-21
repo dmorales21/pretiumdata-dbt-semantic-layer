@@ -1,0 +1,10 @@
+offering_signal_relevance_id,offering_code,concept_code,relevance_tier,sort_order,is_active
+OSR_001,property_tearsheet_resi,rent,core,1,TRUE
+OSR_002,property_tearsheet_resi,occupancy,core,2,TRUE
+OSR_003,property_tearsheet_resi,vacancy,supporting,3,TRUE
+OSR_004,property_tearsheet_resi,homeprice,supporting,4,TRUE
+OSR_005,ic_signal_monitor_resi,rent,core,1,TRUE
+OSR_006,ic_signal_monitor_resi,pipeline,core,2,TRUE
+OSR_007,ic_signal_monitor_resi,absorption,supporting,3,TRUE
+OSR_008,opco_market_pack_req,permits,core,1,TRUE
+OSR_009,opco_market_pack_req,population,supporting,2,TRUE

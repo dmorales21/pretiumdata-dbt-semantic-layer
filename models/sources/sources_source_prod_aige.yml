@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  # AIGE county automation index — SOURCE_PROD landing (VARIANT rows). Feeds `fact_aige_counties` in
+  # TRANSFORM.DEV when `aige_counties_enabled` is true. Ingest: pretium-ai-dbt `scripts/sql/source_prod/aige/`.
+  - name: source_prod_aige
+    database: SOURCE_PROD
+    schema: AIGE
+    description: >
+      Felten–Raj–Seamans-style county AIGE scores. Vendor dataset **aige** / **aige_counties**; no
+      **TRANSFORM_PROD**, **ANALYTICS_PROD**, or **EDW_PROD** dependency in the dbt graph.
+
+    tables:
+      - name: aige_counties
+        identifier: AIGE_COUNTIES
+        description: >
+          One VARIANT column **V** per row (FIPS, AIGE, AIGE_plot) plus load metadata as landed in SOURCE_PROD.

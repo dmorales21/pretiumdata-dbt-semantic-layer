@@ -1,0 +1,44 @@
+version: 2
+
+seeds:
+  - name: metric_derived_input
+    description: >
+      N:1 bridge from metric_derived logical outputs to upstream REFERENCE.CATALOG.metric rows
+      (WL_040). See docs/reference/CATALOG_METRIC_DERIVED_LAYOUT.md §6.
+      **Snowflake:** table must exist before tests — run `dbt seed --select metric_derived_input`
+      (after `metric` + `metric_derived`) or `dbt build --select path:seeds/reference/catalog`.
+      Error **`METRIC_DERIVED_INPUT` does not exist** means the seed was not loaded for this account.
+    config:
+      schema: CATALOG
+    columns:
+      - name: metric_derived_input_id
+        tests: [not_null, unique]
+      - name: metric_derived_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('metric_derived')
+                field: metric_derived_code
+      - name: input_metric_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('metric')
+                field: metric_code
+      - name: input_role
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [primary, control, interaction, denominator]
+      - name: sort_order
+        tests: [not_null]
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - metric_derived_code
+              - input_metric_code

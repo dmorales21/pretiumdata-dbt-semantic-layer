@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: feature_home_price_delta_zip_monthly
+    meta:
+      statistical:
+        upstream_primary: fact_zillow_home_values
+        related_concept: concept_home_price_market_monthly
+        primary_metric_codes: ["MET_055"]
+        frequency: monthly
+        output_home_price_yoy_pct: true
+        ml_prep_recommendation: >
+          Raw ZHVI levels (ZIP × metric_id) are highly autocorrelated; this FEATURE publishes YoY % which is closer to
+          stationary than levels. Prefer home_price_yoy_pct (and optional MoM) over re-joining raw metric_value for PCA;
+          see docs/reference/CONCEPT_FEATURE_STATISTICAL_METADATA_AND_AUTOCORRELATION.md.
+    description: >
+      ZIP-level home price level and 12-month YoY percent from **FACT_ZILLOW_HOME_VALUES** (ZHVI-style ``metric_id`` rows).
+      See ``dbt_project.yml`` var ``feature_home_price_delta_metric_id_pattern`` (default ``%zhvi%``).
+    config:
+      tags: ["analytics", "feature", "homeprice", "zillow"]
+    columns:
+      - name: geo_id
+        description: Five-digit ZIP (Zillow RegionID at zip grain).
+      - name: geo_level_code
+        description: Literal ``zip``.
+      - name: metric_id
+        description: Zillow research file stem from unpivot (filter keeps ZHVI-like series).
+      - name: date_reference
+        description: Observation month (calendar date).
+      - name: home_price_yoy_pct
+        description: Year-over-year percent change vs same month 12 periods ago (same ``metric_id``).

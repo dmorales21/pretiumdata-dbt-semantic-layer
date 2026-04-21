@@ -1,0 +1,89 @@
+version: 2
+
+models:
+  - name: fact_hud_housing_series
+    description: >
+      **Vendor:** HUD statistics via **Cybersyn** `GLOBAL_GOVERNMENT.CYBERSYN` `housing_urban_development_*`.
+      Long-form **GEO_ID × DATE_REFERENCE × VARIABLE** for **all** resolved geography levels (county, CBSA, state, etc.).
+      Prefer **`fact_hud_housing_series_county`** / **`fact_hud_housing_series_cbsa`** for catalog-backed reads at fixed grain.
+    columns:
+      - name: SOURCE_GEO_ID
+        description: Raw Cybersyn GEO_ID from the timeseries table.
+      - name: GEO_ID
+        description: Normalized GEO_ID (`normalize_cybersyn_geo_id`) for joins to REFERENCE.GEOGRAPHY.
+      - name: GEO_NAME
+        description: From GEOGRAPHY_INDEX when GEO_ID matches; null when not in index.
+      - name: DATE_REFERENCE
+        description: Observation date (Cybersyn DATE column).
+      - name: VARIABLE
+        description: Series key; join to attributes on VARIABLE.
+      - name: VALUE
+        description: Numeric measure per VARIABLE / UNIT semantics in attributes.
+      - name: GEO_LEVEL_CODE
+        description: Canonical level from REFERENCE.GEOGRAPHY.GEOGRAPHY_INDEX, or `unmapped`.
+
+  - name: fact_hud_housing_series_county
+    description: >
+      **Vendor:** same as **`fact_hud_housing_series`**. **`GEO_LEVEL_CODE = county`** only.
+      Catalog **DS_079** / **MET_007** (`vendor_code` hud).
+    columns:
+      - name: GEO_ID
+        description: County GEO_ID (normalized).
+      - name: GEO_LEVEL_CODE
+        description: Always `county` for populated rows.
+
+  - name: fact_hud_housing_series_cbsa
+    description: >
+      **Vendor:** same as **`fact_hud_housing_series`**. **`GEO_LEVEL_CODE = cbsa`** only.
+      Catalog **DS_079** / **MET_008** (`vendor_code` hud).
+    columns:
+      - name: GEO_ID
+        description: CBSA GEO_ID (normalized).
+      - name: GEO_LEVEL_CODE
+        description: Always `cbsa` for populated rows.
+
+  - name: fact_hud_housing_series_county_monthly
+    description: >
+      HUD housing series at county x month grain (compatibility alias for SERVING.DEMO wave 1).
+      Canonical monthly county surface for MET_007 family.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['geo_id', 'date_reference', 'variable']
+    columns:
+      - name: geo_id
+        tests: [not_null]
+      - name: date_reference
+        tests: [not_null]
+      - name: variable
+        tests: [not_null]
+      - name: value
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -1000000000000
+                max_value: 1000000000000
+                inclusive: true
+
+  - name: fact_hud_housing_series_cbsa_monthly
+    description: >
+      HUD housing series at CBSA x month grain (compatibility alias for SERVING.DEMO wave 1).
+      Canonical monthly CBSA surface for MET_008 family.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['geo_id', 'date_reference', 'variable']
+    columns:
+      - name: geo_id
+        tests: [not_null]
+      - name: date_reference
+        tests: [not_null]
+      - name: variable
+        tests: [not_null]
+      - name: value
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -1000000000000
+                max_value: 1000000000000
+                inclusive: true

@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  # BLS QCEW — county × industry × quarter (SOURCE_PROD landings). Feeds TRANSFORM.DEV FACT BLS QCEW models.
+  - name: source_prod_bls
+    database: SOURCE_PROD
+    schema: BLS
+    description: >
+      Bureau of Labor Statistics landings in SOURCE_PROD. QCEW county raw supports workforce / industry
+      employment and wage facts (vendor=dataset bls/qcew per AI_REPLACEMENT_AND_AIGE_DATA_DEPENDENCIES.md §0).
+
+    tables:
+      - name: qcew_county_raw
+        identifier: QCEW_COUNTY_RAW
+        description: >
+          QCEW county quarterly rows (VARIANT V or flat columns). Variant path uses v:area_fips, v:industry_code,
+          v:year, v:qtr, v:month3_emplvl, v:total_qtrly_wages, v:own_code, v:industry_title, v:qtrly_estabs.
+
+  # DOL O*NET — occupation structure (SOURCE_PROD). Feeds O*NET-derived FACT/INT models (bls/qcew separate).
+  - name: source_prod_onet
+    database: SOURCE_PROD
+    schema: ONET
+    description: >
+      O*NET Database landings. Used for occupation titles, GWA, and work context (vendor=dataset dol/onet).
+
+    tables:
+      - name: occupation_base
+        identifier: OCCUPATION_BASE
+        description: O*NET-SOC codes and occupation titles.
+      - name: work_activities_general
+        identifier: WORK_ACTIVITIES_GENERAL
+        description: General Work Activities importance by O*NET-SOC and activity_id.
+      - name: work_context
+        identifier: WORK_CONTEXT
+        description: Work context categories and ratings by O*NET-SOC (friction / physical presence signals).

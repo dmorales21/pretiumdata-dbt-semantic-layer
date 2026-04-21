@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  # Database/schema may differ by account — override here to match your Snowflake share path.
+  # Alias SOURCE_SNOW.GLOBAL_GOVERNMENT.* by adjusting database/schema here if your warehouse uses that path.
+  - name: global_government_cybersyn
+    database: GLOBAL_GOVERNMENT
+    schema: CYBERSYN
+    description: >
+      Cybersyn geography share (read-only). Upstream for REFERENCE.GEOGRAPHY canonical framework models.
+      If your account exposes the same tables under SOURCE_SNOW.GLOBAL_GOVERNMENT, point this source there.
+
+    tables:
+      - name: geography_index
+        description: Registry of geography entities (GEO_ID, GEO_NAME, LEVEL, …).
+      - name: geography_characteristics
+        description: >
+          Cybersyn characteristic rows: GEO_ID, GEO_NAME, RELATIONSHIP_TYPE (e.g. fips_code, coordinates_wkt), VALUE,
+          optional RELATIONSHIP_START_DATE / RELATIONSHIP_END_DATE. Join GEOGRAPHY_INDEX on GEO_ID for LEVEL when needed.
+      - name: geography_relationships
+        description: Parent/child and overlap relationships between geographies.
+
+      # HUD — Cybersyn GLOBAL_GOVERNMENT domain tables (underlying agency HUD; share path CYBERSYN).
+      - name: housing_urban_development_timeseries
+        identifier: HOUSING_URBAN_DEVELOPMENT_TIMESERIES
+        description: >
+          Long-form HUD-aligned housing metrics. Typical grain GEO_ID × DATE × VARIABLE; join
+          housing_urban_development_attributes on VARIABLE for labels and units.
+      - name: housing_urban_development_attributes
+        identifier: HOUSING_URBAN_DEVELOPMENT_ATTRIBUTES
+        description: Variable dictionary companion to housing_urban_development_timeseries.
+
+      # FHFA house price tables: many accounts expose them on SOURCE_SNOW.US_REAL_ESTATE (see
+      # models/sources/sources_source_snow_us_real_estate.yml), not GLOBAL_GOVERNMENT.CYBERSYN.
+
+      # IRS SOI migration tables: many accounts expose them on SOURCE_SNOW.US_REAL_ESTATE (see
+      # models/sources/sources_source_snow_us_real_estate.yml), not under GLOBAL_GOVERNMENT.CYBERSYN.

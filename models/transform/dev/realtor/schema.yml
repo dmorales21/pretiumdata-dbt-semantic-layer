@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: fact_realtor_inventory_cbsa
+    description: >
+      Realtor.com **CBSA** inventory metrics in long form (**metric_id**, **value**). Matches pretium-ai-dbt
+      ``fact_realtor_inventory_cbsa`` contract (e.g. **MEDIAN_DAYS_ON_MARKET**, **ACTIVE_LISTING_COUNT**) for
+      ``feature_supply_pressure_cbsa_monthly``. When the landing lacks **METRIC** / **METRIC_VALUE**, the model
+      compiles to an empty zero-column guard (see SQL ``WHERE FALSE`` branch).
+    config:
+      tags: ["transform", "transform_dev", "realtor", "fact_realtor"]

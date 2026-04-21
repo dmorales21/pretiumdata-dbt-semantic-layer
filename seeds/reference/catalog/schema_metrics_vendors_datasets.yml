@@ -144,6 +144,8 @@ seeds:
       - name: vertical_codes
         description: Comma-separated applicable verticals; null = all
 
-  # metric is intentionally excluded from REFERENCE.CATALOG until TRANSFORM.FACT exists.
-  # Working draft lives in REFERENCE.DRAFT as dim_metric_dev.
-  # See seeds/reference/draft/dim_metric_dev.csv and seeds/reference/draft/schema_draft.yml.
+  # metric: canonical seed is **metric.csv** (this folder) → **REFERENCE.CATALOG.metric**.
+  # Authority: only this repo path is the long-term source of truth — not pretium-ai-dbt/dbt/seeds/reference/catalog/metric.csv (downstream mirror if needed).
+  # Policy + column contract + vendor execution: docs/migration/MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md
+  # Rows use **table_path** (e.g. TRANSFORM.DEV.FACT_*); add **ANALYTICS.DBT_DEV** paths for published FEATURE_/MODEL_/ESTIMATE_ columns per MODEL_FEATURE_ESTIMATION_PLAYBOOK.md.
+  # Draft mirror (if present): seeds/reference/draft/catalog_metric.csv — do not fork definitions; extend **metric.csv** here.

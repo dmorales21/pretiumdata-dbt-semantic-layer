@@ -1,0 +1,100 @@
+version: 2
+
+seeds:
+  - name: metric_derived
+    description: >
+      Registry for analytics-layer metrics (FEATURE_* / MODEL_* / ESTIMATE_* outputs).
+      Complements metric.csv (warehouse FACT measures). See docs/reference/CATALOG_METRIC_DERIVED_LAYOUT.md.
+    config:
+      schema: CATALOG
+    columns:
+      - name: metric_derived_id
+        tests: [not_null, unique]
+      - name: metric_derived_code
+        tests: [not_null, unique]
+      - name: metric_derived_label
+        tests: [not_null]
+      - name: definition
+        tests: [not_null]
+      - name: analytics_layer_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [feature, model, estimate]
+      - name: function_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('function')
+                field: function_code
+              where: "coalesce(trim(function_code), '') <> ''"
+      - name: model_type_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('model_type')
+                field: model_type_code
+              where: "coalesce(trim(model_type_code), '') <> ''"
+      - name: estimate_type_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('estimate_type')
+                field: estimate_type_code
+              where: "coalesce(trim(estimate_type_code), '') <> ''"
+      - name: primary_metric_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('metric')
+                field: metric_code
+              where: "coalesce(trim(primary_metric_code), '') <> ''"
+      - name: concept_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('concept')
+                field: concept_code
+              where: "coalesce(trim(concept_code), '') <> ''"
+      - name: geo_level_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('geo_level')
+                field: geo_level_code
+              where: "coalesce(trim(geo_level_code), '') <> ''"
+      - name: frequency_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('frequency')
+                field: frequency_code
+              where: "coalesce(trim(frequency_code), '') <> ''"
+      - name: data_status_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('data_status')
+                field: data_status_code
+      - name: is_active
+        tests: [not_null]
+
+    tests:
+      - dbt_utils.expression_is_true:
+          name: metric_derived_layer_matches_dimension
+          arguments:
+            expression: >
+              (analytics_layer_code = 'feature'
+                and function_code is not null and trim(function_code) <> ''
+                and (model_type_code is null or trim(model_type_code) = '')
+                and (estimate_type_code is null or trim(estimate_type_code) = ''))
+              or (analytics_layer_code = 'model'
+                and (function_code is null or trim(function_code) = '')
+                and model_type_code is not null and trim(model_type_code) <> ''
+                and (estimate_type_code is null or trim(estimate_type_code) = ''))
+              or (analytics_layer_code = 'estimate'
+                and (function_code is null or trim(function_code) = '')
+                and (model_type_code is null or trim(model_type_code) = '')
+                and estimate_type_code is not null and trim(estimate_type_code) <> '')

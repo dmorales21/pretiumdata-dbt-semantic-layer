@@ -8,31 +8,41 @@ This **`docs/`** tree is the **canonical** place for migration governance, opera
 
 | Topic | Path |
 |-------|------|
+| **Surge pack** (split chapters + **single PDF-ready file**) | [surge/README.md](./surge/README.md) · [surge/SURGE_BRIEF.md](./surge/SURGE_BRIEF.md) |
 | **Operating model** (who owns what, repo split) | [OPERATING_MODEL.md](./OPERATING_MODEL.md) |
-| **Migration rules** (checklists, logging, cutover) | [migration/MIGRATION_RULES.md](./migration/MIGRATION_RULES.md) |
+| **Migration rules** (checklists, logging, cutover; **no `*_PROD` DB in dbt graph**) | [migration/MIGRATION_RULES.md](./migration/MIGRATION_RULES.md) — CI: [`scripts/ci/assert_no_legacy_prod_snowflake_databases_in_dbt_graph.sh`](../scripts/ci/assert_no_legacy_prod_snowflake_databases_in_dbt_graph.sh) |
 | **Migration task register** | [migration/MIGRATION_TASKS.md](./migration/MIGRATION_TASKS.md) |
 | **Fact systemization playbook** (`FACT_*` waves + per-model checklist) | [migration/MIGRATION_FACT_SYSTEMIZATION_PLAYBOOK.md](./migration/MIGRATION_FACT_SYSTEMIZATION_PLAYBOOK.md) |
 | **Model stack — features, estimation, data prep, labor/automation risk** (consolidated) | [migration/MODEL_FEATURE_ESTIMATION_PLAYBOOK.md](./migration/MODEL_FEATURE_ESTIMATION_PLAYBOOK.md) |
+| **Labor / automation risk — semantic-layer `TRANSFORM.DEV` objects + vendor ref** | [migration/LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md](./migration/LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md) |
+| **Progress disposition facts on `TRANSFORM.DEV` (42S02 vs OpCo), build + gate** | [migration/TRANSFORM_DEV_DISPOSITION_PROGRESS_SNOWSQL_DIAGNOSTIC.md](./migration/TRANSFORM_DEV_DISPOSITION_PROGRESS_SNOWSQL_DIAGNOSTIC.md) — dbt: **`models/transform/dev/progress_crm/`** |
 | **Vendors / datasets / metrics registry (rollup)** | [migration/MIGRATION_REGISTRY_VENDORS_DATASETS_METRICS.md](./migration/MIGRATION_REGISTRY_VENDORS_DATASETS_METRICS.md) |
 | **Baseline RAW vs TRANSFORM** | [migration/MIGRATION_BASELINE_RAW_TRANSFORM.md](./migration/MIGRATION_BASELINE_RAW_TRANSFORM.md) |
 | **Migration log** (append-only audit — short batch rows) | [migration/MIGRATION_LOG.md](./migration/MIGRATION_LOG.md) |
 | **Migration batch index** (verbose batch narratives + artifacts) | [migration/MIGRATION_BATCH_INDEX.md](./migration/MIGRATION_BATCH_INDEX.md) |
+| **Layer 2 FEATURE backlog vs `MIGRATION_PLAN`** (priorities + blockers) | [migration/MIGRATION_LAYER2_EXECUTION_TRACKER.md](./migration/MIGRATION_LAYER2_EXECUTION_TRACKER.md) |
 | **New metric intake** (REFERENCE.CATALOG checklist) | [migration/METRIC_INTAKE_CHECKLIST.md](./migration/METRIC_INTAKE_CHECKLIST.md) |
+| **`metric.csv` SoT + vendor-by-vendor catalog intake** | [migration/MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md](./migration/MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md) |
 | **Analytics features from catalog** (FACT→CONCEPT→FEATURE, four chains, Pilot A, CI) | [migration/PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md](./migration/PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md) |
 | **`SIGNALS` / `MODELS` catalog (design-only)** | [reference/CATALOG_SIGNALS_LAYOUT.md](./reference/CATALOG_SIGNALS_LAYOUT.md), [reference/CATALOG_MODELS_LAYOUT.md](./reference/CATALOG_MODELS_LAYOUT.md) |
 | **`catalog_wishlist`** (REFERENCE.CATALOG backlog / blocked items) | [reference/CATALOG_WISHLIST.md](./reference/CATALOG_WISHLIST.md) |
+| **Wishlist → data/model priorities** (WL_020 / 047 / 048 first; tiers 0–5) | [reference/CATALOG_WISHLIST_DATA_MODEL_PRIORITIES.md](./reference/CATALOG_WISHLIST_DATA_MODEL_PRIORITIES.md) |
+| **Duck Lake + catalog — P0 inventory & share targets** | [reference/DUCKLAKE_CATALOG_INVENTORY_PRIORITY.md](./reference/DUCKLAKE_CATALOG_INVENTORY_PRIORITY.md) |
+| **`SERVING.DEMO` — Iceberg/Parquet targets & gaps (Alex rows 81–83)** | [reference/SERVING_DEMO_ICEBERG_TARGETS.md](./reference/SERVING_DEMO_ICEBERG_TARGETS.md) |
 | **When is work “done”?** (canonical repo only) | [migration/CANONICAL_COMPLETION_DEFINITION.md](./migration/CANONICAL_COMPLETION_DEFINITION.md) |
 | **PR CI — parse + catalog smoke** | [`.github/workflows/semantic_layer_catalog_and_quality.yml`](../.github/workflows/semantic_layer_catalog_and_quality.yml); local: [`scripts/ci/run_catalog_quality_checks.sh`](../scripts/ci/run_catalog_quality_checks.sh) |
 | **Concept methods — FACT-only prioritized backlog** | [migration/MIGRATION_TASKS_CONCEPT_METHOD_FACT_PRIORITIES.md](./migration/MIGRATION_TASKS_CONCEPT_METHOD_FACT_PRIORITIES.md) |
 | **Migration status rollup** (verified snapshot for agents) | [migration/MIGRATION_STATUS_AGENT_ROLLUP.md](./migration/MIGRATION_STATUS_AGENT_ROLLUP.md) |
 | **Catalog seed order** (REFERENCE.CATALOG) | [CATALOG_SEED_ORDER.md](./CATALOG_SEED_ORDER.md) |
 | **`metric_derived`** (FEATURE / MODEL / ESTIMATE registry) | [reference/CATALOG_METRIC_DERIVED_LAYOUT.md](./reference/CATALOG_METRIC_DERIVED_LAYOUT.md) |
-| **`pretium_s3` / DuckLake + Claude** (share scope, cost framing vs Snowflake, Iceberg `SNOWFLAKE` vs `POLARIS`) | [reference/PRETIUM_S3_DUCKLAKE_CLAUDE_SCOPE.md](./reference/PRETIUM_S3_DUCKLAKE_CLAUDE_SCOPE.md) |
+| **SERVING.DEMO gap migration (T0–T4 plan)** | [migration/SERVING_METRICS_GAP_MIGRATION_PLAN.md](./migration/SERVING_METRICS_GAP_MIGRATION_PLAN.md) |
 | **Vendor × concept coverage + `source_schema` vet** | [migration/VENDOR_CONCEPT_COVERAGE_MATRIX.md](./migration/VENDOR_CONCEPT_COVERAGE_MATRIX.md) |
+| **Vendor context hub (per-vendor methodology + dictionaries)** | [vendor/vendors.md](./vendor/vendors.md) — [`vendor/0_inventory/`](./vendor/0_inventory/) + `vendor/{vendor_code}/` |
 | **Catalog-only vendors — SnowSQL vet (FBI/FDIC/NOAA/…)** | [migration/VENDOR_CATALOG_ONLY_SNOWSQL_VET.md](./migration/VENDOR_CATALOG_ONLY_SNOWSQL_VET.md) |
 | **Pipeline status** | [PIPELINE_STATUS.md](./PIPELINE_STATUS.md) |
 | **Cybersyn bring-in matrix** (`CYBERSYN_DATA_CATALOG` + catalog validation) | [reference/CYBERSYN_GLOBAL_GOVERNMENT_BRING_IN_MATRIX.md](./reference/CYBERSYN_GLOBAL_GOVERNMENT_BRING_IN_MATRIX.md) |
 | **Cybersyn migration tasks** (checklist + `T-CYBERSYN-GLOBAL-GOVERNMENT-READY`) | [migration/MIGRATION_TASKS_CYBERSYN_SOURCE_SNOW.md](./migration/MIGRATION_TASKS_CYBERSYN_SOURCE_SNOW.md) |
+| **QA — `TRANSFORM.DEV` objects registered in `REFERENCE.CATALOG.METRIC`** (Snowflake script + dbt `qa_catalog_metric_transform_dev_lineage`; distinct from `ANALYTICS.DBT_STAGE.QA_*`) | [migration/QA_TRANSFORM_DEV_CATALOG_REGISTRATIONS.md](./migration/QA_TRANSFORM_DEV_CATALOG_REGISTRATIONS.md) |
 | **Cybersyn catalog → vendor map** (seed + `dbt test`, one row per `table_name`) | [reference/catalog/cybersyn_catalog_table_vendor_map.csv](../seeds/reference/catalog/cybersyn_catalog_table_vendor_map.csv) — regenerate: `scripts/reference/catalog/regenerate_cybersyn_catalog_table_vendor_map.py` |
 | **Cherre migration + hope-list (market vs deal)** | [migration/MIGRATION_TASKS_CHERRE.md](./migration/MIGRATION_TASKS_CHERRE.md) — `T-VENDOR-CHERRE-READY`; smoke `scripts/sql/migration/inventory_cherre_transform_smoke.sql` |
 
@@ -40,13 +50,16 @@ This **`docs/`** tree is the **canonical** place for migration governance, opera
 
 | Topic | Path |
 |-------|------|
+| **Naming — index** (links SCHEMA_RULES, MIGRATION §4/§7, lineage) | [rules/NAMING_RULES_INDEX.md](./rules/NAMING_RULES_INDEX.md) |
 | Architecture | [rules/ARCHITECTURE_RULES.md](./rules/ARCHITECTURE_RULES.md) |
 | Schema conventions | [rules/SCHEMA_RULES.md](./rules/SCHEMA_RULES.md) |
 | Transform vendor design | [rules/TRANSFORM_VENDOR_DESIGN_PRINCIPLES.md](./rules/TRANSFORM_VENDOR_DESIGN_PRINCIPLES.md) |
 
 ## `TRANSFORM.DEV` dbt models
 
-Canonical **fact** implementations that land in **`TRANSFORM.DEV`** are authored under **`models/transform/dev/`** (for example `models/transform/dev/zillow/`). Inventory SQL and migration task docs under **`docs/migration/`** describe how each vendor cluster is validated before cutover.
+Canonical **fact** implementations that land in **`TRANSFORM.DEV`** are authored under **`models/transform/dev/`** (for example `models/transform/dev/zillow/`, **`models/transform/dev/progress_crm/`** for **FACT_PROGRESS_DISPOSITION** and **FACT_PROGRESS_DISPOSITION_LATEST**). Inventory SQL and migration task docs under **`docs/migration/`** describe how each vendor cluster is validated before cutover.
+
+**Zillow for-sale ZIP × month (inventory + Parcl-shaped absorption + governed signal slice):** the four **`FACT_*`** models that read **`source('zillow', 'zip_monthly_for_sale')`** (**`SOURCE_PROD.ZILLOW`**) are implemented today only in sibling **pretium-ai-dbt** (`dbt/models/transform/dev/zillow/`). They are **not** yet in this repo’s `models/transform/dev/zillow/` tree (that folder is the **research** `raw_*` stack). See [migration/MIGRATION_TASKS_ZILLOW_TRANSFORM_DEV.md](./migration/MIGRATION_TASKS_ZILLOW_TRANSFORM_DEV.md) §1.6.
 
 ## `REFERENCE.GEOGRAPHY` dbt models
 

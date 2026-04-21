@@ -1,0 +1,174 @@
+version: 2
+
+models:
+  - name: fact_fhfa_house_price
+    description: >
+      **Vendor:** FHFA house price / HPI via **Cybersyn** **`SOURCE_SNOW.US_REAL_ESTATE`** (`FHFA_HOUSE_PRICE_*`).
+      Long-form **GEO × DATE_REFERENCE × VARIABLE** for all resolved geography levels.
+      Prefer **`fact_fhfa_house_price_county`** / **`fact_fhfa_house_price_cbsa`** for fixed-grain reads. Catalog **DS_082** / **MET_013** + **MET_014**.
+
+  - name: fact_fhfa_house_price_county
+    description: >
+      **`GEO_LEVEL_CODE = county`** slice of **`fact_fhfa_house_price`**. Catalog **DS_082** / **MET_013**.
+
+  - name: fact_fhfa_house_price_cbsa
+    description: >
+      **`GEO_LEVEL_CODE = cbsa`** slice of **`fact_fhfa_house_price`**. Catalog **DS_082** / **MET_014**.
+
+  - name: fact_fhfa_mortgage_performance
+    description: >
+      **Vendor:** FHFA mortgage performance series on **`SOURCE_SNOW.US_REAL_ESTATE`** `FHFA_MORTGAGE_PERFORMANCE_*`.
+      All-grain superset; prefer county/CBSA slices. Catalog **DS_084**.
+
+  - name: fact_fhfa_mortgage_performance_county
+    description: >
+      County grain slice. Catalog **DS_084** / **MET_015**.
+
+  - name: fact_fhfa_mortgage_performance_cbsa
+    description: >
+      CBSA grain slice. Catalog **DS_084** / **MET_016**.
+
+  - name: fact_fhfa_uniform_appraisal
+    description: >
+      **Vendor:** FHFA Uniform Appraisal Dataset (UAD) on **`SOURCE_SNOW.US_REAL_ESTATE`** `FHFA_UNIFORM_APPRAISAL_*`.
+      All-grain superset; prefer county/CBSA slices. Catalog **DS_085**.
+
+  - name: fact_fhfa_uniform_appraisal_county
+    description: >
+      County grain slice. Catalog **DS_085** / **MET_017**.
+
+  - name: fact_fhfa_uniform_appraisal_cbsa
+    description: >
+      CBSA grain slice. Catalog **DS_085** / **MET_018**.
+
+  - name: fact_fhfa_house_price_county_monthly
+    description: >
+      FHFA house price series at county x month grain for MET_013 family (compatibility alias).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['geo_id', 'date_reference', 'variable']
+    columns:
+      - name: geo_id
+        tests: [not_null]
+      - name: date_reference
+        tests: [not_null]
+      - name: variable
+        tests: [not_null]
+      - name: value
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -1000000
+                max_value: 1000000000
+                inclusive: true
+
+  - name: fact_fhfa_house_price_cbsa_monthly
+    description: >
+      FHFA house price series at CBSA x month grain for MET_014 family (compatibility alias).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['geo_id', 'date_reference', 'variable']
+    columns:
+      - name: geo_id
+        tests: [not_null]
+      - name: date_reference
+        tests: [not_null]
+      - name: variable
+        tests: [not_null]
+      - name: value
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -1000000
+                max_value: 1000000000
+                inclusive: true
+
+  - name: fact_fhfa_uniform_appraisal_county_monthly
+    description: >
+      FHFA UAD uniform appraisal series at county x month grain for MET_017 family (compatibility alias).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['geo_id', 'date_reference', 'variable']
+    columns:
+      - name: geo_id
+        tests: [not_null]
+      - name: date_reference
+        tests: [not_null]
+      - name: variable
+        tests: [not_null]
+      - name: value
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -1000000
+                max_value: 1000000000
+                inclusive: true
+
+  - name: fact_fhfa_uniform_appraisal_cbsa_monthly
+    description: >
+      FHFA UAD uniform appraisal series at CBSA x month grain for MET_018 family (compatibility alias).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['geo_id', 'date_reference', 'variable']
+    columns:
+      - name: geo_id
+        tests: [not_null]
+      - name: date_reference
+        tests: [not_null]
+      - name: variable
+        tests: [not_null]
+      - name: value
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -1000000
+                max_value: 1000000000
+                inclusive: true
+
+  - name: fact_fhfa_mortgage_performance_county_monthly
+    description: >
+      FHFA mortgage performance series at county x month grain for MET_015 family (compatibility alias).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['geo_id', 'date_reference', 'variable']
+    columns:
+      - name: geo_id
+        tests: [not_null]
+      - name: date_reference
+        tests: [not_null]
+      - name: variable
+        tests: [not_null]
+      - name: value
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -1000000
+                max_value: 1000000000
+                inclusive: true
+
+  - name: fact_fhfa_mortgage_performance_cbsa_monthly
+    description: >
+      FHFA mortgage performance series at CBSA x month grain for MET_016 family (compatibility alias).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['geo_id', 'date_reference', 'variable']
+    columns:
+      - name: geo_id
+        tests: [not_null]
+      - name: date_reference
+        tests: [not_null]
+      - name: variable
+        tests: [not_null]
+      - name: value
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -1000000
+                max_value: 1000000000
+                inclusive: true

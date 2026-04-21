@@ -90,7 +90,7 @@
 
 ## Batch 019 — Analytics features playbook (plan v5)
 
-**Scope:** **`PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md`** (governance §§A–O: ownership, env, lineage, registration order, Pilot A, macros, PII, outbound index, SIGNALS/MODELS design refs, analytics-engine SoT rule, ADR template, Presley optional, dense concepts §M, market selection §N, four-chain §O). **Design-only:** **`docs/reference/CATALOG_SIGNALS_LAYOUT.md`**, **`CATALOG_MODELS_LAYOUT.md`**. **`docs/migration/ADR_TEMPLATE_CATALOG_GRAIN_CHANGE.md`**. **Validation:** **`scripts/sql/validation/README.md`**, **`feature_rent_market_spine_vs_concept_reconciliation.sql`** (Pilot A reconciliation Q; edit `MART_DEV` / `ANALYTICS` literals per env). **`models/analytics/feature/_feature_rent_market.yml`:** `dbt_utils.equal_rowcount` vs **`concept_rent_market_monthly`**, `not_null` on `vendor_code` / `month_start` / `geo_id`. **pretium-ai-dbt:** **`docs/governance/SEMANTIC_LAYER_PLAYBOOK_LINK.md`**, **`docs/README.md`** quick link. **Hub:** **`docs/README.md`**, **`METRIC_INTAKE_CHECKLIST.md`**, **`MIGRATION_RULES.md`**, **`MIGRATION_REGISTRY_VENDORS_DATASETS_METRICS.md`**, **`CATALOG_METRIC_DERIVED_LAYOUT.md`** cross-links. **`dbt parse`** on semantic-layer project exit 0 after test YAML fix.
+**Scope:** **`PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md`** (governance §§A–O: ownership, env, lineage, registration order, Pilot A, macros, PII, outbound index, SIGNALS/MODELS design refs, analytics-engine SoT rule, ADR template, Presley optional, dense concepts §M, market selection §N, four-chain §O). **Design-only:** **`docs/reference/CATALOG_SIGNALS_LAYOUT.md`**, **`CATALOG_MODELS_LAYOUT.md`**. **`docs/migration/ADR_TEMPLATE_CATALOG_GRAIN_CHANGE.md`**. **Validation:** **`scripts/sql/validation/README.md`**, **`feature_rent_market_spine_vs_concept_reconciliation.sql`** (Pilot A reconciliation Q; defaults **`TRANSFORM.DEV`** / **`ANALYTICS.DBT_DEV`**; edit literals per env if needed). **`models/analytics/feature/_feature_rent_market.yml`:** `dbt_utils.equal_rowcount` vs **`concept_rent_market_monthly`**, `not_null` on `vendor_code` / `month_start` / `geo_id`. **pretium-ai-dbt:** **`docs/governance/SEMANTIC_LAYER_PLAYBOOK_LINK.md`**, **`docs/README.md`** quick link. **Hub:** **`docs/README.md`**, **`METRIC_INTAKE_CHECKLIST.md`**, **`MIGRATION_RULES.md`**, **`MIGRATION_REGISTRY_VENDORS_DATASETS_METRICS.md`**, **`CATALOG_METRIC_DERIVED_LAYOUT.md`** cross-links. **`dbt parse`** on semantic-layer project exit 0 after test YAML fix.
 
 ## Batch 021 — CI catalog gates + compliance vet
 
@@ -98,3 +98,47 @@
 - **Local script:** `scripts/ci/run_catalog_quality_checks.sh` (optional **`RUN_SNOWFLAKE_CHECKS=1`** for seed/test/compile).
 - **YAML:** BPS + LODES **`equal_rowcount`** — `compare_model` nested under **`arguments:`** (dbt generic test deprecation).
 - **Evidence:** `artifacts/2026-04-19_semantic_layer_quality_gate_results.md` — `dbt test --select path:seeds/reference/catalog` pass summary; **`dimensional_reference_catalog_and_geography.sql`** row counts.
+
+## Batch 025 — SOURCE_PROD BLS QCEW + O*NET vet; `FACT_BLS_QCEW_COUNTY_NAICS_QUARTERLY`
+
+- **Artifact:** `artifacts/2026-04-19_batch025_bls_qcew_onet_vet_and_fact.md` — Snowflake row counts (QCEW raw **213,219,014**; O*NET table sizes), geography / dup / employment quality interpretation, `dbt parse` PASS.
+- **Code:** `models/sources/sources_source_prod_bls_onet.yml`; `models/transform/dev/bls/fact_bls_qcew_county_naics_quarterly.sql`; `models/transform/dev/bls/schema_bls_qcew.yml`; `scripts/sql/migration/vet_source_prod_bls_qcew_onet_for_workforce_facts.sql`.
+- **Next:** `dbt run` + `dbt test` on `fact_bls_qcew_county_naics_quarterly` with warehouse + grants; optional row parity vs pretium-ai-dbt `cleaned_qcew_county_naics`; port O*NET cleanses + Epoch refs per **T-ANALYTICS-LABOR-AUTOMATION-RISK-STACK**.
+
+## Batch 027 — Labor / automation risk: ANALYTICS FEATURE views (county / CBSA / structural)
+
+- **Artifact:** `artifacts/2026-04-19_batch027_labor_automation_feature_views.md`
+- **Code:** `models/analytics/feature/feature_ai_replacement_risk_county.sql`, `feature_ai_replacement_risk_cbsa.sql`, `feature_ai_replacement_risk_cbsa_rollup.sql`, `feature_structural_unemployment_risk_county.sql`; `models/analytics/feature/_feature_ai_replacement_risk.yml`.
+- **Semantics:** All four read **`ref('fact_county_ai_replacement_risk')`** (or downstream FEATURE refs). **Not** a line-for-line port of pretium `fact_economy_automation_risk` / `fact_household_labor_qcew_naics` CBSA×NAICS incremental logic. **`feature_ai_replacement_risk_cbsa`** exposes synthetic **`naics_code = 'ALL'`** per CBSA×date until a dedicated industry stack exists.
+- **Gate:** `dbt_project.yml` var **`onet_soc_naics_enabled`** (default **false** for CI). Local / Snowflake validation: `--vars '{onet_soc_naics_enabled: true}'` after FACT eight-pack (`docs/runbooks/RUN_LABOR_AUTOMATION_RISK_STACK_DBT.md`).
+- **Next (post-028):** **`metric_derived`** for FEATURE/MODEL columns; optional parity **fact_county_ai_replacement_risk** vs legacy; native AIGE cleanse if legacy **`FACT_AIGE_COUNTIES`** is retired.
+
+## Batch 028 — Labor / automation risk: bivariate FEATURE, dual-index MODEL, mart, AIGE read path
+
+- **Artifact:** `artifacts/2026-04-20_batch028_labor_ai_p2_p3_model_mart_aige.md`
+- **Code:** `models/transform/dev/aige/fact_aige_counties.sql` + `schema_aige.yml`; `models/analytics/feature/feature_ai_risk_county_bivariate.sql` + `_feature_ai_risk_bivariate_p2.yml`; `models/analytics/model/model_county_ai_risk_dual_index.sql` + `_model_ai_risk_labor_p2.yml`; `models/transform/dev/entity/mart_county_ai_automation_risk.sql` + `_mart_county_ai_automation_risk.yml`; `dbt_project.yml` vars **`aige_counties_enabled`** + **`transform.dev.aige`** config path. *(Initial AIGE pass-through via legacy DEV table — superseded by **batch 029**.)*
+- **Gate:** **`onet_soc_naics_enabled`** for analytics/mart chain; **`aige_counties_enabled`** for **`fact_aige_counties`** populated from **`SOURCE_PROD.AIGE`** (batch **029**).
+- **Next:** P6 **`metric_derived`**; P5 legacy row parity; P7 consumer cutover.
+
+## Batch 026 — Labor / automation risk: O*NET + Epoch + county SOC + county AI replacement (`TRANSFORM.DEV` FACT spine)
+
+- **Artifact:** `artifacts/2026-04-19_batch026_labor_automation_risk_stack.md` — operator checklist, pending FEATURE/MART scope, handoff note.
+- **Canonical doc:** `LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md` (object register, dbt paths, vendor ref, geography swap, `dbt` selection).
+- **Code:** `models/transform/dev/dol_onet/*` (`fact_dol_onet_soc_gwa_activity_risk`, `fact_dol_onet_soc_context_friction`, `fact_dol_onet_soc_ai_exposure`); `models/transform/dev/pretium_epoch/*`; `models/transform/dev/bls/fact_county_soc_employment.sql`, `fact_county_ai_replacement_risk.sql`; `schema_bls_qcew.yml` (parity warn tests); `sources_transform.yml` → **`transform_dev_vendor_ref.ref_onet_soc_to_naics`**; `sources_transform_dev_legacy.yml` → **`fact_county_soc_employment`** (parity only); removed dbt model `ref_onet_soc_to_naics.sql` (bridge is landed table + source); `docs/migration/sql/create_ref_onet_soc_to_naics_transform_dev.sql`; `dbt_project.yml` `dol_onet` / `pretium_epoch` paths; catalog `metric.csv` MET_026–028; playbook cross-link `MODEL_FEATURE_ESTIMATION_PLAYBOOK.md` §3.
+- **Geo:** `fact_county_ai_replacement_risk` uses **`REFERENCE.GEOGRAPHY`** `county`, `state`, `county_cbsa_xwalk` + `reference_geography_year()` instead of pretium **`source('ref','h3_canon_block_group')`**.
+- **Next (same task):** ~~Port **`FEATURE_*` / `MODEL_*` / mart** chain~~ → see **batch 027–028**; optional AI-risk row parity; native AIGE ingest per `AI_REPLACEMENT_AND_AIGE_DATA_DEPENDENCIES.md` if legacy table unavailable.
+
+## Batch 029 — Zero legacy DB in dbt graph (Oxford + AIGE)
+
+- **Log:** `MIGRATION_LOG.md` row **029**.
+- **Code:** `models/sources/sources_transform_dev_oxford_ref.yml`; `models/sources/sources_source_prod_aige.yml`; `models/transform/dev/oxford/ref_oxford_metro_cbsa.sql` (reads **`TRANSFORM.DEV.OXFORD_CBSA_CROSSWALK`** only); `models/transform/dev/aige/fact_aige_counties.sql` (unpivot **`SOURCE_PROD.AIGE.AIGE_COUNTIES`**). **Removed:** `models/sources/sources_transform_prod_ref.yml`.
+- **Operator SQL:** `docs/migration/sql/land_oxford_cbsa_crosswalk_transform_dev.sql` — one-time land of Oxford crosswalk to **TRANSFORM.DEV** (script may still `SELECT` from **TRANSFORM_PROD**; dbt models do not).
+- **Evidence:** `dbt parse` PASS.
+
+## Batch 030 — MIGRATION_PLAN Layer 2: `feature_employment_delta_cbsa_monthly` (LAUS → OMB CBSA)
+
+- **Tracker:** `MIGRATION_LAYER2_EXECUTION_TRACKER.md` — first **P1** FEATURE after labor/rent spine; marks **`feature_economic_momentum_cbsa`** successor (LAUS-only v1).
+- **Code:** `models/analytics/feature/feature_employment_delta_cbsa_monthly.sql`, `_feature_employment_delta_cbsa_monthly.yml`.
+- **Docs:** `MIGRATION_PLAN.md` (Layer 6 + migration order), `MIGRATION_LOG.md` row **030**, `docs/README.md` hub link to tracker.
+- **Evidence:** `dbt parse` PASS.
+

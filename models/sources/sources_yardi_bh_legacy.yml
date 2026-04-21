@@ -1,0 +1,17 @@
+version: 2
+
+# Legacy BH share — `fact_bh_yardi_ledger` uses `yardi_bh.TRANS` only when **`yardi_trans_bh_available: false`**
+# and **`yardi_bh_available: true`**. Prefer **`source('transform_yardi','TRANS_BH')`** (`yardi_trans_bh_available: true`).
+# Gate: vars in `dbt_project.yml`; compile still needs this declaration when legacy path is possible.
+sources:
+  - name: yardi_bh
+    database: DS_SOURCE_PROD_YARDI_BH
+    schema: YARDI
+    description: >
+      BH Communities Yardi legacy share (DS_SOURCE_PROD_YARDI_BH.YARDI). Canonical target per pretium-ai-dbt
+      CLEANED notes is SOURCE_ENTITY; use only where silver TRANS_BH is not yet available.
+
+    tables:
+      - name: TRANS
+        identifier: TRANS
+        description: Transaction and payment records (BH share) for ledger FACT.

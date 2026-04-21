@@ -1,0 +1,257 @@
+# Named selectors — use: dbt run --selector <name> --vars '{...}'
+# dbt does not treat `fact_sfdc_*` as a glob on model names; use this selector or `tag:source_entity_progress_fact`.
+selectors:
+  - name: source_entity_progress_facts
+    description: >
+      All SOURCE_ENTITY.PROGRESS read-through FACT views (Salesforce + entity Yardi).
+      Requires --vars '{"transform_dev_enable_source_entity_progress_facts": true}' or the var set in dbt_project / profile.
+    definition:
+      tag: source_entity_progress_fact
+
+  - name: source_entity_progress_concepts
+    description: >
+      Fund-modeling `concept_progress_*` tables over SOURCE_ENTITY.PROGRESS facts (depends on `fact_sfdc_*` / `fact_se_yardi_*`).
+      Same enable var as facts: `transform_dev_enable_source_entity_progress_facts`.
+    definition:
+      tag: source_entity_progress_concept
+
+  - name: labor_demographics_geography_spine
+    description: >
+      **TRANSFORM.DEV** read-throughs for **population (PEP)**, **employment (TRANSFORM.CONCEPT)**,
+      **LAUS** (county + observe CBSA), **QCEW** (wages/employment by NAICS where modeled), plus tag
+      **`labor_demographics_geography_spine`** on LODES H3 chain models. See
+      `docs/migration/LABOR_DEMO_H3_COUNTY_CBSA_PLACE.md` and `registry/lineage/labor_market_demographics_geography_spine.yml`.
+    definition:
+      union:
+        - tag: labor_demographics_geography_spine
+        - tag: corridor_h3_transform_dev
+
+  - name: corridor_h3_transform_dev
+    description: >
+      **TRANSFORM.DEV** H3 R8 corridor chain built only from **`TRANSFORM.LODES`** + **`REFERENCE.GEOGRAPHY`**
+      (no `ANALYTICS.FACTS` / `analytics.facts` sources). See `docs/migration/RUN_CORRIDOR_H3_TRANSFORM_DEV_OBJECTS.md`.
+    definition:
+      union:
+        - tag: corridor_h3_transform_dev
+        - method: fqn
+          value: fact_lodes_od_h3_r8_annual
+
+  # Surfaces registered in REFERENCE.CATALOG.metric with table_path on TRANSFORM.DEV (QA script
+  # scripts/sql/validation/qa_transform_dev_catalog_metric_table_paths.sql). Example:
+  #   dbt run --selector catalog_metric_transform_dev_surface
+  # Add upstream parents per vendor if refs fail (FHFA/HUD/IRS need SOURCE_SNOW-backed parents).
+  - name: catalog_metric_transform_dev_surface
+    description: >
+      Core **TRANSFORM.DEV** facts/refs that back active catalog metrics (BPS, BLS LAUS/QCEW, LODES OD BG,
+      county×SOC employment, DOL O*NET stack, FHFA/Freddie/HUD/IRS Cybersyn slices, Pretium Epoch GWA crosswalk).
+      Use **`+selector:`** so parent facts (e.g. `fact_fhfa_house_price`) build before county/CBSA views.
+    definition:
+      union:
+        - method: fqn
+          value: fact_bps_permits_county
+        - method: fqn
+          value: fact_bls_laus_county
+        - method: fqn
+          value: fact_bls_laus_cbsa_monthly
+        - method: fqn
+          value: fact_bls_qcew_county_naics_quarterly
+        - method: fqn
+          value: fact_county_soc_employment
+        - method: fqn
+          value: fact_dol_onet_soc_gwa_activity_risk
+        - method: fqn
+          value: fact_dol_onet_soc_context_friction
+        - method: fqn
+          value: fact_dol_onet_soc_ai_exposure
+        - method: fqn
+          value: fact_fhfa_house_price_county
+        - method: fqn
+          value: fact_fhfa_house_price_cbsa
+        - method: fqn
+          value: fact_fhfa_mortgage_performance_county
+        - method: fqn
+          value: fact_fhfa_mortgage_performance_cbsa
+        - method: fqn
+          value: fact_fhfa_uniform_appraisal_county
+        - method: fqn
+          value: fact_fhfa_uniform_appraisal_cbsa
+        - method: fqn
+          value: fact_freddie_mac_housing_national_weekly
+        - method: fqn
+          value: fact_hud_housing_series_county
+        - method: fqn
+          value: fact_hud_housing_series_cbsa
+        - method: fqn
+          value: fact_irs_soi_migration_by_characteristic_annual_county
+        - method: fqn
+          value: fact_irs_soi_migration_by_characteristic_annual_cbsa
+        - method: fqn
+          value: fact_irs_soi_origin_destination_migration_annual_county
+        - method: fqn
+          value: fact_irs_soi_origin_destination_migration_annual_cbsa
+        - method: fqn
+          value: fact_lodes_od_bg
+        - method: fqn
+          value: ref_epoch_to_gwa_crosswalk
+
+  - name: transform_dev_fact_gap_wave_1
+    description: >
+      Wave 1 (20 models): non-duplicative, metric-backed FACT datasets only. This is the
+      canonical gap-fill set: build fact_[dataset], then register/refresh metric rows, then
+      promote concept_[concept] rollups.
+    definition:
+      union:
+        - method: fqn
+          value: fact_bls_laus_county
+        - method: fqn
+          value: fact_bls_laus_cbsa_monthly
+        - method: fqn
+          value: fact_bls_qcew_county_naics_quarterly
+        - method: fqn
+          value: fact_bps_permits_county
+        - method: fqn
+          value: fact_lodes_od_bg
+        - method: fqn
+          value: fact_fhfa_house_price_county_monthly
+        - method: fqn
+          value: fact_fhfa_house_price_cbsa_monthly
+        - method: fqn
+          value: fact_fhfa_mortgage_performance_cbsa_monthly
+        - method: fqn
+          value: fact_fhfa_mortgage_performance_county_monthly
+        - method: fqn
+          value: fact_fhfa_uniform_appraisal_cbsa_monthly
+        - method: fqn
+          value: fact_fhfa_uniform_appraisal_county_monthly
+        - method: fqn
+          value: fact_freddie_mac_housing_national_weekly
+        - method: fqn
+          value: fact_hud_housing_series_cbsa_monthly
+        - method: fqn
+          value: fact_hud_housing_series_county_monthly
+        - method: fqn
+          value: fact_irs_soi_migration_by_characteristic_annual_cbsa
+        - method: fqn
+          value: fact_irs_soi_migration_by_characteristic_annual_county
+        - method: fqn
+          value: fact_irs_soi_origin_destination_migration_annual_cbsa
+        - method: fqn
+          value: fact_irs_soi_origin_destination_migration_annual_county
+        - method: fqn
+          value: fact_oxford_amreg_quarterly
+        - method: fqn
+          value: fact_oxford_wdmarco_quarterly
+        - method: fqn
+          value: fact_county_soc_employment
+        - method: fqn
+          value: fact_county_ai_replacement_risk
+        - method: fqn
+          value: fact_dol_onet_soc_gwa_activity_risk
+        - method: fqn
+          value: fact_dol_onet_soc_context_friction
+        - method: fqn
+          value: fact_dol_onet_soc_ai_exposure
+        - method: fqn
+          value: fact_aige_counties
+
+  - name: transform_dev_fact_gap_wave_2
+    description: >
+      Wave 2 (9 models): downstream dependency facts and not-yet-metric-backed gap fillers.
+      Register metrics immediately after each fact is accepted.
+    definition:
+      union:
+        - method: fqn
+          value: fact_census_pep_cbsa_annual
+        - method: fqn
+          value: fact_census_pep_county_annual
+        - method: fqn
+          value: fact_transform_concept_employment_cbsa_monthly
+        - method: fqn
+          value: fact_transform_concept_employment_county_monthly
+        - method: fqn
+          value: fact_lodes_od_h3_r8_annual
+        - method: fqn
+          value: fact_lodes_od_workplace_hex_annual
+        - method: fqn
+          value: fact_lodes_nearest_center_h3_r8_annual
+        - method: fqn
+          value: fact_lodes_h3r8_workplace_gravity
+        - method: fqn
+          value: fact_realtor_inventory_cbsa
+
+  - name: transform_dev_fact_gap_wave_3
+    description: >
+      Wave 3 (33 models): optional/non-core market backlog after Wave 1+2 are complete;
+      includes fund-opco operational spine and remaining unregistered market facts.
+    definition:
+      union:
+        - method: fqn
+          value: fact_markerr_rent_sfr
+        - method: fqn
+          value: fact_yardi_matrix_submarketmatch_zipzcta_bh
+        - method: fqn
+          value: fact_fhfa_house_price
+        - method: fqn
+          value: fact_fhfa_house_price_cbsa
+        - method: fqn
+          value: fact_fhfa_house_price_county
+        - method: fqn
+          value: fact_se_yardi_cam_opex_rule
+        - method: fqn
+          value: fact_se_yardi_cash_ledger_transaction
+        - method: fqn
+          value: fact_se_yardi_charge_payment_detail
+        - method: fqn
+          value: fact_se_yardi_gl_account_hierarchy
+        - method: fqn
+          value: fact_se_yardi_gl_line_detail
+        - method: fqn
+          value: fact_se_yardi_gl_period_total
+        - method: fqn
+          value: fact_se_yardi_investment_register_detail
+        - method: fqn
+          value: fact_se_yardi_lease_history
+        - method: fqn
+          value: fact_se_yardi_property_attribute
+        - method: fqn
+          value: fact_se_yardi_receivable_aging
+        - method: fqn
+          value: fact_se_yardi_strategy_segment
+        - method: fqn
+          value: fact_se_yardi_tenant_history
+        - method: fqn
+          value: fact_se_yardi_unit_master
+        - method: fqn
+          value: fact_se_yardi_unit_status_history
+        - method: fqn
+          value: fact_se_yardi_unit_type_market_rent
+        - method: fqn
+          value: fact_sfdc_acquisition_c
+        - method: fqn
+          value: fact_sfdc_acquisition_history
+        - method: fqn
+          value: fact_sfdc_bpo_c
+        - method: fqn
+          value: fact_sfdc_concession_c
+        - method: fqn
+          value: fact_sfdc_disposition_c
+        - method: fqn
+          value: fact_sfdc_finance_due_diligence_c
+        - method: fqn
+          value: fact_sfdc_fund_c
+        - method: fqn
+          value: fact_sfdc_fund_market_c
+        - method: fqn
+          value: fact_sfdc_fund_pipeline_c
+        - method: fqn
+          value: fact_sfdc_fund_pipeline_summary_c
+        - method: fqn
+          value: fact_sfdc_hold_c
+        - method: fqn
+          value: fact_sfdc_market_to_submarket_c
+        - method: fqn
+          value: fact_sfdc_portfolio_c
+        - method: fqn
+          value: fact_sfdc_properties_c
+        - method: fqn
+          value: fact_sfdc_submarket_c

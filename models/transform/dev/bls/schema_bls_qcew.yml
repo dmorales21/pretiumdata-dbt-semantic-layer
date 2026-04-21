@@ -1,0 +1,107 @@
+version: 2
+
+models:
+  - name: fact_bls_qcew_county_naics_quarterly
+    tests:
+      - dbt_utils.equal_rowcount:
+          name: fact_bls_qcew_county_naics_quarterly_rowcount_vs_legacy_cleaned
+          arguments:
+            compare_model: source('transform_dev_legacy_pretium_ai', 'cleaned_qcew_county_naics')
+          config:
+            severity: warn
+            tags: ['transform_dev', 'bls', 'qcew', 'parity']
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - county_fips
+              - naics_2digit
+              - year
+              - quarter
+    description: >
+      **Vendor / dataset:** BLS / QCEW. County-only, 2-digit NAICS (including combined-sector codes 31-33, 44-45, 48-49),
+      quarterly employment and wages; ownership types 1/2/3/5 rolled up. Years 2022–2024; excludes QCEW annual row (qtr=A).
+      **Concepts:** jobs (`employment`), wages (`total_wages`, `avg_weekly_wage`), scale (`establishments`) — distinct columns;
+      do not treat this table as O*NET task exposure. Vetted via `scripts/sql/migration/vet_source_prod_bls_qcew_onet_for_workforce_facts.sql`.
+    columns:
+      - name: county_fips
+        description: Five-digit county FIPS (excludes state totals and pseudo-areas).
+        tests:
+          - not_null
+      - name: naics_2digit
+        description: Two-digit or combined NAICS sector code from QCEW industry_code.
+        tests:
+          - not_null
+      - name: naics_title
+        description: Industry title (NAICS prefix stripped upstream in logic).
+      - name: year
+        tests:
+          - not_null
+      - name: quarter
+        tests:
+          - not_null
+      - name: date_reference
+        description: Last month of the quarter (series anchor).
+        tests:
+          - not_null
+      - name: employment
+        description: QCEW employment headcount for the county × NAICS × quarter (summed across ownership).
+        tests:
+          - not_null
+      - name: total_wages
+        description: Sum of quarterly wages for the group.
+      - name: establishments
+        description: Establishment count sum where present in raw.
+      - name: avg_weekly_wage
+        description: total_wages / (employment × 13) rounded; null when employment is zero (defensive).
+
+  - name: fact_county_soc_employment
+    tests:
+      - dbt_utils.equal_rowcount:
+          name: fact_county_soc_employment_rowcount_vs_legacy_pretium
+          arguments:
+            compare_model: source('transform_dev_legacy_pretium_ai', 'fact_county_soc_employment')
+          config:
+            severity: warn
+            tags: ['transform_dev', 'bls', 'onet', 'parity']
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - county_fips
+              - onet_soc_code
+    description: >
+      County × O*NET-SOC estimated employment and annual wage bill from QCEW 2024 (four-quarter average)
+      × normalized **REF_ONET_SOC_TO_NAICS** staffing proportions (vendor ref `transform_dev_vendor_ref.ref_onet_soc_to_naics`).
+      Distinct from QCEW industry employment; see AI_REPLACEMENT_AND_AIGE_DATA_DEPENDENCIES.md §0.
+    columns:
+      - name: county_fips
+        tests:
+          - not_null
+      - name: onet_soc_code
+        tests:
+          - not_null
+      - name: estimated_employment
+        tests:
+          - not_null
+      - name: data_year
+        tests:
+          - not_null
+
+  - name: fact_county_ai_replacement_risk
+    description: >
+      County AI replacement risk (raw susceptibility, deployment-adjusted exposure, combined score),
+      shock magnitude, cognitive NAICS employment trend from **fact_bls_qcew_county_naics_quarterly**,
+      and county/CBSA labels from **REFERENCE.GEOGRAPHY**. Port of pretium-ai-dbt `fact_county_ai_replacement_risk`.
+    columns:
+      - name: county_fips
+        tests:
+          - not_null
+          - unique
+      - name: combined_risk_score
+        tests:
+          - not_null
+      - name: risk_tier
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['HIGH', 'MEDIUM', 'LOW']

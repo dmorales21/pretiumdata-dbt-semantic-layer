@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  # Landed / cloned tables in **TRANSFORM.DEV** that are not built as dbt models in this repo.
+  # Register each table here when a model uses `source('transform_dev', '<name>')`.
+  - name: transform_dev
+    database: TRANSFORM
+    schema: DEV
+    description: >
+      External **TRANSFORM.DEV** relations (CTAS, clones, or Jon pipeline outputs) consumed by read-through `FACT_*` views.
+      See **MIGRATION_TASKS_COSTAR.md** §1.5 for CoStar MF DataExport inventory.
+
+    tables:
+      - name: fact_costar_cbsa_monthly
+        identifier: FACT_COSTAR_CBSA_MONTHLY
+        description: >
+          Wide MF CoStar DataExport at CBSA-monthly grain (**DS_034**). Physical name may differ by account;
+          if yours differs, add a **sources** patch in `packages.yml` / dbt project override or land a synonym view
+          **`FACT_COSTAR_CBSA_MONTHLY`** in **TRANSFORM.DEV**.

@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: model_disposition_yield_portfolio
+    description: >
+      **EDW retirement** — fund × CBSA × disposition_stage rollup over **concept_disposition_yield_property**
+      (replaces **MART_DISPOSITION_YIELD_PORTFOLIO**). Gated by **`transform_dev_enable_disposition_yield_stack`**.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - fund_id
+              - cbsa_code
+              - disposition_stage
+          config:
+            enabled: "{{ var('transform_dev_enable_disposition_yield_stack', false) }}"

@@ -1,0 +1,12 @@
+# AUTO-GENERATED — edit dictionary.csv for field-level detail; refresh via generate_vendor_context_from_seed.py
+vendor_id: VND_023
+vendor_code: first_street
+vendor_label: "First Street Foundation"
+source_schema: "RAW.FIRST_STREET"
+data_type: spatial
+refresh_cadence: annual
+contract_status: active
+data_share_type: s3
+is_active: True
+dictionary_version: '0.1'
+fields: []  # populate from Snowflake DESCRIBE + product dictionaries

@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: model_county_ai_risk_dual_index
+    description: >
+      National percentile blend of O*NET/Epoch/QCEW exposure rank and AIGE score rank; **`dual_index_0_100`**.
+    columns:
+      - name: county_fips
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - name: dual_index_tier
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["BOTH_HIGH", "ELEVATED", "MODERATE", "INSUFFICIENT"]
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - county_fips
+          config:
+            enabled: "{{ var('onet_soc_naics_enabled', false) }}"

@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: fact_yardi_matrix_marketperformance_bh
+    description: >
+      Read-through of **TRANSFORM.YARDI_MATRIX.MARKETPERFORMANCE_BH**. Long-form ``DATATYPE`` / ``DATAVALUE`` series;
+      catalog **MET_046** (``DATAVALUE``; filter rent-like ``DATATYPE`` in downstream concept).
+    config:
+      tags: ["transform", "transform_dev", "yardi_matrix", "fact_yardi_matrix"]
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: source('transform_yardi_matrix', 'marketperformance_bh')
+          config:
+            enabled: "{{ var('semantic_layer_qa_transform_dev_bound_tests', false) }}"
+      - dbt_utils.expression_is_true:
+          expression: >
+            (DATAVALUE is null)
+            or (try_to_double(to_varchar(DATAVALUE)) is null)
+            or (
+              abs(try_to_double(to_varchar(DATAVALUE))) <= 1e18
+              and try_to_double(to_varchar(DATAVALUE)) = try_to_double(to_varchar(DATAVALUE))
+            )
+          config:
+            enabled: "{{ var('semantic_layer_qa_transform_dev_bound_tests', false) }}"
+    columns:
+      - name: DATAVALUE
+        description: Catalog **MET_046** — long-form KPI; numeric coercion only where parseable.
+
+  - name: fact_yardi_matrix_submarketmatch_zipzcta_bh
+    description: >
+      Read-through of **TRANSFORM.YARDI_MATRIX.SUBMARKETMATCHZIPZCTA_BH** (submarket ↔ ZIP bridge for Matrix rent path).
+    config:
+      tags: ["transform", "transform_dev", "yardi_matrix", "fact_yardi_matrix"]

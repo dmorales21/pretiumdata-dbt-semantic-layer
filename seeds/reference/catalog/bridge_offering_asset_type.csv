@@ -1,0 +1,5 @@
+bridge_offering_asset_type_id,offering_code,asset_type_code,is_primary,sort_order,is_active
+BOA_001,property_tearsheet_resi,property_unit,TRUE,1,TRUE
+BOA_002,ic_signal_monitor_resi,geographic_market,TRUE,1,TRUE
+BOA_003,ic_signal_monitor_resi,portfolio_aggregate,FALSE,2,TRUE
+BOA_004,opco_market_pack_req,geographic_market,TRUE,1,TRUE

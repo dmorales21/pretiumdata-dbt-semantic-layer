@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: fact_progress_yardi_property
+    description: >
+      TRANSFORM.DEV.FACT_PROGRESS_YARDI_PROPERTY — Progress property master (snapshot grain).
+      expected_source_refresh_frequency reflects typical silver load cadence (DAILY); not a `_daily` time-series model.
+
+  - name: fact_bh_yardi_property
+    description: >
+      BH property master from PROPERTY_BH; same column contract as fact_progress_yardi_property.
+
+  - name: fact_progress_yardi_unit
+    description: >
+      Progress unit spine from UNIT_PROGRESS; snapshot grain.
+
+  - name: fact_bh_yardi_unit
+    description: >
+      BH unit spine from UNIT_BH.
+
+  - name: fact_progress_yardi_ledger
+    description: >
+      Progress transaction ledger (EVENT grain: one row per HMY). Joins UNIT_PROGRESS for yardi_property_hkey.
+
+  - name: fact_bh_yardi_ledger
+    description: >
+      BH transaction ledger. **`yardi_trans_bh_available: true`** → `source('transform_yardi','TRANS_BH')` (preferred).
+      Else **`yardi_bh_available: true`** → legacy `source('yardi_bh','TRANS')`. Model builds when either flag is true
+      (and `transform_dev_enable_fund_opco_facts`). Same column contract as `fact_progress_yardi_ledger` / analytics `TRANS_BH`.

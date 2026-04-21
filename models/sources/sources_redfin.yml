@@ -1,0 +1,36 @@
+version: 2
+
+sources:
+  # TRANSFORM.REDFIN — interim market-tracker latest views (Jon/DE; read-only).
+  # Canonical history: source_redfin on SOURCE_PROD (below). See MIGRATION_TASKS_STANFORD_REDFIN.md.
+  - name: redfin
+    database: TRANSFORM
+    schema: REDFIN
+    description: >
+      Redfin market tracker latest snapshot views (TEXT columns, wide). Interim home until SOURCE_PROD.REDFIN
+      is the sole read path. Inventory: scripts/sql/migration/inventory_stanford_redfin_for_dev_facts.sql (RF-*).
+    meta:
+      interim_source: true
+      canonical_target: source_prod
+    tables:
+      - name: redfin_zipcode_market_tracker_latest
+        identifier: REDFIN_ZIPCODE_MARKET_TRACKER_LATEST
+        description: ZIP grain latest tracker (wide TEXT); pair with cleaned layer when ported.
+      - name: redfin_county_market_tracker_latest
+        identifier: REDFIN_COUNTY_MARKET_TRACKER_LATEST
+        description: County FIPS grain latest tracker.
+      - name: redfin_metro_market_tracker_latest
+        identifier: REDFIN_METRO_MARKET_TRACKER_LATEST
+        description: Metro/CBSA-linked grain latest tracker.
+
+  # SOURCE_PROD.REDFIN — canonical full-history ZIP / MSA tables (read-only).
+  - name: source_redfin
+    database: SOURCE_PROD
+    schema: REDFIN
+    description: >
+      Redfin canonical historical landings (TEXT columns). Use when interim TRANSFORM.REDFIN views are
+      insufficient; align with MIGRATION_BASELINE_RAW_TRANSFORM.md when DE promotes objects.
+    tables:
+      - name: redfin_zipcode
+        identifier: REDFIN_ZIPCODE
+        description: Full-history ZIP table; all property types unless filtered in SQL.

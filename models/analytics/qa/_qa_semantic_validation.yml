@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: qa_freshness_staleness_report
+    description: "Slug **freshness_staleness_report** (13) — max `month_start` staleness by vendor × market concept."
+  - name: qa_partition_rowcount_regression
+    description: "Slug **partition_rowcount_regression** (14) — current row counts by vendor × grain (baseline for % change between runs)."
+  - name: qa_series_collision_detection
+    description: "Slug **series_collision_detection** (7) — duplicate natural keys (vendor, metric_id_observe, grain, geo_id, month_start)."
+  - name: qa_geography_referential_integrity
+    description: "Slug **geography_referential_integrity** (6) — concept geo keys vs `ref('geography_latest')`."
+  - name: qa_metric_observe_lint
+    description: "Slug **metric_observe_lint** (10) — blank `metric_id_observe` and duplicate vendor observe strings across concepts."
+  - name: qa_uad_isolation_validation
+    description: "Slug **uad_isolation_validation** (11) — FHFA_UAD row volume on home price / valuation only."
+  - name: qa_cross_series_coherence
+    description: "Slug **cross_series_coherence** (5) — BLS LAUS employment vs unemployment rate join sanity."
+  - name: qa_feature_concept_alignment
+    description: "Slug **feature_concept_alignment** (15) — FEATURE rent spine vs `concept_rent_market_monthly` `abs_delta`."
+  - name: qa_catalog_coverage_matrix
+    description: "Slug **catalog_coverage_matrix** (9) — `ref('concept')` active rows vs implemented market concept row counts."
+  - name: qa_geography_join_audit
+    description: "Slug **geography_join_audit** (8) — LAUS `AREA_CODE` vs OMB CBSA row in `geography_latest`."
+  - name: qa_autocorrelation_rent_zillow_cbsa_summary
+    description: "Slug **autocorrelation** (1) — per-geo lag-1 Pearson on ZILLOW CBSA rent."
+  - name: qa_partial_autocorrelation_rent_zillow_cbsa
+    description: "Slug **partial_autocorrelation** (2) — lag-2 Pearson summary (proxy), ZILLOW CBSA rent."
+  - name: qa_seasonal_decomposition_rent_zillow_cbsa
+    description: "Slug **seasonal_decomposition** (3) — month-of-year cross-metro dispersion, ZILLOW CBSA rent."
+  - name: qa_structural_break_detection_rent_zillow_cbsa
+    description: "Slug **structural_break_detection** (4) — first vs second half mean level shift by CBSA, ZILLOW rent."
+  - name: qa_opco_autocorrelation
+    description: "Slug **opco_autocorrelation** (12) — Progress `concept_progress_rent` panel ACF; gated `transform_dev_enable_source_entity_progress_facts`."
+  - name: qa_serving_crosswalk_assertions
+    description: "Slug **serving_crosswalk_assertions** (16) — null-key counts on `demo_ref_*` mirrors; gated `analytics_qa_serving_crosswalk_enabled` (build `path:models/serving/demo` first)."
+  - name: qa_mortgage_index_autocorrelation
+    description: "Slug **mortgage_index_autocorrelation** (17) — placeholder until mortgage rate concept exists."
+  - name: qa_feature_concept_parity_diff
+    description: "Slug **feature_concept_parity_diff** (13) — MAE / MAPE% by month × vendor × grain vs concept (rent spine)."
+  - name: qa_null_and_sparse_profile_feature_rent
+    description: "Slug **null_and_sparse_profile** (6) — null rate, zero-variance, cold-start flags on FEATURE rent spine."
+  - name: qa_as_of_snapshot_enforcement
+    description: "Slug **as_of_snapshot_enforcement** (4) — no future `month_start` on selected FEATURE/CONCEPT objects."
+  - name: qa_cold_start_geo_report
+    description: "Slug **cold_start_geo_report** (14) — months of history since first ZILLOW non-null rent (concept)."
+  - name: qa_distribution_shift_monitor_rent
+    description: "Slug **distribution_shift_monitor** (7) — MoM median/mean relative shift on FEATURE rent spine."
+  - name: qa_cross_feature_collinearity_rent
+    description: "Slug **cross_feature_collinearity** (8) — rent_current vs rent_historical correlation summary by vendor × grain."
+  - name: qa_geo_rollup_sensitivity_rent_zillow
+    description: "Slug **geo_rollup_sensitivity** (11) — ZILLOW ZIP vs CBSA rent alignment when `cbsa_id` is present."
+  - name: qa_vendor_blend_ablation_rent
+    description: "Slug **vendor_blend_ablation** (12) — per-key vendor mean rent for leave-one-out workflows."

@@ -87,6 +87,51 @@ dbt seed --target reference --select reference.catalog.vendor
 dbt seed --target reference --select reference.catalog.dataset
 dbt seed --target reference --select reference.catalog.metric
 
+## Wave 6c — `metric_derived` (depends on Wave 2 + Wave 6 `metric`)
+
+Register **analytics-layer** logical metrics (`FEATURE_*` / `MODEL_*` / `ESTIMATE_*`). Load **after** `metric` so optional `primary_metric_code` FK resolves.
+
+```bash
+dbt seed --target reference --select reference.catalog.metric_derived
+```
+
+Layout and column semantics: [`reference/CATALOG_METRIC_DERIVED_LAYOUT.md`](./reference/CATALOG_METRIC_DERIVED_LAYOUT.md).
+
+## Wave 6c-input — `metric_derived_input` (depends on Wave 6 `metric` + Wave 6c `metric_derived`)
+
+N:1 lineage from **`metric_derived`** rows to upstream **`metric`** codes (WL_040).
+
+```bash
+dbt seed --target reference --select reference.catalog.metric_derived_input
+dbt test --target reference --select metric_derived_input
+```
+
+## Wave 6d — `catalog_wishlist` (depends on `concept` + `metric` for dimensional columns)
+
+Backlog rows for concept chains, catalog gaps, and infra — see [`reference/CATALOG_WISHLIST.md`](./reference/CATALOG_WISHLIST.md) and playbook **§P**. Columns **`primary_catalog_concept_code`** and **`primary_catalog_metric_code`** align rows to **`concept.csv`** / **`metric.csv`**; seed **after** Waves 2 and 6 **`metric`** (or full catalog slice) so Snowflake columns type consistently.
+
+```bash
+dbt seed --target reference --select reference.catalog.concept reference.catalog.metric reference.catalog.catalog_wishlist
+dbt test --target reference --select catalog_wishlist
+```
+
+## Wave 6b — Cybersyn GLOBAL_GOVERNMENT `table_name` → agency (depends on `vendor`)
+
+Regenerate CSV when `docs/migration/artifacts/cybersyn_global_government_catalog_table_names.tsv` changes:
+
+```bash
+python3 scripts/reference/catalog/regenerate_cybersyn_catalog_table_vendor_map.py
+```
+
+Then:
+
+```bash
+dbt seed --target reference --select reference.catalog.vendor reference.catalog.cybersyn_catalog_table_vendor_map
+dbt test --target reference --select cybersyn_catalog_table_vendor_map
+```
+
+Equivalent minimal selects (resource names only): `dbt seed --select vendor cybersyn_catalog_table_vendor_map` then `dbt test --select cybersyn_catalog_table_vendor_map`. Full runbook: [`reference/CYBERSYN_GLOBAL_GOVERNMENT_BRING_IN_MATRIX.md`](./reference/CYBERSYN_GLOBAL_GOVERNMENT_BRING_IN_MATRIX.md#how-to-run-dataset-tests).
+
 ## Run all tests after seeding
 dbt test --target reference --select reference.catalog.*
 

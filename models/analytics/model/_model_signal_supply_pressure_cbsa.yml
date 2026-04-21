@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: model_signal_supply_pressure_cbsa
+    description: >
+      Latest CBSA row per **geo_id** with universal / distressed supply-pressure scores (0–100) from DOM proxy
+      (**months_of_supply** = ``permits_12m_avg_monthly``). Port of pretium-ai-dbt **``model_signal_supply_pressure_cbsa``**.
+    config:
+      tags: ["analytics", "model", "signal", "supply_pressure", "cbsa"]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - geo_id
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: >-
+              signal_score_universal >= 0 and signal_score_universal <= 100
+              and signal_score_distressed >= 0 and signal_score_distressed <= 100
+    columns:
+      - name: geo_id
+        data_tests:
+          - not_null
+      - name: signal_score_universal
+        data_tests:
+          - not_null

@@ -1,0 +1,8 @@
+bridge_offering_product_type_id,offering_code,product_type_code,is_primary,sort_order,is_active
+BOPT_001,property_tearsheet_resi,sf_scattered,TRUE,1,TRUE
+BOPT_002,property_tearsheet_resi,townhome,FALSE,2,TRUE
+BOPT_003,property_tearsheet_resi,mf_garden,FALSE,3,TRUE
+BOPT_004,ic_signal_monitor_resi,btr,FALSE,1,TRUE
+BOPT_005,ic_signal_monitor_resi,mf_midrise,FALSE,2,TRUE
+BOPT_006,opco_market_pack_req,btr,TRUE,1,TRUE
+BOPT_007,opco_market_pack_req,mf_garden,FALSE,2,TRUE

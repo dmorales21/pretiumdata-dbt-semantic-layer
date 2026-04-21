@@ -14,11 +14,16 @@ sources:
   # Jon owns. Naming: [vendor]_[dataset]_[geo_level]_[frequency]
   # ----------------------------------------------------------
   - name: transform_fact
-    database: TRANSFORM
-    schema: FACT
+    database: "{{ var('transform_fact_database', 'TRANSFORM') }}"
+    schema: "{{ var('transform_fact_schema', 'FACT') }}"
     description: >
       Canonical grain fact tables. All ANALYTICS FEATURE_ models
       read from here. Do not read from TRANSFORM.[VENDOR] directly.
+      If your role does not see **TRANSFORM.FACT**, set vars **`transform_fact_database`** /
+      **`transform_fact_schema`** to the database.schema where Jon publishes these tables, or exclude
+      read-through models that `source('transform_fact', …)` until grants exist.
+      **Agency vs republisher:** `bps_*` and `bls_laus_*` rows are **U.S. Census BPS** and **BLS LAUS**
+      (official statistical products), not Cybersyn. Cybersyn-prefixed objects are separate vendor feeds.
 
     tables:
       - name: redfin_avm_zip_monthly
@@ -49,11 +54,13 @@ sources:
   # Jon owns. Naming: [concept]_[geo_level]_[frequency]
   # ----------------------------------------------------------
   - name: transform_concept
-    database: TRANSFORM
-    schema: CONCEPT
+    database: "{{ var('transform_concept_database', 'TRANSFORM') }}"
+    schema: "{{ var('transform_concept_schema', 'CONCEPT') }}"
     description: >
       Vendor-agnostic blended concept datasets. ANALYTICS MODEL_ objects
       prefer reading from here over TRANSFORM.FACT where available.
+      Override **`transform_concept_database`** / **`transform_concept_schema`** if **TRANSFORM.CONCEPT**
+      is not visible to your warehouse role.
 
     tables:
       - name: rent_cbsa_monthly
@@ -71,16 +78,15 @@ sources:
       - name: home_price_cbsa_monthly
 
   # ----------------------------------------------------------
-  # TRANSFORM.REF — crosswalks and lookup tables
-  # Jon owns.
+  # TRANSFORM.REF — Jon crosswalks (read-only; do not use TRANSFORM_PROD in new Alex paths)
+  # Zillow metro→CBSA for FACT_ models reads **TRANSFORM.DEV** copy — see `transform_dev_vendor_ref`.
   # ----------------------------------------------------------
   - name: transform_ref
     database: TRANSFORM
     schema: REF
     description: >
-      Canonical crosswalks and lookup tables. Use for geo resolution
-      and vendor ID mapping. H3_XWALK_6810_CANON is the canonical
-      ZIP → county → CBSA crosswalk.
+      Jon-maintained reference crosswalks in **TRANSFORM.REF** (read-only for Alex dbt). Do not
+      point new canonical code at **TRANSFORM_PROD** (deprecated Alex legacy).
 
     tables:
       - name: h3_xwalk_6810_canon
@@ -88,6 +94,33 @@ sources:
       - name: ref_bps_county_xwalk
       - name: ref_bkfs_zip_cbsa
       - name: ref_county_cbsa_complete
+
+  # ----------------------------------------------------------
+  # TRANSFORM.DEV — Alex vendor ref tables materialized in DEV (read as sources after CTAS/seed)
+  # Zillow FACT_ `zillow_research_fact_enriched` joins **`ref_zillow_metro_to_cbsa`** here — not TRANSFORM.REF/PROD.
+  # Populate: `docs/migration/sql/create_ref_zillow_metro_to_cbsa.sql` before `dbt build` Zillow facts.
+  # Physical column layout must match dbt var `zillow_metro_to_cbsa_xwalk_profile` (`legacy_jon` vs `alex_metro_ref`);
+  # see `docs/migration/sql/reshape_ref_zillow_metro_to_cbsa_to_macro_columns.sql` if the table uses RegionID/CBSA_ID names.
+  # ----------------------------------------------------------
+  - name: transform_dev_vendor_ref
+    database: TRANSFORM
+    schema: DEV
+    description: >
+      Alex-owned reference tables in **TRANSFORM.DEV** (vendor xwalks that are not Jon **REFERENCE.GEOGRAPHY**).
+    tables:
+      - name: ref_onet_soc_to_naics
+        identifier: REF_ONET_SOC_TO_NAICS
+        description: >
+          O*NET SOC × NAICS staffing bridge in **TRANSFORM.DEV** (Alex-owned). Land with
+          `docs/migration/sql/create_ref_onet_soc_to_naics_transform_dev.sql`. Required columns match pretium-ai-dbt
+          `ref_onet_soc_to_naics`: `onet_soc_code`, `occupation_title`, `naics_code`, `employment_share`, `naics_level`, …
+      - name: ref_zillow_metro_to_cbsa
+        identifier: REF_ZILLOW_METRO_TO_CBSA
+        description: >
+          Zillow metro → Census CBSA xwalk in **TRANSFORM.DEV** (CTAS from Jon’s published mapping when present,
+          not from **TRANSFORM_PROD**). Expected columns depend on `zillow_metro_to_cbsa_xwalk_profile` in dbt:
+          **legacy_jon** — `zillow_6_digit`, `census_5_digit`, …; **alex_metro_ref** — `zillow_region_id`, `cbsa_id`, ….
+          Reshape script: `docs/migration/sql/reshape_ref_zillow_metro_to_cbsa_to_macro_columns.sql`.
 
   # ----------------------------------------------------------
   # REFERENCE.GEOGRAPHY — canonical geographic attributes
@@ -106,9 +139,46 @@ sources:
       - name: zip
       - name: state
       - name: zip_county_xwalk
+        identifier: ZIP_COUNTY_XWALK
+        description: >
+          ZCTA5 → county (REFERENCE.GEOGRAPHY). Columns align with SOURCE_PROD.GEO.ZIP_COUNTY
+          (ID_ZIP, ID_COUNTY) where mirrored; DESCRIBE TABLE if joins fail after load.
+      - name: postal_county_xwalk
+        identifier: POSTAL_COUNTY_XWALK
+        description: >
+          HUD USPS ZIP → county (REFERENCE.GEOGRAPHY), quarterly (see pretium-ai-dbt
+          `hud_usps_postal_xwalk_snowflake_template.sql`). **Preferred for Zillow research ZIP grain**
+          when `ZIP_COUNTY_XWALK` is absent — postal ZIP vs ZCTA semantics apply.
       - name: county_cbsa_xwalk
+      - name: zcta_cbsa_xwalk
+        identifier: ZCTA_CBSA_XWALK
+        description: >
+          ZCTA → CBSA (REFERENCE.GEOGRAPHY). Prefer for ZIP grain CBSA vs county-only path
+          when populated. Filter YEAR via var reference_geography_year.
       - name: zip_h3_polyfill
       - name: zip_h3_centroid
+
+  # H3 R8 BG / ZIP polyfill bridges — physical location varies by Snowflake grants.
+  # Default **REFERENCE.GEOGRAPHY** (canonical). If you see “does not exist or not authorized”, set vars
+  # **`h3_polyfill_bridge_database`**: `ANALYTICS`, **`h3_polyfill_bridge_schema`**: `REFERENCE` (compat mirror;
+  # **not** `analytics.facts`). See `docs/migration/RUN_CORRIDOR_H3_TRANSFORM_DEV_OBJECTS.md`.
+  - name: h3_polyfill_bridges
+    database: "{{ var('h3_polyfill_bridge_database', 'REFERENCE') }}"
+    schema: "{{ var('h3_polyfill_bridge_schema', 'GEOGRAPHY') }}"
+    description: >
+      Block-group and ZIP/ZCTA → H3 R8 polyfill bridges for corridor / LODES models.
+      Same table identifiers as **REFERENCE.GEOGRAPHY**; database/schema overridden when only **ANALYTICS.REFERENCE** is visible.
+
+    tables:
+      - name: bridge_bg_h3_r8_polyfill
+        identifier: "{{ var('h3_polyfill_bg_bridge_identifier', 'BLOCKGROUP_H3_R8_POLYFILL') }}"
+      - name: bridge_zip_h3_r8_polyfill
+        identifier: BRIDGE_ZIP_H3_R8_POLYFILL
+      - name: cbsa_h3_r8_polyfill
+        identifier: CBSA_H3_R8_POLYFILL
+        description: >
+          CBSA polygon → H3 R8 overlap (REFERENCE.GEOGRAPHY). Used to attach **cbsa_id** to hex-only
+          aggregates (e.g. Stanford SEDA H3). Same database/schema override vars as other polyfill bridges.
 
   # ----------------------------------------------------------
   # REFERENCE.CATALOG — controlled vocabulary
@@ -136,3 +206,135 @@ sources:
       - name: dataset
       - name: metric
       - name: data_status
+
+  # ----------------------------------------------------------
+  # TRANSFORM.BPS — Census Building Permits Survey silver (Jon/DE; read-only)
+  # Grain: CBSA (ID_CBSA / CBSA_CODE_OMB) despite table name PERMITS_COUNTY.
+  # Inventory: scripts/sql/migration/inventory_transform_bps_census_bls_lodes*.sql
+  # ----------------------------------------------------------
+  - name: transform_bps
+    database: TRANSFORM
+    schema: BPS
+    description: >
+      Census BPS permit aggregates in TRANSFORM.BPS. Alex FACT_ models use source() only;
+      do not hardcode TRANSFORM.BPS in SQL. CBSA grain — see MIGRATION_TASKS_TRANSFORM_BPS_CENSUS_BLS_LODES.md Part A.
+
+    tables:
+      - name: permits_county
+        identifier: PERMITS_COUNTY
+        description: >
+          Silver permit rows at **CBSA** grain (not county FIPS). Join keys include DATE_REFERENCE,
+          ID_CBSA, BUILDING_USE, MEASURE, ESTIMATE_TYPE, YEAR_REFERENCE, MONTH_REFERENCE; additional
+          columns (e.g. FILE_TYPE) may be required for uniqueness — see migration inventory dup probe.
+
+  # ----------------------------------------------------------
+  # TRANSFORM.BLS — LAUS and related silver (Jon/DE; read-only)
+  # Inventory: scripts/sql/migration/inventory_transform_bps_census_bls_lodes*.sql
+  # Caveat: LAUS_CBSA.AREA_CODE ≠ OMB CBSA — use county rollups for CBSA facts (Part C).
+  # ----------------------------------------------------------
+  - name: bls_transform
+    database: TRANSFORM
+    schema: BLS
+    description: >
+      BLS labor statistics in TRANSFORM.BLS. Alex FACT_ models use source() only. County LAUS is the
+      preferred base for CBSA aggregates; see MIGRATION_TASKS_TRANSFORM_BPS_CENSUS_BLS_LODES.md Part D.
+
+    tables:
+      - name: laus_county
+        identifier: LAUS_COUNTY
+        description: >
+          County-level LAUS (employment, unemployment, labor force, rate). Grain:
+          date_reference × county_fips × measure_code (dup probe 0 in batch 002 phase-1).
+      - name: laus_cbsa
+        identifier: LAUS_CBSA
+        description: >
+          Metro LAUS table in TRANSFORM.BLS. **`AREA_CODE` is not a reliable OMB CBSA join key** —
+          prefer **`fact_bls_laus_county`** + county→CBSA rollups for OMB CBSA; this view is observe-only / legacy parity.
+
+  # ----------------------------------------------------------
+  # TRANSFORM.CENSUS — ACS5 and related silver (Jon/DE; read-only)
+  # Heavy row-level inventory (ACS-D/E/F) deferred — use metadata script + batch artifacts.
+  # ----------------------------------------------------------
+  - name: transform_census
+    database: "{{ var('transform_census_database', 'TRANSFORM') }}"
+    schema: "{{ var('transform_census_schema', 'CENSUS') }}"
+    description: >
+      Census ACS and related tables in **TRANSFORM.CENSUS**. ACS5 is ~619M rows EAV — use
+      `inventory_transform_bps_census_bls_lodes.sql` off-hours for LEVEL/YEAR/dup probes.
+      **PEP** (`CENSUS_PEP_*`) is optional: many accounts have **ACS5** only here — use **`census_pep_silver_location`**
+      + **`census_pep_readthrough_enabled`** (see **`macros/census_pep_source.sql`**).
+
+    tables:
+      - name: acs5
+        identifier: ACS5
+        description: >
+          ACS 5-year EAV: YEAR, LEVEL, GEO_ID, VARIABLE_ID, VALUE, MARGIN_OF_ERROR, …
+          Heavy pivots belong in **TRANSFORM.DEV** facts (e.g. `fact_census_acs5_h3_r8_snapshot`); do not run
+          unbounded aggregates in interactive sessions.
+
+      - name: census_pep_cbsa_annual
+        identifier: "{{ var('census_pep_cbsa_annual_identifier', 'CENSUS_PEP_CBSA_ANNUAL') }}"
+        description: >
+          Optional Jon PEP CBSA annual when materialized under **TRANSFORM.CENSUS** (not present in all warehouses).
+      - name: census_pep_county_annual
+        identifier: "{{ var('census_pep_county_annual_identifier', 'CENSUS_PEP_COUNTY_ANNUAL') }}"
+        description: >
+          Optional Jon PEP county annual when materialized under **TRANSFORM.CENSUS**.
+
+  # ----------------------------------------------------------
+  # TRANSFORM.LODES — LEHD origin–destination silver (Jon/DE; read-only)
+  # Dual-path note: compare SOURCE_PROD.LEHD / cleaned dbt vs this table (see migration Part E).
+  # ----------------------------------------------------------
+  - name: transform_lodes
+    database: TRANSFORM
+    schema: LODES
+    description: >
+      LODES block- and hex-level OD tables. `FACT_LODES_OD_BG` read-through on OD_BG (~64M rows);
+      `FACT_LODES_OD_H3_R8_ANNUAL` read-through on OD_H3_R8 (hex pair, corridor / employment-center chain).
+
+    tables:
+      - name: od_bg
+        identifier: OD_BG
+        description: >
+          Block-group × block-group OD jobs counts by segment columns (JOBS_*), VINTAGE_YEAR, GEO_LEVEL_CODE.
+
+      - name: od_h3_r8
+        identifier: OD_H3_R8
+        description: >
+          H3 R8 residence × workplace OD (VINTAGE_YEAR, H3_R8_RESIDENCE, H3_R8_WORKPLACE, CBSA_ID_*, JOBS_*,
+          BG_PAIR_COUNT, DBT_UPDATED_AT). Use `source('transform_lodes','od_h3_r8')` — see MIGRATION_TASKS_CORRIDOR_PIPELINE_SOURCES.md §2.2.
+
+  # ----------------------------------------------------------
+  # SOURCE_PROD.ZILLOW — raw landings + registry (Jon load; Alex reads)
+  # ----------------------------------------------------------
+  - name: zillow
+    database: SOURCE_PROD
+    schema: ZILLOW
+    description: >
+      Zillow market data and Zillow Research VARIANT landings. FACT_ models in
+      transform/dev/zillow read RAW_* via source(); do not point FACT reads at TRANSFORM.DEV RAW views.
+
+    tables:
+      - name: zillow_all
+        identifier: ZILLOW_ALL
+        description: "Zillow geography registry (state rows used for state FIPS enrichment)."
+      - name: raw_affordability
+        identifier: RAW_AFFORDABILITY
+      - name: raw_days_on_market_and_price_cuts
+        identifier: RAW_DAYS_ON_MARKET_AND_PRICE_CUTS
+      - name: raw_for_sale_listings
+        identifier: RAW_FOR_SALE_LISTINGS
+      - name: raw_home_values
+        identifier: RAW_HOME_VALUES
+      - name: raw_home_values_forecasts
+        identifier: RAW_HOME_VALUES_FORECASTS
+      - name: raw_market_heat_index
+        identifier: RAW_MARKET_HEAT_INDEX
+      - name: raw_new_construction
+        identifier: RAW_NEW_CONSTRUCTION
+      - name: raw_rental_forecasts
+        identifier: RAW_RENTAL_FORECASTS
+      - name: raw_rentals
+        identifier: RAW_RENTALS
+      - name: raw_sales
+        identifier: RAW_SALES

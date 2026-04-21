@@ -1,0 +1,20 @@
+version: 2
+
+sources:
+  # SOURCE_PROD.STANFORD — SEDA v6 Parquet landings (VARIANT rows). See pretium-ai-dbt sources.yml stanford block.
+  - name: source_prod_stanford
+    database: SOURCE_PROD
+    schema: STANFORD
+    description: >
+      Stanford SEDA (Education Data Archive) v6.0 Parquet tables. Rows are VARIANT **V** plus **FILE_NAME**.
+      Ingest scripts: pretium-ai-dbt `scripts/sql/source_prod/stanford/`. Inventory: MIGRATION_TASKS_STANFORD_REDFIN.md.
+
+    tables:
+      - name: stanford_seda_admindist_parquet
+        identifier: STANFORD_SEDA_ADMINDIST_PARQUET
+        description: >
+          SEDA admin district pool / annual / long files; filter `FILE_NAME ILIKE '%pool%'` for pooled cross-section.
+      - name: stanford_seda_crosswalk_parquet
+        identifier: STANFORD_SEDA_CROSSWALK_PARQUET
+        description: >
+          SEDA crosswalk (school × year) linking **sedaadmin** to NCES **leaid** and Census **geoid** (LPAD 7).

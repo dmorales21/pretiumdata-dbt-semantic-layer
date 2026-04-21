@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: ref_oxford_metro_cbsa
+    description: >
+      **TRANSFORM.DEV:** Oxford Economics metro (`Location_code` / MSA) → Pretium **CBSA** (`id_cbsa`).
+      Built from **`source('transform_dev_oxford_ref','oxford_cbsa_crosswalk')`** (land
+      `docs/migration/sql/land_oxford_cbsa_crosswalk_transform_dev.sql` first). Disabled when
+      **`transform_dev_enable_oxford_cbsa_crosswalk`** is false. Join contract:
+      pretium-ai-dbt `docs/vendors/amreg/OXFORD_SOURCE_ENTITY_PROFILE_AND_CROSSWALK_JOIN.md` §3–4.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - oxford_location_code
+              - oxford_region_type
+    columns:
+      - name: oxford_location_code
+        data_tests: [not_null]
+      - name: id_cbsa
+        description: Pretium CBSA code when matched; null only if source row lacks match (should be rare on 302-row spine).
+
+  - name: fact_oxford_amreg_quarterly
+    description: >
+      **Vendor:** Oxford Economics **AMREG** from **`SOURCE_ENTITY.PRETIUM.AMREG`**, joined to **`ref_oxford_metro_cbsa`**
+      for **`Region_Type = 'MSA'`** rows only. **`metric_id`** = `AMREG_` + upper(`Indicator_code`) per profile doc §5.3.
+      **`date_reference`** is calendar quarter **start** (or Jan-1 for Annual). Catalog dataset **DS_049**; legacy pretium-ai-dbt
+      `fact_amreg_cbsa_economics` uses different `metric_id` naming — align via dim_metric / bridge when deprecating.
+    columns:
+      - name: date_reference
+        description: Quarter start or Jan-1 for Annual (not quarter-end).
+      - name: metric_id
+        description: Stable code `AMREG_<INDICATOR_CODE>` (uppercase).
+      - name: geo_id
+        description: Pretium CBSA id (`id_cbsa`) at `geo_level_code = cbsa`.
+
+  - name: fact_oxford_wdmarco_quarterly
+    description: >
+      **Vendor:** Oxford Economics **WDMARCO** (not *WDMACRO*) from **`SOURCE_ENTITY.PRETIUM.WDMARCO`**, **national** grain (`geo_id = USA`).
+      **`metric_id`** = `WDMARCO_` + upper(`Indicator_code`). Catalog dataset **DS_050** (national macro; CBSA columns null).
+    columns:
+      - name: geo_id
+        description: Sentinel **USA** for national series on this feed.
+      - name: metric_id
+        description: Stable code `WDMARCO_<INDICATOR_CODE>` (uppercase).

@@ -1,0 +1,404 @@
+# AUTO-GENERATED from seeds/reference/catalog/vendor.csv
+version: "1.0"
+source_file: "seeds/reference/catalog/vendor.csv"
+vendors:
+  - vendor_id: VND_001
+    vendor_code: acs
+    vendor_label: "US Census Bureau — ACS"
+    docs_subpath: "docs/vendor/acs/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_TRANSFORM_BPS_CENSUS_BLS_LODES.md"
+    source_schema: "RAW.ACS"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_002
+    vendor_code: bls
+    vendor_label: "Bureau of Labor Statistics"
+    docs_subpath: "docs/vendor/bls/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_TRANSFORM_BPS_CENSUS_BLS_LODES.md"
+    source_schema: "RAW.BLS"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_003
+    vendor_code: census
+    vendor_label: "US Census Bureau — Decennial / PEP"
+    docs_subpath: "docs/vendor/census/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_TRANSFORM_BPS_CENSUS_BLS_LODES.md"
+    source_schema: "RAW.CENSUS"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_004
+    vendor_code: fred
+    vendor_label: "Federal Reserve — FRED"
+    docs_subpath: "docs/vendor/fred/"
+    primary_migration_doc: null
+    source_schema: "RAW.FRED"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_005
+    vendor_code: hud
+    vendor_label: "HUD"
+    docs_subpath: "docs/vendor/hud/"
+    primary_migration_doc: null
+    source_schema: "RAW.HUD"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_006
+    vendor_code: fema
+    vendor_label: "FEMA"
+    docs_subpath: "docs/vendor/fema/"
+    primary_migration_doc: null
+    source_schema: "RAW.FEMA"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_007
+    vendor_code: onet
+    vendor_label: "O*NET — Department of Labor"
+    docs_subpath: "docs/vendor/onet/"
+    primary_migration_doc: null
+    source_schema: "RAW.ONET"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_008
+    vendor_code: redfin
+    vendor_label: "Redfin"
+    docs_subpath: "docs/vendor/redfin/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_STANFORD_REDFIN.md"
+    source_schema: "RAW.REDFIN"
+    data_type: "transactional"
+    contract_status: "active"
+  - vendor_id: VND_009
+    vendor_code: zillow
+    vendor_label: "Zillow"
+    docs_subpath: "docs/vendor/zillow/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_ZILLOW_TRANSFORM_DEV.md"
+    source_schema: "RAW.ZILLOW"
+    data_type: "transactional"
+    contract_status: "active"
+  - vendor_id: VND_010
+    vendor_code: realtor
+    vendor_label: "Realtor.com"
+    docs_subpath: "docs/vendor/realtor/"
+    primary_migration_doc: null
+    source_schema: "RAW.REALTOR"
+    data_type: "transactional"
+    contract_status: "active"
+  - vendor_id: VND_011
+    vendor_code: cherre
+    vendor_label: "Cherre"
+    docs_subpath: "docs/vendor/cherre/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_CHERRE.md"
+    source_schema: "RAW.CHERRE"
+    data_type: "transactional"
+    contract_status: "active"
+  - vendor_id: VND_012
+    vendor_code: bkfs
+    vendor_label: "Black Knight Financial Services"
+    docs_subpath: "docs/vendor/bkfs/"
+    primary_migration_doc: null
+    source_schema: "RAW.BKFS"
+    data_type: "transactional"
+    contract_status: "active"
+  - vendor_id: VND_013
+    vendor_code: costar
+    vendor_label: "CoStar"
+    docs_subpath: "docs/vendor/costar/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_COSTAR.md"
+    source_schema: "RAW.COSTAR"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_014
+    vendor_code: markerr
+    vendor_label: "Markerr"
+    docs_subpath: "docs/vendor/markerr/"
+    primary_migration_doc: null
+    source_schema: "RAW.MARKERR"
+    data_type: "transactional"
+    contract_status: "active"
+  - vendor_id: VND_015
+    vendor_code: zonda
+    vendor_label: "Zonda"
+    docs_subpath: "docs/vendor/zonda/"
+    primary_migration_doc: null
+    source_schema: "RAW.TPANALYTICS"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_016
+    vendor_code: parcllabs
+    vendor_label: "Parcl Labs"
+    docs_subpath: "docs/vendor/parcllabs/"
+    primary_migration_doc: null
+    source_schema: "RAW.PARCLLABS"
+    data_type: "transactional"
+    contract_status: "active"
+  - vendor_id: VND_017
+    vendor_code: green_street
+    vendor_label: "Green Street Advisors"
+    docs_subpath: "docs/vendor/green_street/"
+    primary_migration_doc: null
+    source_schema: "RAW.GREEN_STREET"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_018
+    vendor_code: oxford_economics
+    vendor_label: "Oxford Economics"
+    docs_subpath: "docs/vendor/oxford_economics/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_OXFORD_SOURCE_ENTITY_DEV.md"
+    source_schema: "SOURCE_ENTITY.PRETIUM"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_019
+    vendor_code: jbrec
+    vendor_label: "John Burns Research & Consulting"
+    docs_subpath: "docs/vendor/jbrec/"
+    primary_migration_doc: null
+    source_schema: "RAW.JBREC"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_020
+    vendor_code: cotality
+    vendor_label: "Cotality"
+    docs_subpath: "docs/vendor/cotality/"
+    primary_migration_doc: null
+    source_schema: "RAW.COTALITY"
+    data_type: "transactional"
+    contract_status: "active"
+  - vendor_id: VND_021
+    vendor_code: apartmentiq
+    vendor_label: "ApartmentIQ"
+    docs_subpath: "docs/vendor/apartmentiq/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_APARTMENTIQ_YARDI_MATRIX.md"
+    source_schema: "SOURCE_ENTITY.BH"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_022
+    vendor_code: overture
+    vendor_label: "Overture Maps"
+    docs_subpath: "docs/vendor/overture/"
+    primary_migration_doc: null
+    source_schema: "RAW.OVERTURE"
+    data_type: "spatial"
+    contract_status: "active"
+  - vendor_id: VND_023
+    vendor_code: first_street
+    vendor_label: "First Street Foundation"
+    docs_subpath: "docs/vendor/first_street/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_FIRST_STREET_RCA.md"
+    source_schema: "RAW.FIRST_STREET"
+    data_type: "spatial"
+    contract_status: "active"
+  - vendor_id: VND_024
+    vendor_code: epoch_ai
+    vendor_label: "Epoch AI"
+    docs_subpath: "docs/vendor/epoch_ai/"
+    primary_migration_doc: null
+    source_schema: "RAW.EPOCH_AI"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_025
+    vendor_code: apartment_list
+    vendor_label: "Apartment List"
+    docs_subpath: "docs/vendor/apartment_list/"
+    primary_migration_doc: null
+    source_schema: "RAW.APARTMENT_LIST"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_026
+    vendor_code: tax_foundation
+    vendor_label: "Tax Foundation"
+    docs_subpath: "docs/vendor/tax_foundation/"
+    primary_migration_doc: null
+    source_schema: "RAW.TAX_FOUNDATION"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_027
+    vendor_code: bankrate
+    vendor_label: "Bankrate"
+    docs_subpath: "docs/vendor/bankrate/"
+    primary_migration_doc: null
+    source_schema: "RAW.BANKRATE"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_028
+    vendor_code: quadrant
+    vendor_label: "Quadrant Information Services"
+    docs_subpath: "docs/vendor/quadrant/"
+    primary_migration_doc: null
+    source_schema: "RAW.QUADRANT"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_029
+    vendor_code: sp_global
+    vendor_label: "S&P Global"
+    docs_subpath: "docs/vendor/sp_global/"
+    primary_migration_doc: null
+    source_schema: "RAW.SP_GLOBAL"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_030
+    vendor_code: yardi
+    vendor_label: "Yardi Systems"
+    docs_subpath: "docs/vendor/yardi/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_YARDI_BH_PROGRESS.md"
+    source_schema: "SOURCE_ENTITY.PROGRESS"
+    data_type: "operational"
+    contract_status: "active"
+  - vendor_id: VND_031
+    vendor_code: salesforce
+    vendor_label: "Salesforce"
+    docs_subpath: "docs/vendor/salesforce/"
+    primary_migration_doc: null
+    source_schema: "SOURCE_ENTITY.PROGRESS"
+    data_type: "operational"
+    contract_status: "active"
+  - vendor_id: VND_032
+    vendor_code: funnel
+    vendor_label: "Funnel Leasing"
+    docs_subpath: "docs/vendor/funnel/"
+    primary_migration_doc: null
+    source_schema: "SOURCE_ENTITY.BH"
+    data_type: "operational"
+    contract_status: "active"
+  - vendor_id: VND_033
+    vendor_code: anchor_loans
+    vendor_label: "Anchor Loans"
+    docs_subpath: "docs/vendor/anchor_loans/"
+    primary_migration_doc: null
+    source_schema: "SOURCE_ENTITY.ANCHOR_LOANS"
+    data_type: "operational"
+    contract_status: "active"
+  - vendor_id: VND_034
+    vendor_code: selene
+    vendor_label: "Selene Finance"
+    docs_subpath: "docs/vendor/selene/"
+    primary_migration_doc: null
+    source_schema: "SOURCE_ENTITY.SELENE"
+    data_type: "operational"
+    contract_status: "active"
+  - vendor_id: VND_035
+    vendor_code: preqin
+    vendor_label: "Preqin"
+    docs_subpath: "docs/vendor/preqin/"
+    primary_migration_doc: null
+    source_schema: "RAW.NEWS"
+    data_type: "survey"
+    contract_status: "active"
+  - vendor_id: VND_036
+    vendor_code: education_nces
+    vendor_label: "NCES — National Center for Education Statistics"
+    docs_subpath: "docs/vendor/education_nces/"
+    primary_migration_doc: null
+    source_schema: "RAW.EDUCATION"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_037
+    vendor_code: nhpd
+    vendor_label: "National Housing Preservation Database"
+    docs_subpath: "docs/vendor/nhpd/"
+    primary_migration_doc: null
+    source_schema: "RAW.NHPD"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_038
+    vendor_code: cps_nber
+    vendor_label: "NBER / CPS"
+    docs_subpath: "docs/vendor/cps_nber/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_TRANSFORM_BPS_CENSUS_BLS_LODES.md"
+    source_schema: "RAW.NBER"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_039
+    vendor_code: lehd
+    vendor_label: "US Census Bureau — LEHD"
+    docs_subpath: "docs/vendor/lehd/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_TRANSFORM_BPS_CENSUS_BLS_LODES.md"
+    source_schema: "RAW.LEHD"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_040
+    vendor_code: internal
+    vendor_label: "Pretium Internal"
+    docs_subpath: "docs/vendor/internal/"
+    primary_migration_doc: null
+    source_schema: "TRANSFORM.FACT"
+    data_type: "operational"
+    contract_status: "active"
+  - vendor_id: VND_041
+    vendor_code: bea
+    vendor_label: "Bureau of Economic Analysis"
+    docs_subpath: "docs/vendor/bea/"
+    primary_migration_doc: null
+    source_schema: "RAW.BEA"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_042
+    vendor_code: cybersyn
+    vendor_label: "Cybersyn (Snowflake share)"
+    docs_subpath: "docs/vendor/cybersyn/"
+    primary_migration_doc: "migration/MIGRATION_TASKS_CYBERSYN_SOURCE_SNOW.md"
+    source_schema: "SOURCE_SNOW.GLOBAL_GOVERNMENT"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_043
+    vendor_code: irs
+    vendor_label: "IRS / U.S. Treasury"
+    docs_subpath: "docs/vendor/irs/"
+    primary_migration_doc: null
+    source_schema: "RAW.IRS"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_044
+    vendor_code: fbi
+    vendor_label: "FBI — UCR / Crime"
+    docs_subpath: "docs/vendor/fbi/"
+    primary_migration_doc: "migration/VENDOR_CATALOG_ONLY_SNOWSQL_VET.md"
+    source_schema: "RAW.FBI"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_045
+    vendor_code: fhfa
+    vendor_label: "FHFA"
+    docs_subpath: "docs/vendor/fhfa/"
+    primary_migration_doc: null
+    source_schema: "RAW.FHFA"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_046
+    vendor_code: fdic
+    vendor_label: "FDIC"
+    docs_subpath: "docs/vendor/fdic/"
+    primary_migration_doc: "migration/VENDOR_CATALOG_ONLY_SNOWSQL_VET.md"
+    source_schema: "RAW.FDIC"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_047
+    vendor_code: usps
+    vendor_label: "USPS"
+    docs_subpath: "docs/vendor/usps/"
+    primary_migration_doc: "migration/VENDOR_CATALOG_ONLY_SNOWSQL_VET.md"
+    source_schema: "RAW.USPS"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_048
+    vendor_code: nws
+    vendor_label: "NOAA / NWS"
+    docs_subpath: "docs/vendor/nws/"
+    primary_migration_doc: "migration/VENDOR_CATALOG_ONLY_SNOWSQL_VET.md"
+    source_schema: "RAW.NOAA"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_049
+    vendor_code: freddie_mac
+    vendor_label: "Freddie Mac"
+    docs_subpath: "docs/vendor/freddie_mac/"
+    primary_migration_doc: null
+    source_schema: "RAW.FREDDIE_MAC"
+    data_type: "administrative"
+    contract_status: "active"
+  - vendor_id: VND_050
+    vendor_code: cfpb
+    vendor_label: "CFPB — HMDA"
+    docs_subpath: "docs/vendor/cfpb/"
+    primary_migration_doc: "migration/VENDOR_CATALOG_ONLY_SNOWSQL_VET.md"
+    source_schema: "RAW.CFPB"
+    data_type: "administrative"
+    contract_status: "active"

@@ -1,0 +1,12 @@
+# AUTO-GENERATED — edit dictionary.csv for field-level detail; refresh via generate_vendor_context_from_seed.py
+vendor_id: VND_040
+vendor_code: internal
+vendor_label: "Pretium Internal"
+source_schema: "TRANSFORM.FACT"
+data_type: operational
+refresh_cadence: daily
+contract_status: active
+data_share_type: manual
+is_active: True
+dictionary_version: '0.1'
+fields: []  # populate from Snowflake DESCRIBE + product dictionaries

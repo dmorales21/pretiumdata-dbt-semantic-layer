@@ -22,6 +22,24 @@
 
 **Audit logging (split to limit sprawl):** append a **short** row to **`MIGRATION_LOG.md`** each session; put multi-paragraph evidence, Snowflake numbers, and artifact paths in **`MIGRATION_BATCH_INDEX.md`**. **New `metric` / `metric_derived` rows:** follow **`METRIC_INTAKE_CHECKLIST.md`** and **`PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md`** (features, four chains, Pilot A, CI). **CI (parse + catalog smoke):** `.github/workflows/semantic_layer_catalog_and_quality.yml`; optional Snowflake **`dbt seed` / `dbt test`** block in that file after **`SNOWFLAKE_*`** secrets exist. **Local:** `scripts/ci/run_catalog_quality_checks.sh`.
 
+### PROD database ban (semantic-layer dbt graph)
+
+**Do not** add reads of **`TRANSFORM_PROD`**, **`ANALYTICS_PROD`**, or **`EDW_PROD`** to **`models/`**, **`macros/`**, or **`tests/`** in this repo (no `database: transform_prod`, no `source('transform_prod', …)`, no three-part FQNs in `.sql`). One-off Snowflake scripts under **`docs/migration/sql/`** or **`scripts/sql/`** may still mention PROD **only** as operator instructions (CTAS from Jon landings into **`TRANSFORM.DEV`**), not as dbt `source()` / model code.
+
+**CI / local gate:** `scripts/ci/assert_no_legacy_prod_snowflake_databases_in_dbt_graph.sh` (also run from `run_catalog_quality_checks.sh` and GitHub Actions before `dbt deps`).
+
+### How to migrate one logical object (from pretium-ai-dbt)
+
+Use this sequence whenever you are **replacing** a model that today lives on **`TRANSFORM_PROD`**, **`ANALYTICS_PROD`**, or **`EDW_PROD`** with the canonical semantic-layer pipeline.
+
+1. **Classify** the legacy file in [`MIGRATION_PLAN.md`](./MIGRATION_PLAN.md) (`MIGRATE` / `REWRITE` / `ARCHIVE` / `DROP`) and note the **target path + naming** in this repo (often a rename to **`FEATURE_*`**, **`MODEL_*`**, **`FACT_*`**, **`CONCEPT_*`** per [`SCHEMA_RULES.md`](../rules/SCHEMA_RULES.md)).
+2. **Register sources** only where data actually lives in Snowflake today: **`SOURCE_PROD.[VENDOR]`**, **`SOURCE_SNOW.*`** (Cybersyn), **`REFERENCE.GEOGRAPHY`**, **`SOURCE_ENTITY.*`**, or **`TRANSFORM.DEV`** operator-landed tables — via `models/sources/*.yml`. Do **not** add dbt `source()` rows whose `database:` is **`TRANSFORM_PROD`**, **`ANALYTICS_PROD`**, or **`EDW_PROD`** (see ban above).
+3. **Build the spine first:** ship **`FACT_*`** / **`CONCEPT_*`** under `models/transform/dev/<vendor>/` (and `models/reference/geography/` where applicable) so **`TRANSFORM.DEV`** (and **`REFERENCE.*`**) hold measurable vendor facts before **`ANALYTICS.DBT_DEV`** screens (§2 **Build order**).
+4. **Land bridges outside dbt when needed:** one-off CTAS or clone scripts live under **`docs/migration/sql/`** (they may *read* legacy PROD once to populate **`TRANSFORM.DEV`**; dbt models then **`source('transform_dev_*', …)`** only — e.g. `land_oxford_cbsa_crosswalk_transform_dev.sql`, `create_ref_onet_soc_to_naics_transform_dev.sql`).
+5. **Port FEATURE / MODEL / ESTIMATE** under `models/analytics/feature|model|estimate/` using only **`ref()`** to dev facts/concepts and approved **`source()`** — contract in [`MODEL_FEATURE_ESTIMATION_PLAYBOOK.md`](./MODEL_FEATURE_ESTIMATION_PLAYBOOK.md) §3 (labor stack: [`LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md`](./LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md)).
+6. **Validate locally:** `dbt parse`, then `dbt build --select +<model_name>` (or the documented selector); run **`./scripts/ci/assert_no_legacy_prod_snowflake_databases_in_dbt_graph.sh`** from the inner project root.
+7. **Log work:** append a short row to [`MIGRATION_LOG.md`](./MIGRATION_LOG.md); put evidence and operator notes in [`MIGRATION_BATCH_INDEX.md`](./MIGRATION_BATCH_INDEX.md) when the batch is non-trivial ([`CANONICAL_COMPLETION_DEFINITION.md`](./CANONICAL_COMPLETION_DEFINITION.md)).
+
 ---
 
 ## 2. LAYER RULES — WHERE THINGS LIVE
@@ -124,7 +142,7 @@ For every model migrated from pretium-ai-dbt → pretiumdata-dbt-semantic-layer:
 |--------------------|----------------------------------------------------|----------------------------------------------------|
 | RAW landing        | models/transform/dev/zillow_research/raw_*.sql     | models/sources/source_prod/zillow/raw_*.sql        |
 | FACT (DEV)         | models/transform/dev/zillow_research/fact_*.sql    | models/transform/dev/zillow/fact_*.sql             |
-| CONCEPT (DEV)      | models/transform/dev/concept_*.sql                 | models/transform/dev/concepts/concept_*.sql        |
+| CONCEPT (DEV)      | models/transform/dev/concept_*.sql                 | `models/transform/dev/<vendor_or_domain>/concept_*.sql` (e.g. **`fund_opco/concept_progress_*`**) — no single `concepts/` folder required |
 | FEATURE (analytics)| models/analytics/features/feature_*.sql           | models/analytics/feature/feature_*.sql             |
 | REF xwalk (seed)   | (manual CSV in old repo)                           | seeds/transform_dev/ref_[vendor]_*.csv             |
 
@@ -156,6 +174,8 @@ or tagged with a quality_flag = 'no_census_spine' column.
 ---
 
 ## 7. NAMING CONVENTIONS
+
+**Full matrix:** Snowflake prefixes (**`MODEL_*`**, **`ESTIMATE_*`**, **`AI_*`**, **`REF_GEO_*`**, etc.), dbt ↔ object mapping, and Alex scope are in [`SCHEMA_RULES.md`](../rules/SCHEMA_RULES.md). This section is the **migration quick list** for common dbt model filename prefixes and column case only.
 
 - All column names: snake_case
 - All model names: snake_case, prefixed by layer (fact_, concept_, feature_, ref_, raw_)

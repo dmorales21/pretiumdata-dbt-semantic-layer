@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: qa_catalog_metric_transform_dev_lineage
+    description: >
+      TRANSFORM.DEV QA table (SCHEMA_RULES: Alex / DEV / QA). Row-level join of
+      REFERENCE.CATALOG.metric (seed `metric`) TRANSFORM.DEV registrations to
+      TRANSFORM.INFORMATION_SCHEMA tables/columns. Filter `qa_status <> 'OK'`
+      for remediation alongside `qa_transform_dev_catalog_metric_table_paths.sql`.
+    config:
+      tags: ['transform', 'transform_dev', 'qa', 'catalog', 'catalog_registration']
+    columns:
+      - name: metric_id
+        tests: [not_null]
+      - name: qa_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['OK', 'BAD_PATH', 'MISSING_OBJECT', 'MISSING_COLUMN']
+
+  - name: qa_catalog_metric_derived_feature_lineage
+    description: >
+      TRANSFORM.DEV QA table: active REFERENCE.CATALOG.metric_derived FEATURE rows vs
+      ANALYTICS.INFORMATION_SCHEMA (physical FEATURE_* relations under ANALYTICS.DBT_DEV).
+      Extend the `feature_physical_map` CTE in the model SQL when registering new active
+      feature-layer MDV_* codes. Use with singular tests under tests/catalog_registration/.
+    config:
+      tags: ['transform', 'transform_dev', 'qa', 'catalog', 'catalog_registration']
+    columns:
+      - name: metric_derived_id
+        tests: [not_null]
+      - name: metric_derived_code
+        tests: [not_null]
+      - name: qa_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['OK', 'NO_PHYSICAL_MAP', 'MISSING_OBJECT']

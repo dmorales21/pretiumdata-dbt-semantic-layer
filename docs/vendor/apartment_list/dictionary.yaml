@@ -1,0 +1,13 @@
+# AUTO-GENERATED — edit dictionary.csv for field-level detail; refresh via generate_vendor_context_from_seed.py
+vendor_id: VND_025
+vendor_code: apartment_list
+vendor_label: "Apartment List"
+source_schema: "RAW.APARTMENT_LIST"
+data_type: survey
+refresh_cadence: monthly
+contract_status: active
+data_share_type: s3
+is_active: True
+dictionary_version: '0.1'
+fields: []  # populate from Snowflake DESCRIBE + product dictionaries
+vertical_codes: "resi"

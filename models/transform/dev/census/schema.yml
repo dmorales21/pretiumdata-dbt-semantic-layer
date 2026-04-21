@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: fact_census_pep_county_annual
+    description: >
+      **TRANSFORM.DEV** read-through of Jon PEP county annual via **`census_pep_source('county')`**
+      (**`census_pep_silver_location`**: `transform_fact` or `transform_census`; identifier vars on each source).
+      Disabled when **`census_pep_readthrough_enabled`** is false (default until **`CENSUS_PEP_*`** silver exists —
+      **TRANSFORM.CENSUS** may be **ACS5-only**). Part of **labor / demographics geography spine**;
+      see **`registry/lineage/labor_market_demographics_geography_spine.yml`**.
+
+  - name: fact_census_pep_cbsa_annual
+    description: >
+      **TRANSFORM.DEV** read-through of Jon PEP CBSA annual via **`census_pep_source('cbsa')`**.
+      Same **`census_pep_readthrough_enabled`** / **`census_pep_silver_location`** contract as county PEP.
+
+  - name: fact_transform_concept_employment_county_monthly
+    description: >
+      **TRANSFORM.DEV** read-through **`TRANSFORM.CONCEPT.EMPLOYMENT_COUNTY_MONTHLY`** — county employment (monthly).
+
+  - name: fact_transform_concept_employment_cbsa_monthly
+    description: >
+      **TRANSFORM.DEV** read-through **`TRANSFORM.CONCEPT.EMPLOYMENT_CBSA_MONTHLY`** — CBSA employment (monthly).
+
+  - name: fact_census_acs5_h3_r8_snapshot
+    description: >
+      **TRANSFORM.DEV** ACS 5-year block-group demographics pivoted from **`source('transform_census','acs5')`**,
+      area-weighted to **H3 R8** via **`source('h3_polyfill_bridges','bridge_bg_h3_r8_polyfill')`**. Grain **(cbsa_id, h3_r8_hex)**.
+      No **TRANSFORM_PROD** / **ANALYTICS** dependencies — see MIGRATION_RULES.md and corridor smoke matrix §6.
+
+  - name: int_acs5_h3_r8_cbsa_demographics_rollups
+    description: >
+      CBSA-level rollups from ``fact_census_acs5_h3_r8_snapshot`` (population-weighted LFPR, HH-weighted median HHI wavg,
+      summed population wavg, population-weighted vacancy **share** proxies). Feeds ``concept_income_market_annual``,
+      ``concept_labor_market_annual``, ``concept_population_market_annual``, ``concept_vacancy_market_monthly`` (ACS branch).

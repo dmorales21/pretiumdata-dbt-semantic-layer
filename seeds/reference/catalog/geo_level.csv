@@ -1,7 +1,25 @@
-geo_level_id,geo_level_code,geo_level_label,grain_rank,fips_available,h3_available,is_active
-GEO_001,property,Property,1,FALSE,TRUE,TRUE
-GEO_002,zip,ZIP Code,2,TRUE,TRUE,TRUE
-GEO_003,county,County,3,TRUE,TRUE,TRUE
-GEO_004,cbsa,CBSA,4,TRUE,TRUE,TRUE
-GEO_005,state,State,5,TRUE,FALSE,TRUE
-GEO_006,national,National,6,FALSE,FALSE,TRUE
+geo_level_id,geo_level_code,geo_level_label,grain_rank,fips_available,h3_available,is_active,source_snow_cybersyn_level,geography_class,supported_in_reference,shape_expected,code_system,geo_level_notes
+GEO_001,property,Property,1,FALSE,TRUE,TRUE,,portfolio,Y,Y,local,Property / unit grain; no Cybersyn GEOGRAPHY_INDEX.LEVEL
+GEO_002,zip,ZIP Code,2,TRUE,TRUE,TRUE,,postal,Y,variable,USPS,USPS postal ZIP product grain — do not conflate with census ZCTA
+GEO_003,county,County,3,TRUE,TRUE,TRUE,County,admin,Y,Y,FIPS,county FIPS spine; join Cybersyn via LEVEL = County
+GEO_004,cbsa,CBSA,4,TRUE,TRUE,TRUE,CensusCoreBasedStatisticalArea,census_statistical,Y,Y,CBSA,canonical metro; Cybersyn LEVEL CensusCoreBasedStatisticalArea
+GEO_005,state,State,5,TRUE,FALSE,TRUE,State,admin,Y,Y,FIPS_ISO,
+GEO_006,national,National,6,FALSE,FALSE,TRUE,,admin,Y,N,internal,US national analytic rollup; no single Cybersyn LEVEL string
+GEO_007,zcta,ZIP Code Tabulation Area,7,TRUE,TRUE,TRUE,CensusZipCodeTabulationArea,census_statistical,Y,Y,census,ZCTA not USPS postal; never map Cybersyn ZCTA row to geo_level_code zip
+GEO_008,tract,Census Tract,8,TRUE,TRUE,TRUE,CensusTract,census_statistical,Y,Y,census,
+GEO_009,block_group,Census Block Group,9,TRUE,TRUE,TRUE,CensusBlockGroup,census_statistical,Y,Y,census,
+GEO_010,city,City,10,TRUE,TRUE,TRUE,City,admin,Y,variable,local,place / city geography
+GEO_011,country,Country,11,FALSE,FALSE,TRUE,Country,admin,Y,Y,ISO,standard country; Cybersyn LEVEL Country
+GEO_012,metro_division,Metropolitan Division,12,TRUE,TRUE,TRUE,CensusMetropolitanDivision,census_statistical,Y,Y,census,child of CBSA where applicable
+GEO_013,census_region,Census Region,13,FALSE,FALSE,TRUE,CensusRegion,census_statistical,Y,Y,census,
+GEO_014,census_division,Census Division,14,FALSE,FALSE,TRUE,CensusDivision,census_statistical,Y,Y,census,
+GEO_015,county_subdivision,Census County Subdivision,15,TRUE,TRUE,TRUE,CensusSubdivision,census_statistical,conditional,variable,census,use only where needed
+GEO_016,admin1,Administrative Area 1,16,FALSE,FALSE,TRUE,AdministrativeArea1,admin,conditional,variable,source_native,non-US or imperfect state mapping
+GEO_017,territory,Territory,17,FALSE,FALSE,TRUE,Territory,admin,conditional,variable,source_native,
+GEO_018,disputed_territory,Disputed Territory,18,FALSE,FALSE,TRUE,DisputedTerritory,special,conditional,variable,source_native,special handling
+GEO_019,airport,Airport,19,FALSE,FALSE,FALSE,Airport,special,N,variable,source_native,not part of canonical census spine
+GEO_020,continuum_of_care,Continuum of Care,20,FALSE,FALSE,TRUE,ContinuumOfCare,program,conditional,variable,HUD,HUD program geography
+GEO_021,padd,PADD,21,FALSE,FALSE,TRUE,PetroleumAdministrationDefenseDistrict,special,conditional,Y,federal,specialized regional geography
+GEO_022,gas_storage_region,Natural Gas Storage Region,22,FALSE,FALSE,TRUE,NaturalGasStorageRegion,special,conditional,Y,source_native,specialized geography
+GEO_023,unmapped,Unmapped Cybersyn LEVEL,100,FALSE,FALSE,TRUE,,special,N,N,cybersyn,Vendor LEVEL present in GEOGRAPHY_INDEX but no source_snow_cybersyn_level row yet — add crosswalk to geo_level then retire unmapped rows
+GEO_024,neighborhood,Neighborhood,23,TRUE,TRUE,TRUE,,admin,Y,variable,local,Vendor market neighborhood (e.g. Redfin NBHD tracker); not USPS ZIP or census ZCTA

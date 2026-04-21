@@ -13,6 +13,7 @@ on:
       - "seeds/**"
       - "tests/**"
       - "ci/**"
+      - "scripts/ci/**"
       - ".github/workflows/semantic_layer_catalog_and_quality.yml"
   push:
     branches: [main, master]
@@ -24,6 +25,7 @@ on:
       - "seeds/**"
       - "tests/**"
       - "ci/**"
+      - "scripts/ci/**"
       - ".github/workflows/semantic_layer_catalog_and_quality.yml"
   workflow_dispatch:
 
@@ -39,6 +41,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Window leakage audit (FEATURE_* — no future-looking window frames)
+        run: bash scripts/ci/check_feature_window_leakage.sh
+
+      - name: No TRANSFORM_PROD / ANALYTICS_PROD / EDW_PROD in dbt graph
+        run: bash scripts/ci/assert_no_legacy_prod_snowflake_databases_in_dbt_graph.sh
 
       - uses: actions/setup-python@v5
         with:

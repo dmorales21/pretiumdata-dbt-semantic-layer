@@ -4,3 +4,4 @@ FRQ_002,weekly,Weekly,7,2,TRUE
 FRQ_003,monthly,Monthly,30,3,TRUE
 FRQ_004,quarterly,Quarterly,90,4,TRUE
 FRQ_005,annual,Annual,365,5,TRUE
+FRQ_006,varies,Varies or vendor-mixed cadence,0,6,TRUE

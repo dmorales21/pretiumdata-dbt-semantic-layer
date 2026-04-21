@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: cherre_recorder_v2_with_geo
+    description: >
+      TRANSFORM.DEV view over **TRANSFORM.CHERRE.RECORDER_V2_WITH_GEO** (Snowflake Dynamic Table in typical DE builds).
+      Canonical dbt read edge for recorder+geo; future **FACT_** models should `ref()` this, not hard-code FQNs.
+    config:
+      tags: ['transform', 'transform_dev', 'cherre', 'cherre_read_surface']
+
+  - name: cherre_tax_assessor_v2_snapshot
+    description: TRANSFORM.DEV passthrough over assessor snapshot (often a Dynamic Table).
+    config:
+      tags: ['transform', 'transform_dev', 'cherre', 'cherre_read_surface']
+
+  - name: cherre_tax_assessor_geo_stats
+    description: TRANSFORM.DEV passthrough over assessor geography statistics (often a Dynamic Table).
+    config:
+      tags: ['transform', 'transform_dev', 'cherre', 'cherre_read_surface']
+
+  - name: cherre_avm_geo_stats
+    description: >
+      TRANSFORM.DEV passthrough over **USA_AVM_GEO_STATS** (`cherre_avm_*` naming family). Not parcel-level **USA_AVM_V2**.
+    config:
+      tags: ['transform', 'transform_dev', 'cherre', 'cherre_read_surface', 'cherre_avm']
+
+  - name: fact_cherre_stock_h3_r8
+    description: >
+      **TRANSFORM.DEV** parcel stock snapshot at **(cbsa_id, h3_r8_hex, segment)** from Cherre **tax_assessor_v2**
+      (`source('cherre','tax_assessor_v2')`). Corridor / valuation spine — see MIGRATION_TASKS_CORRIDOR_PIPELINE_SOURCES.md §6.
+    config:
+      tags: ['transform', 'transform_dev', 'cherre', 'cherre_read_surface', 'corridor', 'h3']

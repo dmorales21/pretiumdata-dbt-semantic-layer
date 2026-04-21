@@ -2,10 +2,10 @@ version: 2
 
 # REFERENCE.DRAFT seeds — Alex owns
 # Objects here are in-progress; promote to REFERENCE.CATALOG on owner approval
-# dim_metric_dev promotes to metric in REFERENCE.CATALOG once TRANSFORM.FACT exists
+# catalog_metric (CATALOG_METRIC) promotes to metric in REFERENCE.CATALOG once TRANSFORM.FACT exists
 
 seeds:
-  - name: dim_metric_dev
+  - name: catalog_metric
     description: >
       Working metric registry for development. Header-only until TRANSFORM.FACT is built.
       Promotes to REFERENCE.CATALOG.metric once canonical fact tables exist and
@@ -48,4 +48,25 @@ seeds:
       - name: metric_category_code
         tests: [not_null]
       - name: is_opco_metric
+        tests: [not_null]
+
+  - name: qa_tract_zcta_harmonized_parquet_manifest
+    description: >
+      Expected harmonized tract / ZCTA boundary parquet objects (NHGIS-style naming)
+      for QA against a Snowflake stage or external inventory. Lives in REFERENCE.DRAFT
+      until promoted to REFERENCE.CATALOG or replaced by automated stage LIST output.
+      Does not land raw geometry in TRANSFORM.DEV; use SOURCE_PROD / RAW per SCHEMA_RULES
+      for physical parquet loads.
+    config:
+      schema: DRAFT
+    columns:
+      - name: file_name
+        tests: [not_null, unique]
+      - name: geo_unit
+        tests: [not_null]
+      - name: schema_year
+        tests: [not_null]
+      - name: approx_size_mb
+        tests: [not_null]
+      - name: source_note
         tests: [not_null]

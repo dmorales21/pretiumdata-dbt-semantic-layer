@@ -1,0 +1,47 @@
+version: 2
+
+seeds:
+  - name: catalog_wishlist
+    description: >
+      REFERENCE.CATALOG backlog (wishlist). See docs/reference/CATALOG_WISHLIST.md and
+      migration/PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md §P.
+    config:
+      schema: CATALOG
+    columns:
+      - name: wishlist_id
+        tests: [not_null, unique]
+      - name: wishlist_code
+        tests: [not_null, unique]
+      - name: category
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [concept_chain, catalog_gap, infra]
+      - name: ontology_concept_code
+        description: Ontology slug when applicable; empty for infra rows
+      - name: ontology_model_role
+        description: driver | constraint | liquidity_proxy when applicable
+      - name: forecast_horizon_note
+      - name: headline
+        tests: [not_null]
+      - name: next_action
+        tests: [not_null]
+      - name: blocked_by
+      - name: priority
+        tests: [not_null]
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [blocked, scoped, in_progress, done]
+      - name: primary_catalog_concept_code
+        description: >
+          Optional FK-style link to REFERENCE.CATALOG.concept.concept_code when this row has a single
+          primary spine dimension (POLARIS alignment). Leave empty for infra rows or until taxonomy
+          maps chain-only slugs (e.g. absorption_tightness) to a registered concept.
+      - name: primary_catalog_metric_code
+        description: >
+          Optional link to REFERENCE.CATALOG.metric.metric_code when the wishlist row is anchored to
+          one catalog metric (e.g. WL_020 minimal bridge uses MET_013 / cybersyn_fhfa_house_price_timeseries_value).

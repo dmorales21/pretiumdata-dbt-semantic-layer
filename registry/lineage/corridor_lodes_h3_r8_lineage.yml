@@ -1,0 +1,82 @@
+# LODES / corridor H3 R8 employment-center chain — TRANSFORM.DEV facts (semantic-layer dbt)
+# dbt paths: models/transform/dev/lodes/*.sql
+
+lineage_version: 1
+register_id: corridor_lodes_h3_r8_chain
+
+vendor:
+  code: lehd
+  display_name: U.S. Census Bureau — LEHD / LODES
+  notes: Job counts and OD tables in TRANSFORM.LODES; Pretium facts in TRANSFORM.DEV.
+
+data_dictionary_source:
+  notes: Census LEHD methodology; vendor geography via REFERENCE.GEOGRAPHY polyfills.
+
+datasets:
+  - dataset_id: DS_074
+    dataset_code: lehd_lodes_block_annual
+    description: Block-group OD silver — feeds BG-level reads and parity tests.
+  - dataset_id: DS_086
+    dataset_code: lodes_workplace_hex_inflow_annual
+    description: Workplace H3 R8 hex inflow summary (annual).
+  - dataset_id: DS_087
+    dataset_code: corridor_employment_centers_h3_r8_annual
+    description: Classified employment centers at H3 R8.
+  - dataset_id: DS_088
+    dataset_code: lodes_h3_r8_workplace_gravity_annual
+    description: BG OD apportioned to workplace H3 R8 hex.
+  - dataset_id: DS_089
+    dataset_code: lodes_nearest_employment_center_h3_r8_annual
+    description: Nearest employment-center grid distance by hex (annual).
+
+metrics: []
+derived: []
+engineered_features: []
+
+concepts: []
+
+facts:
+  - dbt_model: fact_lodes_od_h3_r8_annual
+    repo_role: semantic_layer
+    path: models/transform/dev/lodes/fact_lodes_od_h3_r8_annual.sql
+    snowflake: TRANSFORM.DEV.FACT_LODES_OD_H3_R8_ANNUAL
+    materialization: view
+    sources: [transform_lodes.od_h3_r8]
+    dataset_ids: [DS_074]
+
+  - dbt_model: fact_lodes_od_workplace_hex_annual
+    path: models/transform/dev/lodes/fact_lodes_od_workplace_hex_annual.sql
+    snowflake: TRANSFORM.DEV.FACT_LODES_OD_WORKPLACE_HEX_ANNUAL
+    materialization: table
+    refs: [fact_lodes_od_h3_r8_annual]
+    dataset_ids: [DS_086]
+
+  - dbt_model: ref_corridor_employment_centers
+    path: models/transform/dev/lodes/ref_corridor_employment_centers.sql
+    snowflake: TRANSFORM.DEV.REF_CORRIDOR_EMPLOYMENT_CENTERS
+    materialization: table
+    refs: [fact_lodes_od_workplace_hex_annual]
+    dataset_ids: [DS_087]
+
+  - dbt_model: fact_lodes_h3r8_workplace_gravity
+    path: models/transform/dev/lodes/fact_lodes_h3r8_workplace_gravity.sql
+    snowflake: TRANSFORM.DEV.FACT_LODES_H3R8_WORKPLACE_GRAVITY
+    materialization: table
+    sources:
+      - transform_lodes.od_bg
+      - h3_polyfill_bridges.bridge_bg_h3_r8_polyfill
+    dataset_ids: [DS_088]
+
+  - dbt_model: fact_lodes_nearest_center_h3_r8_annual
+    path: models/transform/dev/lodes/fact_lodes_nearest_center_h3_r8_annual.sql
+    snowflake: TRANSFORM.DEV.FACT_LODES_NEAREST_CENTER_H3_R8_ANNUAL
+    materialization: table
+    refs: [ref_corridor_employment_centers]
+    sources: [h3_polyfill_bridges.bridge_bg_h3_r8_polyfill]
+    dataset_ids: [DS_089]
+
+downstream:
+  notes: >
+    Ward / corridor Python (`corridor_pipeline.py`) and pretium-ai-dbt FEATURE_* / corridor
+    membership models consume these FQNs; register consuming models in pretium-ai-dbt
+    `registry/lineage/` when ported.

@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: fact_zillow_affordability
+    description: >
+      Long grain: geo_id × date_reference × metric_id from Zillow Research VARIANT landings.
+      Reads SOURCE_PROD.ZILLOW.RAW_AFFORDABILITY; metro/msa normalized to geo_level_code cbsa;
+      city and neighborhood rows excluded. Census keys via **TRANSFORM.DEV.REF_ZILLOW_METRO_TO_CBSA**
+      (Alex CTAS from Jon **`TRANSFORM.REF.ZILLOW_TO_CENSUS_CBSA_MAPPING`**), **REFERENCE.GEOGRAPHY**
+      postal/county + county–CBSA xwalks, and seed **ref_zillow_county_to_fips**.
+    config:
+      tags: ["zillow_research", "fact_zillow"]
+    columns:
+      - name: geo_id
+        description: "Zillow RegionID at the grain given by geo_level_code (vendor id until bridged)."
+      - name: geo_level_code
+        description: "Catalog-aligned grain: zip | county | cbsa (from metro/msa) | state | country | zillow_region."
+      - name: cbsa_id
+        description: "5-digit CBSA FIPS when metro/county/zip path resolves; else NULL."
+      - name: county_fips
+        description: "5-digit county FIPS when county or zip path resolves."
+      - name: state_fips
+        description: "2-digit ANSI state FIPS when state/county/zip path resolves."
+      - name: census_place_fips
+        description: "Reserved; NULL after excluding city grain from this fact set."
+      - name: has_census_geo
+        description: "True if any of cbsa_id, county_fips, state_fips is non-null."
+      - name: census_geo_source
+        description: "Which join supplied the match; NULL if unmatched."
+      - name: dbt_updated_at
+        description: "Row materialization timestamp."
+
+  - name: fact_zillow_days_on_market_and_price_cuts
+    description: "Long grain: days on market / price cuts series; same enrichment pattern as fact_zillow_affordability."
+    config:
+      tags: ["zillow_research", "fact_zillow"]
+
+  - name: fact_zillow_for_sale_listings
+    description: "Long grain: for-sale listings series; same enrichment pattern as fact_zillow_affordability."
+    config:
+      tags: ["zillow_research", "fact_zillow"]
+
+  - name: fact_zillow_home_values
+    description: "Long grain: home values (ZHVI etc.); large row count; same enrichment pattern as fact_zillow_affordability."
+    config:
+      tags: ["zillow_research", "fact_zillow"]
+
+  - name: fact_zillow_home_values_forecasts
+    description: "Long grain: home value forecasts; same enrichment pattern as fact_zillow_affordability."
+    config:
+      tags: ["zillow_research", "fact_zillow"]
+
+  - name: fact_zillow_market_heat_index
+    description: "Long grain: market heat index; same enrichment pattern as fact_zillow_affordability."
+    config:
+      tags: ["zillow_research", "fact_zillow"]
+
+  - name: fact_zillow_new_construction
+    description: "Long grain: new construction series; same enrichment pattern as fact_zillow_affordability."
+    config:
+      tags: ["zillow_research", "fact_zillow"]
+
+  - name: fact_zillow_rental_forecasts
+    description: "Long grain: rental forecasts; same enrichment pattern as fact_zillow_affordability."
+    config:
+      tags: ["zillow_research", "fact_zillow"]
+
+  - name: fact_zillow_rentals
+    description: "Long grain: rental (ZORI etc.) series; same enrichment pattern as fact_zillow_affordability."
+    config:
+      tags: ["zillow_research", "fact_zillow"]
+
+  - name: fact_zillow_sales
+    description: "Long grain: sales volume / price series; same enrichment pattern as fact_zillow_affordability."
+    config:
+      tags: ["zillow_research", "fact_zillow"]

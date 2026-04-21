@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: source_entity_pretium
+    database: SOURCE_ENTITY
+    schema: PRETIUM
+    description: >
+      Pretium SOURCE_ENTITY slice for Oxford Economics feeds (AMREG regional / CBSA economics,
+      WDMARCO national macro). Physical shape: pretium-ai-dbt
+      docs/vendors/amreg/OXFORD_SOURCE_ENTITY_PROFILE_AND_CROSSWALK_JOIN.md.
+
+    tables:
+      - name: amreg
+        identifier: AMREG
+        description: >
+          Long-form AMREG; join TRANSFORM.DEV.REF_OXFORD_METRO_CBSA on Location_code + Region_type = MSA
+          for Pretium CBSA keys (see profile doc §4).
+      - name: wdmarco
+        identifier: WDMARCO
+        description: >
+          Long-form WDMARCO national macro (USA); no Region_Type column on table (profile doc §2).

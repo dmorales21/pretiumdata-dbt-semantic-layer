@@ -1,0 +1,4 @@
+offering_id,offering_code,offering_label,definition,vertical_code,data_status_code,sort_order,is_active
+OFG_001,property_tearsheet_resi,RESI Property Tearsheet,Standard single-asset residential equity tearsheet with rent occupancy and market context,resi,active,1,TRUE
+OFG_002,ic_signal_monitor_resi,RESI IC Signal Monitor,Curated concept bundle for IC monitoring workflows across geographies,resi,active,2,TRUE
+OFG_003,opco_market_pack_req,REQ OpCo Market Pack,Build-to-rent and development vertical analytics pack for OpCo partner teams,req,active,3,TRUE

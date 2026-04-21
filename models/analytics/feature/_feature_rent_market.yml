@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: feature_rent_market_monthly_spine
+    meta:
+      statistical:
+        source_concept: concept_rent_market_monthly
+        primary_metric_codes: ["MET_041"]
+        frequency: monthly
+        expected_level_acf_lag1_range: [0.85, 0.99]
+        ml_prep_recommendation: >
+          Levels are highly autocorrelated within (vendor_code, geo_id). Use first-diff, log-diff, or within-market
+          z-scores in downstream FEATURE/MODEL columns before PCA — see docs/reference/CONCEPT_FEATURE_STATISTICAL_METADATA_AND_AUTOCORRELATION.md.
+      train_label_horizon:
+        slug: train_label_horizon_spec
+        prediction_problem: market_rent_panel_tbd
+        horizon_months: null
+        embargo_months: 0
+        label_definition: null
+        notes: >
+          Freeze before MODEL_* training: set horizon/embargo/label column when rent MoM/YoY targets are registered in catalog.
+          See docs/reference/FEATURE_DEVELOPMENT_GUARDRAILS.md.
+      outlier_treatment:
+        slug: outlier_treatment_registry
+        spine_policy: raw_pass_through_from_concept
+        winsor_lower_pct: null
+        winsor_upper_pct: null
+        notes: Winsor / log transforms belong in downstream FEATURE/MODEL columns, not this pass-through spine unless explicitly versioned.
+      operator_note: >
+        Prerequisite before `dbt test --select feature_rent_market_monthly_spine`: materialize the feature (and upstream concept).
+        Valid selectors (pick one): `dbt build --select +feature_rent_market_monthly_spine` (model + all parents),
+        `dbt build --select concept_rent_market_monthly+` (concept + all children), or
+        `dbt build --select concept_rent_market_monthly feature_rent_market_monthly_spine` (space = union).
+        Do **not** use `concept_rent_market_monthly+feature_rent_market_monthly_spine` — `+` is not a between-two-models join; dbt will report "does not match any enabled nodes".
+        Tests compile against ANALYTICS.DBT_DEV.FEATURE_RENT_MARKET_MONTHLY; `dbt test` alone does not create the view.
+    description: >
+      Narrow projection of `concept_rent_market_monthly` into **ANALYTICS** for **`FEATURE_*`** windows
+      (cohort median/stddev, z-scores, gating on `cohort_n`) per `MIGRATION_TASKS_EF_RENT_PREBAKED_METRICS.md`.
+      First hop in **T-ANALYTICS-FEATURE-EFFECTIVE-RENT-STACK**; effective rent and property-grain features follow.
+      **Snowflake relation:** `alias=feature_rent_market_monthly` → **`ANALYTICS.DBT_DEV.FEATURE_RENT_MARKET_MONTHLY`** (dbt model name remains `feature_rent_market_monthly_spine`).
+    config:
+      tags: ['analytics', 'feature', 'rent', 'rent_market']
+    tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('concept_rent_market_monthly')
+    columns:
+      - name: vendor_code
+        tests:
+          - not_null
+      - name: month_start
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "<= DATE_TRUNC('month', CURRENT_DATE)"
+      - name: geo_id
+        tests:
+          - not_null

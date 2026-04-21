@@ -1,0 +1,2 @@
+use_in_test,vendor_code,month_start,geo_level_code,geo_id,metric_id_observe,expected_rent
+false,ZILLOW,1900-01-01,cbsa,00000,_placeholder_,

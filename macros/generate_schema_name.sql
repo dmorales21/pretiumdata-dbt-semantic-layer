@@ -6,8 +6,9 @@
     - Seeds under reference/catalog → always CATALOG (no env variation)
     - Seeds under reference/draft   → always DRAFT (no env variation)
     - Analytics models              → DBT_DEV / DBT_STAGE / DBT_PROD by target
-    - Semantic mart models          → SEMANTIC (always)
+    - Semantic CONCEPT_* / entity   → DEV via dbt_project (+schema: DEV on transform/dev/concept|entity)
     - Intermediate models           → INTERMEDIATE (always)
+    - SERVING demo models           → DEMO (always)
     - No default schema fallback    → explicit config required on all paths
   -#}
 
@@ -33,6 +34,9 @@
 
   {%- elif custom_schema_name == 'INTERMEDIATE' -%}
     INTERMEDIATE
+
+  {%- elif custom_schema_name == 'DEMO' -%}
+    DEMO
 
   {%- elif custom_schema_name in ['DBT_DEV', 'DBT_STAGE', 'DBT_PROD'] -%}
     {{ analytics_schema_map[target.name] | default('DBT_DEV') }}

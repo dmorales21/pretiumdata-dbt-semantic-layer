@@ -2,9 +2,14 @@ version: 2
 
 seeds:
   - name: geo_level
-    description: Canonical geography grain vocabulary
+    description: >
+      Canonical geography grain vocabulary for REFERENCE.CATALOG.geo_level plus SOURCE_SNOW Cybersyn
+      GEOGRAPHY_INDEX.LEVEL crosswalk (source_snow_cybersyn_level). Single source of truth for geo levels.
     config:
       schema: CATALOG
+      # If Snowflake GEO_LEVEL predates new CSV columns, seed sync can error: invalid identifier SOURCE_SNOW_CYBERSYN_LEVEL.
+      # full_refresh recreates the table from CSV (small dimension).
+      full_refresh: true
     columns:
       - name: geo_level_id
         tests: [not_null, unique]
@@ -14,7 +19,31 @@ seeds:
           - unique
           - accepted_values:
               arguments:
-                values: [property, zip, county, cbsa, state, national]
+                values:
+                  - property
+                  - zip
+                  - county
+                  - cbsa
+                  - state
+                  - national
+                  - zcta
+                  - tract
+                  - block_group
+                  - city
+                  - country
+                  - metro_division
+                  - census_region
+                  - census_division
+                  - county_subdivision
+                  - admin1
+                  - territory
+                  - disputed_territory
+                  - airport
+                  - continuum_of_care
+                  - padd
+                  - gas_storage_region
+                  - unmapped
+                  - neighborhood
       - name: geo_level_label
         tests: [not_null]
       - name: grain_rank
@@ -25,6 +54,23 @@ seeds:
         tests: [not_null]
       - name: is_active
         tests: [not_null]
+      - name: source_snow_cybersyn_level
+        description: >
+          Exact LEVEL string on SOURCE_SNOW.GLOBAL_GOVERNMENT.CYBERSYN.GEOGRAPHY_INDEX (and related geo tables).
+          Null when this geo_level_code is catalog-only (e.g. property, zip, national).
+        tests:
+          - unique:
+              config:
+                where: "source_snow_cybersyn_level is not null and trim(source_snow_cybersyn_level) <> ''"
+      - name: geography_class
+        tests: [not_null]
+      - name: supported_in_reference
+        tests: [not_null]
+      - name: shape_expected
+        tests: [not_null]
+      - name: code_system
+        tests: [not_null]
+      - name: geo_level_notes
 
   - name: frequency
     description: Canonical time grain vocabulary
@@ -39,7 +85,7 @@ seeds:
           - unique
           - accepted_values:
               arguments:
-                values: [daily, weekly, monthly, quarterly, annual]
+                values: [daily, weekly, monthly, quarterly, annual, varies]
       - name: frequency_label
         tests: [not_null]
       - name: days_interval
@@ -251,3 +297,39 @@ seeds:
         tests: [not_null]
       - name: min_row_count
         tests: [not_null]
+
+  # Cybersyn GLOBAL_GOVERNMENT — vendor-by-vendor attribution for every CYBERSYN_DATA_CATALOG.table_name
+  # Regenerate: python3 scripts/reference/catalog/regenerate_cybersyn_catalog_table_vendor_map.py
+  - name: cybersyn_catalog_table_vendor_map
+    description: >
+      Maps each distinct Snowflake table_name from the Cybersyn GLOBAL_GOVERNMENT share list to an
+      underlying statistical-agency vendor_code (not the Snowflake republisher alone). Used by dbt tests
+      and governance reviews; keep aligned with CYBERSYN_GLOBAL_GOVERNMENT_BRING_IN_MATRIX.md tiers.
+    config:
+      schema: CATALOG
+    columns:
+      - name: table_name
+        tests:
+          - not_null
+          - unique
+      - name: domain_family_key
+        tests: [not_null]
+      - name: underlying_vendor_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('vendor')
+                field: vendor_code
+      - name: matrix_tier
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5, 6, 88, 99]
+      - name: is_pit_companion
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["true", "false"]

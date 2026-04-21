@@ -1,40 +1,21 @@
-# Operating model: Snowflake targets vs repos
+# Operating model — repos and Snowflake layers
 
-## 1. `TRANSFORM.DEV` — SnowSQL only (not this dbt project’s default output)
+**Owner:** Alex  
+**Status:** index (authoritative detail lives in linked rules).
 
-**Who:** Hand-maintained SQL and operators.
+## Repositories
 
-**How:** Author and run scripts with **`snowsql -c pretium`** (or your CI Snowflake client). Scripts may live in **`pretium-ai-dbt`** under `scripts/sql/` (legacy pipeline DDL, COPY, stages, one-offs) or in this repo if you add a `scripts/sql/` tree here.
+| Repo | Role |
+|------|------|
+| **pretiumdata-dbt-semantic-layer** | Canonical **dbt** for **`TRANSFORM.DEV`** `FACT_*` / `CONCEPT_*`, **`ANALYTICS.DBT_*`**, **`REFERENCE.CATALOG` / `REFERENCE.AI`**, **`SERVING.DEMO`** per [`rules/SCHEMA_RULES.md`](./rules/SCHEMA_RULES.md) (Alex rows). |
+| **pretium-ai-dbt** | Migration **source**, SnowSQL/runbooks, and **`SOURCE_PROD`** ingest until objects are ported or retired. **Closure** for `T-*` tasks is **not** pretium-ai-dbt alone — see [migration/CANONICAL_COMPLETION_DEFINITION.md](./migration/CANONICAL_COMPLETION_DEFINITION.md). |
 
-**Target:** Snowflake **`TRANSFORM`** database, **`DEV`** schema (`TRANSFORM.DEV` after default uppercasing) for landing tables, extracts, and dev mirrors — unless a script explicitly sets another database/schema.
+## Snowflake ownership (summary)
 
-**Do not** assume the **semantic-layer** dbt `dev` target writes here: this repo’s dbt `dev` target is wired to **semantic MART** databases (see `dbt_project.yml` `semantic_database_map`).
+- **Jon:** **`TRANSFORM.[VENDOR]`** PROD vendor canonical layer — Alex **reads**, does not author dbt writes there.
+- **Alex:** **`TRANSFORM.DEV`** facts/concepts/ref, **`REFERENCE.CATALOG`** / **`REFERENCE.AI`** / **`REFERENCE.DRAFT`**, **`ANALYTICS.DBT_DEV` / `DBT_STAGE` / `DBT_PROD`** (Alex-owned prefixes), **`SERVING.DEMO`**, **`SOURCE_PROD` landed DEV** registration — full matrix in [`rules/SCHEMA_RULES.md`](./rules/SCHEMA_RULES.md) § **Alex — responsibilities**.
 
----
+## Binding rules
 
-## 2. `ANALYTICS.DBT_DEV` — dbt in **this** repo (`pretiumdata-dbt-semantic-layer`)
-
-**Who:** dbt Core in this repository.
-
-**How:** `dbt run`, `dbt test`, CI — using a dbt **target** whose profile resolves to:
-
-| Setting    | Value (convention) |
-|-----------|---------------------|
-| Database  | `ANALYTICS`         |
-| Schema    | `DBT_DEV`           |
-
-Use this for **analytics-layer** models (facts, dimensions, metrics prep) that you are moving or building alongside the semantic catalog.
-
-**Profile:** Add or extend a target (e.g. `analytics_dev` or overload `dev`) in `profiles.yml` so `database=analytics` and `schema=dbt_dev` for local/CI runs. The starter `dbt_project.yml` in this repo still maps **`dev` → `MART_DEV.SEMANTIC`** for semantic marts; until analytics models are added under a separate config path, treat **“analytics.dbt_dev”** as the **intended Snowflake destination** for new analytics dbt work and align `profiles.yml` + `models:` blocks accordingly.
-
----
-
-## 3. Summary
-
-| Surface              | Repo                         | Tool    | Typical Snowflake location   |
-|----------------------|------------------------------|---------|-------------------------------|
-| Transform landings   | primarily **pretium-ai-dbt** | SnowSQL | **`TRANSFORM.DEV`**           |
-| Analytics (dbt dev)  | **pretiumdata-dbt-semantic-layer** | dbt | **`ANALYTICS.DBT_DEV`** (via profile) |
-| Semantic marts       | **pretiumdata-dbt-semantic-layer** | dbt | **`MART_DEV.SEMANTIC`** etc. (`semantic_database_map`) |
-
-Keep cross-repo drift visible: if a table is created only in `TRANSFORM.DEV` via SnowSQL, document it in the repo that owns the script; if a relation is owned by dbt in this repo, it should appear in `models/` and `sources.yml` here.
+- [rules/ARCHITECTURE_RULES.md](./rules/ARCHITECTURE_RULES.md) — layer split, geography vs vendor xwalks, metric gates.
+- [migration/MIGRATION_RULES.md](./migration/MIGRATION_RULES.md) — migration sequence, **no `*_PROD` DB in semantic-layer dbt graph**.

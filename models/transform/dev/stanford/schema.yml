@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: fact_stanford_seda_h3_r8_snapshot
+    description: >
+      **TRANSFORM.DEV** Stanford SEDA v6 pool metrics at **(cbsa_id, h3_r8_hex)** — district polygon fill via
+      **`source('source_prod_geo','map_schooldistrict_h3')`** (same landing as **`ref_school_district_h3_xwalk`**),
+      CBSA hydration via **`source('h3_polyfill_bridges','cbsa_h3_r8_polyfill')`**,
+      raw pool/crosswalk from **`source('source_prod_stanford', …)`**. Static snapshot (SEDA vintage).
+    config:
+      tags: ['transform', 'transform_dev', 'stanford', 'seda', 'corridor', 'h3']

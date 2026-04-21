@@ -1,0 +1,107 @@
+version: 2
+
+sources:
+  # SOURCE_ENTITY.PROGRESS — SFDC_* + YARDI_* objects for fund modeling (allocate / deploy / returns / sensitivity).
+  # Canonical path per pretium-ai-dbt sources.yml; legacy DS_SOURCE_PROD_SFDC is deprecated for new work.
+  # Override schema if your account uses a different SOURCE_ENTITY schema: --vars '{"source_entity_progress_schema":"PROGRESS"}'
+  - name: source_entity_progress
+    database: SOURCE_ENTITY
+    schema: "{{ var('source_entity_progress_schema', 'PROGRESS') }}"
+    description: >
+      Progress Residential landed objects in SOURCE_ENTITY (Salesforce custom objects + Yardi mirrors).
+      Consumed by TRANSFORM.DEV FACT_* read-through views when
+      `transform_dev_enable_source_entity_progress_facts` is true. Vet grants and identifiers:
+      pretium-ai-dbt `scripts/sql/migration/vet_source_entity_progress_fund_objects.sql`.
+    meta:
+      fund_modeling_tabs: [allocate, returns, deploy, sensitivity]
+    tables:
+      - name: sfdc_fund__c
+        identifier: SFDC_FUND__C
+        description: Fund header — size, leverage, reserves (Allocate).
+      - name: sfdc_fund_market__c
+        identifier: SFDC_FUND_MARKET__C
+        description: Fund × market allocation weights and capital (Allocate).
+      - name: sfdc_fund_pipeline__c
+        identifier: SFDC_FUND_PIPELINE__C
+        description: Fund pipeline / deal pacing (Allocate + Deploy).
+      - name: sfdc_fund_pipeline_summary__c
+        identifier: SFDC_FUND_PIPELINE_SUMMARY__C
+        description: Pipeline summary rollups (Allocate + Deploy).
+      - name: sfdc_portfolio__c
+        identifier: SFDC_PORTFOLIO__C
+        description: Portfolio / strategy concentration (Allocate).
+      - name: sfdc_submarket__c
+        identifier: SFDC_SUBMARKET__C
+        description: Submarket definitions and exposure caps (Allocate).
+      - name: sfdc_market_to_submarket__c
+        identifier: SFDC_MARKET_TO_SUBMARKET__C
+        description: Market to submarket bridge (Allocate).
+      - name: yardi_segments
+        identifier: YARDI_SEGMENTS
+        description: Strategy / segment taxonomy (Allocate).
+      - name: yardi_propattributes
+        identifier: YARDI_PROPATTRIBUTES
+        description: Property attributes / risk tier inputs (Allocate / Sensitivity).
+      - name: yardi_gltotal
+        identifier: YARDI_GLTOTAL
+        description: GL period totals (Returns).
+      - name: yardi_gldetail
+        identifier: YARDI_GLDETAIL
+        description: GL detail lines (Returns).
+      - name: yardi_trans
+        identifier: YARDI_TRANS
+        description: Yardi transactions from SOURCE_ENTITY (Returns); not TRANSFORM.YARDI.TRANS_PROGRESS.
+      - name: yardi_detail
+        identifier: YARDI_DETAIL
+        description: Charge / payment detail (Returns).
+      - name: yardi_accttree
+        identifier: YARDI_ACCTTREE
+        description: GL account hierarchy (Returns).
+      - name: yardi_glinvregdetail
+        identifier: YARDI_GLINVREGDETAIL
+        description: Investment register / capex detail (Returns).
+      - name: yardi_unittype
+        identifier: YARDI_UNITTYPE
+        description: Unit type market rents (Sensitivity).
+      - name: yardi_tenantaging
+        identifier: YARDI_TENANTAGING
+        description: Aging receivables / credit loss inputs (Sensitivity).
+      - name: yardi_camrule
+        identifier: YARDI_CAMRULE
+        description: CAM / OpEx rule baseline (Sensitivity).
+      - name: sfdc_acquisition__c
+        identifier: SFDC_ACQUISITION__C
+        description: Acquisition economics and close dates (Returns + Deploy).
+      - name: sfdc_acquisition__history
+        identifier: SFDC_ACQUISITION__HISTORY
+        description: Acquisition field history — stage velocity (Deploy).
+      - name: sfdc_disposition__c
+        identifier: SFDC_DISPOSITION__C
+        description: Disposition / exit economics (Returns + Deploy).
+      - name: sfdc_finance_due_diligence__c
+        identifier: SFDC_FINANCE_DUE_DILIGENCE__C
+        description: Underwriting scenarios — IRR, exit cap, rent growth (Returns + Sensitivity).
+      - name: sfdc_bpo__c
+        identifier: SFDC_BPO__C
+        description: BPO values — mark-to-market (Returns + Sensitivity).
+      - name: sfdc_hold__c
+        identifier: SFDC_HOLD__C
+        description: Hold / pipeline pause (Deploy).
+      - name: sfdc_concession__c
+        identifier: SFDC_CONCESSION__C
+        description: Concession assignments (Sensitivity).
+      - name: sfdc_properties__c
+        identifier: SFDC_PROPERTIES__C
+        description: Property master; join Yardi via Yardi_Property_Code__c (spine).
+      - name: yardi_unit
+        identifier: YARDI_UNIT
+        description: Yardi unit master from SOURCE_ENTITY (Sensitivity).
+      - name: yardi_lease_history
+        identifier: YARDI_LEASE_HISTORY
+        description: Lease history — stabilization pacing (Deploy).
+      - name: yardi_tenant_history
+        identifier: YARDI_TENANT_HISTORY
+        description: Tenant history (Deploy).
+      - name: yardi_unit_history
+        identifier: YARDI_UNIT_HISTORY
+        description: Unit status history (Deploy).

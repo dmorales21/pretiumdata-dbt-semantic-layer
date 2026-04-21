@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: fact_costar_scenarios
+    description: >
+      Read-through view over **TRANSFORM.COSTAR.SCENARIOS**. Wide CBSA × property type × period rent and scenario fields;
+      see ``macros/semantic/costar_quarter_to_month_linear.sql`` for canonical rent columns used in ``concept_rent_market_monthly``.
+    config:
+      tags: ["transform", "transform_dev", "costar", "fact_costar"]
+    data_tests:
+      # `dbt_utils.expression_is_true` under `columns:` duplicates the identifier — use model-level `expression` only.
+      - dbt_utils.expression_is_true:
+          expression: "(MARKET_EFFECTIVE_RENT_PER_UNIT is null) or (MARKET_EFFECTIVE_RENT_PER_UNIT >= 0 and MARKET_EFFECTIVE_RENT_PER_UNIT <= 50000)"
+          config:
+            enabled: "{{ var('semantic_layer_qa_transform_dev_bound_tests', false) }}"
+      - dbt_utils.expression_is_true:
+          expression: "(MARKET_ASKING_RENT_PER_UNIT is null) or (MARKET_ASKING_RENT_PER_UNIT >= 0 and MARKET_ASKING_RENT_PER_UNIT <= 50000)"
+          config:
+            enabled: "{{ var('semantic_layer_qa_transform_dev_bound_tests', false) }}"
+      - dbt_utils.equal_rowcount:
+          compare_model: source('transform_costar', 'scenarios')
+          config:
+            enabled: "{{ var('semantic_layer_qa_transform_dev_bound_tests', false) }}"
+    columns:
+      - name: MARKET_EFFECTIVE_RENT_PER_UNIT
+        description: Catalog **MET_047** — market effective rent per unit (USD); nulls allowed.
+      - name: MARKET_ASKING_RENT_PER_UNIT
+        description: Catalog **MET_048** — market asking rent per unit (USD); nulls allowed.
+
+  - name: fact_costar_mf_market_cbsa_monthly
+    description: >
+      Read-through of Jon wide MF DataExport in **TRANSFORM.DEV** (**`source('transform_dev','fact_costar_cbsa_monthly')`**;
+      **dataset.csv** DS_034, default identifier **FACT_COSTAR_CBSA_MONTHLY**). **MET_*** registration is deferred until
+      column inventory completes (``MIGRATION_TASKS_COSTAR.md`` §1.5).
+    config:
+      tags: ["transform", "transform_dev", "costar", "fact_costar", "observe_only"]
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: source('transform_dev', 'fact_costar_cbsa_monthly')
+          config:
+            enabled: "{{ var('semantic_layer_qa_transform_dev_bound_tests', false) }}"

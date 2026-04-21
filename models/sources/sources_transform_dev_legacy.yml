@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  # Read-only parity targets built by pretium-ai-dbt in TRANSFORM.DEV (same Snowflake account).
+  - name: transform_dev_legacy_pretium_ai
+    database: TRANSFORM
+    schema: DEV
+    description: >
+      Legacy pretium-ai-dbt TRANSFORM.DEV objects used for migration parity tests only.
+      Do not add new consumers; prefer semantic-layer FACT_* once validated.
+
+    tables:
+      - name: cleaned_qcew_county_naics
+        identifier: CLEANED_QCEW_COUNTY_NAICS
+        description: >
+          pretium-ai-dbt `cleaned_qcew_county_naics` — row-count parity vs
+          `fact_bls_qcew_county_naics_quarterly` (warn test; drop when legacy retired).
+      - name: fact_county_soc_employment
+        identifier: FACT_COUNTY_SOC_EMPLOYMENT
+        description: >
+          pretium-ai-dbt `fact_county_soc_employment` in **TRANSFORM.DEV** — optional row-count parity vs
+          semantic-layer `fact_county_soc_employment` (warn test).
+      - name: fact_aige_counties
+        identifier: FACT_AIGE_COUNTIES
+        description: >
+          Long-form AIGE county metrics in **TRANSFORM.DEV** (pretium-ai-dbt `FACT_AIGE_COUNTIES` or clone).
+          Read when **`aige_counties_enabled`** is true; semantic-layer `fact_aige_counties` passes through
+          for `feature_ai_risk_county_bivariate` / dual-index (see `LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md`).

@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: feature_listings_velocity_monthly_spine
+    meta:
+      statistical:
+        canonical_concept: concept_listings_market_monthly
+        upstream_facts:
+          - fact_zillow_days_on_market_and_price_cuts
+          - fact_zillow_for_sale_listings
+        primary_metric_codes: ["MET_042", "MET_043"]
+        frequency: monthly
+        expected_level_acf_lag1_range: [0.85, 0.99]
+        ml_prep_recommendation: >
+          DOM and inventory levels are typically highly persistent (similar to rent levels). Prefer MoM / YoY changes or
+          within-CBSA normalization in FEATURE/MODEL columns before PCA — see docs/reference/CONCEPT_FEATURE_STATISTICAL_METADATA_AND_AUTOCORRELATION.md.
+    description: >
+      Union of Zillow research long facts for days-on-market / price cuts (MET_042) and for-sale listings (MET_043).
+      Adds catalog_metric_code and concept_code for REFERENCE.CATALOG joins. Snowflake relation alias
+      feature_listings_velocity_monthly.
+    config:
+      tags: ['analytics', 'feature', 'listings', 'zillow']
+    columns:
+      - name: catalog_metric_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['MET_042', 'MET_043']
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['listings']
+      - name: geo_id
+        tests:
+          - not_null

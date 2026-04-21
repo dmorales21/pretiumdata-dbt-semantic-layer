@@ -1,0 +1,2 @@
+logical_name,physical_name,object_kind,data_type,grain,unit,description,source_object,notes
+_placeholder,,pending_inventory,,,,Replace with real fields/metrics as vendor objects are inventoried in Snowflake.,SOURCE_ENTITY.BH,vendor_code=apartmentiq

@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: demo_concept_rent_market_monthly
+    description: >
+      Row 83 dev mart slice — pass-through to TRANSFORM.DEV.concept_rent_market_monthly for SERVING.DEMO / Iceberg.
+    config:
+      meta:
+        serving_demo_matrix_row: 83
+
+  - name: demo_feature_rent_market_monthly
+    description: Row 82 dev synthesis — FEATURE_RENT_MARKET_MONTHLY (cohort spine).
+    config:
+      meta:
+        serving_demo_matrix_row: 82
+
+  - name: demo_feature_listings_velocity_monthly
+    description: Row 82 — FEATURE_LISTINGS_VELOCITY_MONTHLY (MDV_004 / absorption proxy).
+    config:
+      meta:
+        serving_demo_matrix_row: 82
+
+  - name: demo_disposition_yield_property
+    description: >
+      **Disposition EDW retirement** — **SERVING.DEMO.DISPOSITION_YIELD_PROPERTY** shape over
+      **TRANSFORM.DEV.concept_disposition_yield_property** (mart_updated_at alias). Gate: **transform_dev_enable_disposition_yield_stack**.
+
+  - name: demo_disposition_yield_portfolio
+    description: >
+      **Disposition EDW retirement** — **SERVING.DEMO.DISPOSITION_YIELD_PORTFOLIO** over **MODEL_DISPOSITION_YIELD_PORTFOLIO**.
+
+  - name: demo_mart_county_ai_automation_risk
+    description: Row 83 — county AI automation risk mart entity.
+    config:
+      meta:
+        serving_demo_matrix_row: 83
+
+  - name: demo_model_county_ai_risk_dual_index
+    description: Row 82 — MODEL_COUNTY_AI_RISK_DUAL_INDEX.
+    config:
+      meta:
+        serving_demo_matrix_row: 82
+
+  - name: demo_ref_product_type
+    description: Catalog vocabulary for lake joins (product_type seed).
+  - name: demo_ref_metric
+    description: Catalog vocabulary (metric seed).
+  - name: demo_ref_bridge_product_type_metric
+    description: Catalog bridge product_type × metric.
+  - name: demo_ref_concept
+    description: Catalog concept dimension.
+  - name: demo_ref_metric_derived
+    description: Catalog metric_derived registry.

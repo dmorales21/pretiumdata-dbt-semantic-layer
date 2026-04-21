@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  # SOURCE_PROD.REALTOR — RDC / Realtor.com market landings (read-only). See pretium-ai-dbt ``realtor`` source
+  # and ``docs/governance/REALTOR_RDC_MIGRATION_AND_LINEAGE.md`` in the utility repo.
+  - name: source_prod_realtor
+    database: SOURCE_PROD
+    schema: REALTOR
+    description: >
+      Realtor.com inventory and related metrics. **MSA** table feeds **TRANSFORM.DEV.FACT_REALTOR_INVENTORY_CBSA**
+      (column names vary by landing — see ``fact_realtor_inventory_cbsa`` compile-time detection).
+
+    tables:
+      - name: realtor_inventory_msa
+        identifier: REALTOR_INVENTORY_MSA
+        description: >
+          CBSA / MSA–grain inventory panel (pivoted **METRIC** / **METRIC_VALUE** when present). Canonical input
+          for supply-pressure features.

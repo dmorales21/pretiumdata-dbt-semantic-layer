@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  # TRANSFORM.COSTAR — Jon silver; grain aligns with pretium-ai-dbt `fact_costar_cbsa_monthly` (SCENARIOS).
+  # Inventory: `docs/migration/MIGRATION_TASKS_COSTAR.md` §1.5, `scripts/sql/migration/inventory_costar_for_dev_facts.sql`.
+  - name: transform_costar
+    database: TRANSFORM
+    schema: COSTAR
+    description: >
+      CoStar market scenarios (CBSA × property type × period). Used by ``concept_rent_market_monthly`` for
+      COSTAR vendor rows; CBSA keys use ``LPAD(TRIM(CBSA_CODE), 5, '0')`` to match other vendors.
+
+    tables:
+      - name: scenarios
+        identifier: SCENARIOS
+        description: >
+          Wide MF market + scenario metrics. ``PERIOD`` may be monthly or sparse; concept model collapses to
+          quarter averages then linearly interpolates to calendar month.

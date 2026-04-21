@@ -1,0 +1,234 @@
+version: 2
+
+# Tearsheet / B2B offering registry — distinct from tenancy (unit occupancy).
+# Depends on: vertical, product_type, concept, data_status, and optional metric.
+
+seeds:
+  - name: tenant_type
+    description: >
+      B2B consumer class for governed analytics and tearsheet access (IC internal DS OpCo demo).
+      Do not conflate with catalog tenancy (owner renter vacant unit occupancy).
+    config:
+      schema: CATALOG
+    columns:
+      - name: tenant_type_id
+        tests: [not_null, unique]
+      - name: tenant_type_code
+        tests: [not_null, unique]
+      - name: tenant_type_label
+        tests: [not_null]
+      - name: definition
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: asset_type
+    description: >
+      Asset scope for an offering (property line portfolio roll-up or geography-first).
+      Complements product_type (investment product taxonomy).
+    config:
+      schema: CATALOG
+    columns:
+      - name: asset_type_id
+        tests: [not_null, unique]
+      - name: asset_type_code
+        tests: [not_null, unique]
+      - name: asset_type_label
+        tests: [not_null]
+      - name: definition
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: offering
+    description: >
+      Commercial analytics offering (tearsheet pack monitor) keyed independently from dataset grain.
+    config:
+      schema: CATALOG
+    columns:
+      - name: offering_id
+        tests: [not_null, unique]
+      - name: offering_code
+        tests: [not_null, unique]
+      - name: offering_label
+        tests: [not_null]
+      - name: definition
+        tests: [not_null]
+      - name: vertical_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+      - name: data_status_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('data_status')
+                field: data_status_code
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: bridge_offering_product_type
+    description: Which investment product types an offering applies to
+    config:
+      schema: CATALOG
+    columns:
+      - name: bridge_offering_product_type_id
+        tests: [not_null, unique]
+      - name: offering_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('offering')
+                field: offering_code
+      - name: product_type_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('product_type')
+                field: product_type_code
+      - name: is_primary
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: bridge_offering_asset_type
+    description: Which asset scope modes an offering supports
+    config:
+      schema: CATALOG
+    columns:
+      - name: bridge_offering_asset_type_id
+        tests: [not_null, unique]
+      - name: offering_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('offering')
+                field: offering_code
+      - name: asset_type_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('asset_type')
+                field: asset_type_code
+      - name: is_primary
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: bridge_tenant_type_offering
+    description: Maps tenant_type to offerings they may access and default access tier
+    config:
+      schema: CATALOG
+    columns:
+      - name: bridge_tenant_type_offering_id
+        tests: [not_null, unique]
+      - name: tenant_type_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('tenant_type')
+                field: tenant_type_code
+      - name: offering_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('offering')
+                field: offering_code
+      - name: default_access_tier
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [full, standard, preview]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: bridge_product_type_metric
+    description: >
+      Required or recommended metrics per product type once REFERENCE.CATALOG.metric is populated.
+      Populated with a minimal FHFA county HPI binding per product type; extend with rent and additional metrics as catalog rows land.
+    config:
+      schema: CATALOG
+    data_tests:
+      - bridge_product_type_metric_sort_order_monotone_by_concept_tier
+    columns:
+      - name: bridge_product_type_metric_id
+        tests: [not_null, unique]
+      - name: product_type_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('product_type')
+                field: product_type_code
+      - name: metric_code
+        description: >
+          FK to REFERENCE.CATALOG.metric.metric_code (WL_020: bridge rows must reference seeded metrics).
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('metric')
+                field: metric_code
+      - name: is_required
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
+  - name: offering_signal_relevance
+    description: >
+      Concept-level signal bundle per offering (aligns with catalog concept until metric grain is authoritative).
+      Metric-grain bindings belong in bridge_product_type_metric and catalog metric when populated.
+    config:
+      schema: CATALOG
+    columns:
+      - name: offering_signal_relevance_id
+        tests: [not_null, unique]
+      - name: offering_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('offering')
+                field: offering_code
+      - name: concept_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('concept')
+                field: concept_code
+      - name: relevance_tier
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [core, supporting, contextual]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]

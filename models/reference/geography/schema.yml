@@ -1,0 +1,117 @@
+version: 2
+
+# Authoritative column contract for REFERENCE.GEOGRAPHY.GEOGRAPHY_* objects built in this repo.
+# Snowflake stores unquoted identifiers as uppercase; models emit these names explicitly.
+
+models:
+  - name: geography_level_dictionary
+    description: >
+      REFERENCE.GEOGRAPHY.GEOGRAPHY_LEVEL_DICTIONARY — Cybersyn GEOGRAPHY_INDEX.LEVEL (SOURCE_SNOW) → geo_level_code;
+      built from REFERENCE.CATALOG.geo_level seed column source_snow_cybersyn_level.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - source_system
+              - source_level
+    columns:
+      - name: source_system
+      - name: source_level
+      - name: canonical_geo_level_code
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('geo_level')
+                field: geo_level_code
+      - name: canonical_geo_level_name
+      - name: geography_class
+      - name: supported_in_reference
+      - name: shape_expected
+      - name: code_system
+      - name: notes
+
+  - name: geography_index
+    description: >
+      REFERENCE.GEOGRAPHY.GEOGRAPHY_INDEX — one row per GEO_ID (normalized); SOURCE_LEVEL preserved;
+      GEO_LEVEL_CODE from REFERENCE.CATALOG.geo_level (source_snow_cybersyn_level crosswalk). This repo owns the contract; extend columns here when needed.
+    columns:
+      - name: GEO_ID
+        description: Normalized geography id (geoId/ and zip/ prefixes stripped where applicable).
+        data_tests:
+          - not_null
+      - name: GEO_NAME
+        description: Geography label from upstream GEO_NAME.
+      - name: SOURCE_LEVEL
+        description: Raw Cybersyn LEVEL (e.g. CensusZipCodeTabulationArea).
+      - name: GEO_LEVEL_CODE
+        description: >
+          Canonical level (e.g. zcta) — not postal USPS ZIP. Rows whose Cybersyn SOURCE_LEVEL is not yet on
+          ref('geo_level').source_snow_cybersyn_level use **`unmapped`** until the dictionary seed is extended.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('geo_level')
+                field: geo_level_code
+      - name: ISO_NAME
+      - name: ISO_ALPHA2
+      - name: ISO_ALPHA3
+      - name: ISO_NUMERIC_CODE
+      - name: ISO_3166_2_CODE
+
+  - name: geography_codes
+    description: REFERENCE.GEOGRAPHY.GEOGRAPHY_CODES — pivoted codes from GEOGRAPHY_CHARACTERISTICS.
+    columns:
+      - name: GEO_ID
+      - name: GEO_LEVEL_CODE
+      - name: FIPS_CODE
+      - name: FIPS_10_4_CODE
+      - name: STATE_ABBREVIATION
+
+  - name: geography_shapes
+    description: REFERENCE.GEOGRAPHY.GEOGRAPHY_SHAPES — pivoted WKT/GeoJSON and parsed GEOGRAPHY.
+    columns:
+      - name: GEO_ID
+      - name: GEO_LEVEL_CODE
+      - name: COORDINATES_WKT
+      - name: COORDINATES_GEOJSON
+      - name: SHAPE_GEOGRAPHY
+      - name: SHAPE_TYPE
+      - name: IS_VALID_SHAPE
+
+  - name: geography_relationships
+    description: REFERENCE.GEOGRAPHY.GEOGRAPHY_RELATIONSHIPS — hierarchy/overlap with canonical levels on both ends.
+    columns:
+      - name: GEO_ID
+      - name: GEO_NAME
+      - name: SOURCE_LEVEL
+      - name: GEO_LEVEL_CODE
+      - name: RELATED_GEO_ID
+      - name: RELATED_GEO_NAME
+      - name: RELATED_SOURCE_LEVEL
+      - name: RELATED_GEO_LEVEL_CODE
+      - name: RELATIONSHIP_TYPE
+
+  - name: ref_school_district_h3_xwalk
+    description: >
+      **REFERENCE.GEOGRAPHY.REF_SCHOOL_DISTRICT_H3_XWALK** — Census school-district GEOID ↔ overlapping H3-6/8 cells
+      from **SOURCE_PROD.GEO.MAP_SCHOOLDISTRICT_H3** (polygon fill). Feeds **fact_stanford_seda_h3_r8_snapshot** and
+      other education–hex joins.
+
+  - name: geography_latest
+    description: >
+      REFERENCE.GEOGRAPHY.GEOGRAPHY_LATEST — flattened current-use join target (index + codes + shapes + rel_agg parents).
+      Do not rename to *_pit; temporal PIT history remains on SOURCE_SNOW Cybersyn *_pit objects until modeled explicitly.
+    columns:
+      - name: GEO_ID
+      - name: GEO_NAME
+      - name: GEO_LEVEL_CODE
+      - name: SOURCE_LEVEL
+      - name: STATE_FIPS
+      - name: COUNTY_FIPS
+      - name: CBSA_ID
+      - name: CBSA_NAME
+      - name: STATE_ABBREVIATION
+      - name: SHAPE_GEOGRAPHY
+      - name: IS_CURRENT

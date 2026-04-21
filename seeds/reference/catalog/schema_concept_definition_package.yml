@@ -1,0 +1,44 @@
+version: 2
+
+seeds:
+  - name: concept_definition_package
+    description: >
+      Canonical concept-definition package used to govern metric-to-concept assignment.
+      One row per concept_code with grain, vendor priority, QA bounds, slot policy, and required contract keys.
+    config:
+      schema: CATALOG
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('concept')
+                field: concept_code
+      - name: bridge_sort_tier
+        description: >
+          Lower sorts earlier in `bridge_product_type_metric.sort_order` policy (product-bundle ordering).
+          Derived from the concept-definition package narrative (rent → liquidity/absorption → valuation → macro → portfolio).
+        tests:
+          - not_null
+      - name: definition
+        tests: [not_null]
+      - name: grain_spec
+        tests: [not_null]
+      - name: canonical_metric_priority
+        tests: [not_null]
+      - name: aggregation_rule
+        tests: [not_null]
+      - name: qa_bounds
+        tests: [not_null]
+      - name: caveats
+        tests: [not_null]
+      - name: slot_current
+        tests: [not_null]
+      - name: slot_historical
+        tests: [not_null]
+      - name: slot_forecast
+        tests: [not_null]
+      - name: required_keys
+        tests: [not_null]

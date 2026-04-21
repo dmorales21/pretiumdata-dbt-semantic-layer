@@ -1,0 +1,16 @@
+version: 2
+
+seeds:
+  - name: synthetic_golden_feature_rent_keys
+    description: >
+      Golden keys for **synthetic_fixture_replay** (16). Set `use_in_test=true` on a row and fill keys + `expected_rent`
+      to assert `FEATURE_RENT_MARKET_MONTHLY` matches after `dbt run`. Default rows are ignored by the singular test.
+    columns:
+      - name: use_in_test
+        description: "TRUE to include row in `assert_synthetic_golden_feature_rent_keys_match`."
+      - name: vendor_code
+      - name: month_start
+      - name: geo_level_code
+      - name: geo_id
+      - name: metric_id_observe
+      - name: expected_rent

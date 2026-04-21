@@ -1,0 +1,16 @@
+Workspace: /Users/aposes/dev/pretium/pretiumdata-dbt-semantic-layer/pretiumdata-dbt-semantic-layer
+
+Context: REFERENCE.CATALOG.GEO_LEVEL seed (geo_level.csv) gained columns including source_snow_cybersyn_level.
+Snowflake may still have a pre-migration GEO_LEVEL table whose physical columns do not include the new names,
+which surfaces as: SQL compilation error ... invalid identifier 'SOURCE_SNOW_CYBERSYN_LEVEL'.
+
+Do this in the semantic-layer repo root (pretiumdata-dbt-semantic-layer):
+
+1. Ensure seeds/reference/catalog/geo_level.csv is the authoritative file (headers match Snowflake-safe names).
+2. Run: dbt seed --select geo_level --full-refresh --target dev
+   (schema_data_infrastructure.yml sets full_refresh: true for geo_level so a normal `dbt seed --select geo_level`
+   should also recreate the table once the config is deployed—if it still fails, force --full-refresh.)
+3. Then build geography models: dbt run --select geography_level_dictionary geography_index geography_codes geography_shapes geography_relationships geography_latest --target dev
+
+Do not reintroduce seeds/reference/geography/geography_level_dictionary.csv; Cybersyn LEVEL crosswalk lives on
+geo_level.source_snow_cybersyn_level and REFERENCE.GEOGRAPHY.GEOGRAPHY_LEVEL_DICTIONARY is the dbt model built from ref('geo_level').

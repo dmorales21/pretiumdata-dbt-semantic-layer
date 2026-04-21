@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  # County-level Cherre AVM panel built in pretium-ai-dbt (ANALYTICS.FACTS) until ported
+  # to TRANSFORM.DEV FACT_* per ARCHITECTURE_RULES.
+  - name: analytics_facts_pretium_ai_dbt
+    database: ANALYTICS
+    schema: FACTS
+    description: Read-only bridge to pretium-ai-dbt analytics facts for disposition pricing context.
+    tables:
+      - name: fact_housing_valuation_cherre_county_monthly
+        identifier: FACT_HOUSING_VALUATION_CHERRE_COUNTY_MONTHLY
+        description: Cherre county × month SFR AVM panel (latest slice used in pricing MODEL).

@@ -1,0 +1,13 @@
+# AUTO-GENERATED — edit dictionary.csv for field-level detail; refresh via generate_vendor_context_from_seed.py
+vendor_id: VND_021
+vendor_code: apartmentiq
+vendor_label: "ApartmentIQ"
+source_schema: "SOURCE_ENTITY.BH"
+data_type: survey
+refresh_cadence: monthly
+contract_status: active
+data_share_type: snowflake_share
+is_active: True
+dictionary_version: '0.1'
+fields: []  # populate from Snowflake DESCRIBE + product dictionaries
+vertical_codes: "resi"

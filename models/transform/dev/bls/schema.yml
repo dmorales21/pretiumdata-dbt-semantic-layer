@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: fact_bls_laus_county
+    description: >
+      **Vendor:** U.S. Bureau of Labor Statistics — LAUS (not Cybersyn).
+      View in TRANSFORM.DEV over TRANSFORM.BLS.LAUS_COUNTY. County-level BLS LAUS series suitable
+      for rolling up to CBSA via `dim_geo_county_cbsa` / REFERENCE.GEOGRAPHY — do not read LAUS_CBSA
+      `AREA_CODE` as OMB CBSA without an explicit crosswalk (see migration doc Part C).
+      Catalog: `REFERENCE.CATALOG.metric` MET_002–MET_005 (`vendor_code` bls).
+    columns:
+      - name: date_reference
+        description: Observation month (first of month).
+      - name: county_fips
+        description: 5-digit county FIPS (state + county).
+      - name: measure_code
+        description: BLS measure discriminator (e.g. 03 rate, 04–06 counts — align to dim_metric when cataloged).
+      - name: value
+        description: Measure value (rate or level per METRIC_NAME semantics).
+
+  - name: fact_bls_laus_cbsa_monthly
+    description: >
+      **Vendor:** U.S. Bureau of Labor Statistics — LAUS (not Cybersyn).
+      View over **TRANSFORM.BLS.LAUS_CBSA**. **Warning:** BLS **`AREA_CODE`** does not reliably equal
+      Census **OMB CBSA** (`GEOID`). pretium-ai-dbt **`fact_bls_laus_cbsa_monthly`** rolls up from **county**
+      LAUS + `dim_geo_county_cbsa` for that reason. Use this semantic-layer object only for parity /
+      exploration unless DE documents a vetted join. Catalog: **not** a `MET_*` registration in
+      `seeds/reference/catalog/metric.csv` (prefer county LAUS **MET_002–MET_005** + explicit CBSA rollups).
+    columns:
+      - name: date_reference
+        description: Month of observation.
+      - name: area_code
+        description: BLS LAUS metro area code — **do not** assume 5-digit OMB CBSA without validation.
+      - name: unemployment_rate
+        description: Published LAUS unemployment rate at BLS `AREA_CODE` grain (not long-form `VALUE` like county LAUS).
+      - name: unemployed_count
+        description: Published unemployed level at BLS `AREA_CODE` grain.
+      - name: employment
+        description: Published employment level at BLS `AREA_CODE` grain.

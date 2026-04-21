@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  # TRANSFORM.MARKERR — Jon Markerr RealRent / SFR silver (inventory: dataset DS_035–037).
+  - name: transform_markerr
+    database: TRANSFORM
+    schema: MARKERR
+    description: >
+      Markerr competitive rent feeds. ``RENT_PROPERTY_CBSA_MONTHLY`` is CBSA × month aggregates;
+      ``MARKERR_RENT_SFR`` includes ZIP-level SFR asking means for rollup to CBSA via REFERENCE.GEOGRAPHY ZIP spine.
+
+    tables:
+      - name: rent_property_cbsa_monthly
+        identifier: RENT_PROPERTY_CBSA_MONTHLY
+      - name: markerr_rent_sfr
+        identifier: MARKERR_RENT_SFR

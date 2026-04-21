@@ -21,12 +21,88 @@ require-dbt-version: [">=1.8.0", "<2.0.0"]
 # VARS — informational; schema resolution handled by macro
 # ============================================================
 vars:
+  # SOURCE_ENTITY.PROGRESS → TRANSFORM.DEV FACT_* read-throughs (`fact_sfdc_*`, purpose-named `fact_se_yardi_*`).
+  # Default false until migration role has SELECT on SOURCE_ENTITY.PROGRESS.* (see vet SQL in pretium-ai-dbt).
+  transform_dev_enable_source_entity_progress_facts: false
+  # Disposition yield + Cherre bridge + pricing MODEL (replaces EDW / analytics_prod stack). Builds
+  # **FACT_PROGRESS_DISPOSITION** / **FACT_PROGRESS_DISPOSITION_LATEST** under **models/transform/dev/progress_crm/**
+  # from **SOURCE_ENTITY** disposition + BPO. SnowSQL diagnostic + OpCo vs disposition troubleshooting:
+  # **docs/migration/TRANSFORM_DEV_DISPOSITION_PROGRESS_SNOWSQL_DIAGNOSTIC.md**.
+  # Still requires **FACT_OPCO_PROPERTY_PRESENCE** (pretium-ai-dbt **TRANSFORM.DEV** until native), **SFDC_PROPERTIES__C** grants,
+  # **TRANSFORM.FACT** Cherre assessor + AVM, and **ANALYTICS.FACTS.FACT_HOUSING_VALUATION_CHERRE_COUNTY_MONTHLY**.
+  transform_dev_enable_disposition_yield_stack: false
+  # `concept_progress_*` join keys — quoted in SQL via adapter.quote (match INFORMATION_SCHEMA exactly).
+  # Property spine: SFDC PROPERTYNUMBER__C ↔ Yardi SCODE (Progress; vet if your org uses another field).
+  concept_progress_sfdc_yardi_property_code_column: PROPERTYNUMBER__C
+  concept_progress_yardi_propattr_property_code_column: SCODE
+  # FDD → Acquisition: ENTITY__C holds parent acquisition id in Progress landings; override after vet.
+  concept_progress_fdd_acquisition_fk_column: ENTITY__C
+  concept_progress_sfdc_acquisition_id_column: ID
+  # Schema for SOURCE_ENTITY landings (Progress SFDC/Yardi mirrors).
+  source_entity_progress_schema: PROGRESS
+  # Labor / automation stack (FEATURE_* reads `fact_county_ai_replacement_risk`). Default false so CI parse-only
+  # passes without Snowflake FACT build; set true locally after `RUN_LABOR_AUTOMATION_RISK_STACK_DBT.md` prerequisites.
+  onet_soc_naics_enabled: false
+  reference_geography_year: 2024
+  # H3 R8 polyfill bridges for LODES corridor facts under `models/transform/dev/lodes/` (`source('h3_polyfill_bridges', …)`).
+  # Canonical: REFERENCE + GEOGRAPHY. If your role lacks REFERENCE.GEOGRAPHY.* but has the compat copy:
+  # `h3_polyfill_bridge_database: ANALYTICS` and `h3_polyfill_bridge_schema: REFERENCE` (not analytics.facts).
+  h3_polyfill_bridge_database: REFERENCE
+  h3_polyfill_bridge_schema: GEOGRAPHY
+  # Jon upstream locations (read-through FACT_* / employment concepts). Override if TRANSFORM.FACT or
+  # TRANSFORM.CONCEPT is not authorized in your account but tables exist under another database.schema.
+  transform_fact_database: TRANSFORM
+  transform_fact_schema: FACT
+  transform_concept_database: TRANSFORM
+  transform_concept_schema: CONCEPT
+  transform_census_database: TRANSFORM
+  transform_census_schema: CENSUS
+  # Set false when TRANSFORM.DEV.OXFORD_CBSA_CROSSWALK is not landed (see land_oxford_cbsa_crosswalk_transform_dev.sql).
+  transform_dev_enable_oxford_cbsa_crosswalk: true
+  # Snowflake table name for BG→H3 R8 (canonical **BLOCKGROUP_H3_R8_POLYFILL**; legacy mirrors may use **BRIDGE_BG_H3_R8_POLYFILL**).
+  h3_polyfill_bg_bridge_identifier: BLOCKGROUP_H3_R8_POLYFILL
   reference_database: REFERENCE
   serving_database: SERVING
   semantic_schema_name: SEMANTIC
   enable_semantic_registry_checks: true
   enable_semantic_exposure_checks: true
   semantic_release_version: "1.0.0"
+  # TRANSFORM.DEV fund_opco Yardi facts — see models/transform/dev/fund_opco/README.md
+  transform_dev_enable_fund_opco_facts: true
+  # Legacy BH share ledger — set true only when DS_SOURCE_PROD_YARDI_BH grants exist and
+  # `yardi_trans_bh_available` is false.
+  yardi_bh_available: false
+  # TRANSFORM.YARDI.TRANS_BH — set true when migration role can SELECT silver and columns match legacy TRANS.
+  # When true, `fact_bh_yardi_ledger` reads `source('transform_yardi','TRANS_BH')` (preferred).
+  yardi_trans_bh_available: false
+  # Zillow FACT_* metro join: columns on TRANSFORM.DEV.REF_ZILLOW_METRO_TO_CBSA — `legacy_jon` =
+  # zillow_6_digit + census_5_digit (Jon CTAS). `alex_metro_ref` = zillow_region_id + cbsa_id (common when
+  # DEV table was cloned from bridge output). Normalize with docs/migration/sql/reshape_ref_zillow_metro_to_cbsa_to_macro_columns.sql
+  zillow_metro_to_cbsa_xwalk_profile: alex_metro_ref
+  # ``concept_rent_market_monthly`` — Zillow ``metric_id`` LIKE filter (case-insensitive in model)
+  concept_rent_market_zillow_metric_pattern: "%zori%"
+  # Yardi Matrix ``MARKETPERFORMANCE_BH.DATATYPE`` LIKE filter for rent-like rows (ApartmentIQ uses explicit rent cols)
+  concept_rent_market_yardi_matrix_datatype_like: "%rent%"
+  # CoStar ``concept_rent_market_monthly`` — ``SCENARIOS.PROPERTY_TYPE`` / ``FORECAST_SCENARIO`` ILIKE filters; asking vs effective rent
+  concept_rent_market_costar_property_type_pattern: "%Multifamily%"
+  concept_rent_market_costar_forecast_scenario_pattern: "%base%"
+  concept_rent_market_costar_use_asking_rent: false
+  # Markerr MF CBSA slice (exact ``BEDROOM_CATEGORY`` / ``CLASS_CATEGORY`` strings on ``RENT_PROPERTY_CBSA_MONTHLY``)
+  concept_rent_market_markerr_mf_bedroom_category: "Any"
+  concept_rent_market_markerr_mf_class_category: "A"
+  # HUD Cybersyn CBSA rent from ``fact_hud_housing_series`` — regex on ``LOWER(VARIABLE)``; set ``hud_include: false`` to emit empty HUD branch
+  concept_rent_market_hud_include: true
+  concept_rent_market_hud_variable_regex: "median_contract_rent|median_gross_rent|gross_rent"
+  # ``feature_home_price_delta_zip_monthly`` — ILIKE filter on ``fact_zillow_home_values.metric_id`` (filename stem).
+  feature_home_price_delta_metric_id_pattern: "%zhvi%"
+  # Census PEP annual read-throughs (`fact_census_pep_*`). **`transform_fact`**: Jon **TRANSFORM.FACT** (override
+  # **`transform_fact_database`** / **`transform_fact_schema`** if silver lives elsewhere, e.g. **FACTS**). **`transform_census`**:
+  # only if **`CENSUS_PEP_*`** exist under **TRANSFORM.CENSUS** — many accounts have **ACS5** only there (no PEP).
+  census_pep_silver_location: transform_fact
+  census_pep_cbsa_annual_identifier: CENSUS_PEP_CBSA_ANNUAL
+  census_pep_county_annual_identifier: CENSUS_PEP_COUNTY_ANNUAL
+  # false = skip building PEP DEV views until **`CENSUS_PEP_*`** are visible at the resolved FQN (avoids compile errors).
+  census_pep_readthrough_enabled: false
 
 quoting:
   database: false
@@ -59,15 +135,7 @@ models:
       model:
         +materialized: view
         +tags: ["analytics", "model"]
-      estimate:
-        +materialized: table
-        +tags: ["analytics", "estimate"]
-      bi:
-        +materialized: view
-        +tags: ["analytics", "bi"]
-      ai:
-        +materialized: table
-        +tags: ["analytics", "ai"]
+      # estimate / bi / ai — add dbt_project subtrees when first model lands under those folders (inherit +database from `analytics`).
 
     # MART SEMANTIC — Alex + Spencer
     # DB: MART_DEV / MART_STAGING / MART_PROD | Schema: SEMANTIC
@@ -79,29 +147,121 @@ models:
         +tags: ["semantic"]
         entity:
           +tags: ["semantic", "entity"]
-        dim:
-          +tags: ["semantic", "dim"]
-        bridge:
-          +tags: ["semantic", "bridge"]
-        registry:
-          +tags: ["semantic", "registry"]
-        glossary:
-          +tags: ["semantic", "glossary"]
-        explain:
-          +tags: ["semantic", "explain"]
-        retrieval:
-          +tags: ["semantic", "retrieval"]
+        concept:
+          +tags: ["semantic", "concept"]
+      # dim / bridge / registry / glossary / explain / retrieval — add when models exist under those paths.
 
-    intermediate:
-      +materialized: view
-      +schema: INTERMEDIATE
-      +tags: ["intermediate"]
-      semantic_prep:
-        +tags: ["intermediate", "semantic_prep"]
+    # TRANSFORM.DEV — FACT_ / vendor dev facts (Alex). Reads SOURCE_PROD + REFERENCE.GEOGRAPHY.
+    transform:
+      dev:
+        zillow:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: table
+          +tags: ["transform", "transform_dev", "zillow", "fact_zillow"]
+        bps:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "bps", "fact_bps"]
+        bls:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "bls", "fact_bls"]
+        dol_onet:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: table
+          +tags: ["transform", "transform_dev", "onet", "dol_onet", "fact_onet"]
+        pretium_epoch:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: table
+          +tags: ["transform", "transform_dev", "epoch_ai", "pretium_epoch"]
+        lodes:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "lodes", "fact_lodes"]
+        census:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "census", "pep", "fact_census"]
+        hud:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "hud", "fact_hud", "cybersyn"]
+        irs:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "irs", "fact_irs", "cybersyn"]
+        oxford:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "oxford_economics", "fact_oxford"]
+        fhfa:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "fhfa", "fact_fhfa", "cybersyn"]
+        freddie_mac:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "freddie_mac", "fact_freddie_mac"]
+        cherre:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "cherre", "cherre_read_surface"]
+        stanford:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: table
+          +tags: ["transform", "transform_dev", "stanford", "seda", "fact_stanford"]
+        costar:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "costar", "fact_costar"]
+        markerr:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "markerr", "fact_markerr"]
+        yardi_matrix:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "yardi_matrix", "fact_yardi_matrix"]
+        realtor:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "realtor", "fact_realtor"]
+        fund_opco:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: table
+          +tags: ["transform", "transform_dev", "fund_opco", "yardi", "fact_yardi"]
+        catalog_qa:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: table
+          +tags: ["transform", "transform_dev", "qa", "catalog"]
 
-    sources:
-      +materialized: view
-      +tags: ["sources"]
+    # REFERENCE.GEOGRAPHY — canonical Cybersyn-backed geography utilities (Alex).
+    reference:
+      geography:
+        +database: REFERENCE
+        +schema: GEOGRAPHY
+        +materialized: table
+        +tags: ["reference", "geography"]
 
 # ============================================================
 # SEEDS
@@ -122,14 +282,11 @@ seeds:
         +schema: DRAFT
         +tags: ["seed", "reference", "draft"]
 
-  transform_dev:
-    +database: TRANSFORM
-    +schema: DEV
-    +tags: ["seed", "transform_dev", "xwalk"]
-
-    semantic:
-      +schema: SEMANTIC
-      +tags: ["seed", "semantic"]
+    # Vendor xwalk CSVs — MIGRATION_RULES § TRANSFORM.DEV (seeds): seeds/transform_dev/*.csv
+    transform_dev:
+      +database: TRANSFORM
+      +schema: DEV
+      +tags: ["seed", "transform_dev", "xwalk"]
 
 snapshots:
   pretiumdata_dbt_semantic_layer:

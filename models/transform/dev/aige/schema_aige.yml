@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: fact_aige_counties
+    description: >
+      Long-form AIGE county metrics (**`AIGE_SCORE`**, **`AIGE_PLOT`**) built from **SOURCE_PROD.AIGE.AIGE_COUNTIES**
+      when **`aige_counties_enabled`** is true; empty guarded relation otherwise. See
+      `docs/migration/LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md`.
+    columns:
+      - name: geo_id
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('aige_counties_enabled', false) }}"
+      - name: metric_id
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('aige_counties_enabled', false) }}"

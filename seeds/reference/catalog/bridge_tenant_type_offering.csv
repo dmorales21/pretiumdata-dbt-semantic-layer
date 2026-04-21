@@ -1,0 +1,7 @@
+bridge_tenant_type_offering_id,tenant_type_code,offering_code,default_access_tier,sort_order,is_active
+BTTO_001,pretium_ic,property_tearsheet_resi,full,1,TRUE
+BTTO_002,pretium_ic,ic_signal_monitor_resi,full,2,TRUE
+BTTO_003,pretium_analytics,property_tearsheet_resi,full,3,TRUE
+BTTO_004,pretium_analytics,ic_signal_monitor_resi,full,4,TRUE
+BTTO_005,opco_partner,opco_market_pack_req,standard,5,TRUE
+BTTO_006,platform_demo,property_tearsheet_resi,preview,6,TRUE

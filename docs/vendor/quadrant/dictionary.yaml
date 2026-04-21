@@ -1,0 +1,12 @@
+# AUTO-GENERATED — edit dictionary.csv for field-level detail; refresh via generate_vendor_context_from_seed.py
+vendor_id: VND_028
+vendor_code: quadrant
+vendor_label: "Quadrant Information Services"
+source_schema: "RAW.QUADRANT"
+data_type: survey
+refresh_cadence: annual
+contract_status: active
+data_share_type: s3
+is_active: True
+dictionary_version: '0.1'
+fields: []  # populate from Snowflake DESCRIBE + product dictionaries

@@ -1,0 +1,46 @@
+version: 2
+
+# ============================================================
+# TRANSFORM.CHERRE — Jon / platform warehouse copy (read-only)
+# Alex dbt: source() only; physical writes are TRANSFORM.DEV FACT_* / views below.
+# Inventory: docs/migration/MIGRATION_TASKS_CHERRE.md, scripts/sql/migration/inventory_cherre_transform_smoke.sql
+# ============================================================
+
+sources:
+  - name: cherre_transform
+    database: TRANSFORM
+    schema: CHERRE
+    description: >
+      Cherre vendor-native objects in TRANSFORM.CHERRE. Some relations are Snowflake **Dynamic Tables**
+      (see `list_cherre_transform_dynamic_tables.sql`). This repo never writes to this schema.
+
+    tables:
+      - name: RECORDER_V2_WITH_GEO
+        identifier: RECORDER_V2_WITH_GEO
+        description: >
+          Recorder + assessor geo join; often a Dynamic Table. Downstream: ref('cherre_recorder_v2_with_geo') in TRANSFORM.DEV.
+
+      - name: TAX_ASSESSOR_V2_SNAPSHOT
+        identifier: TAX_ASSESSOR_V2_SNAPSHOT
+        description: >
+          Assessor snapshot rows (delete / publish timestamps). May be a Dynamic Table. Downstream: ref('cherre_tax_assessor_v2_snapshot').
+
+      - name: TAX_ASSESSOR_GEO_STATS
+        identifier: TAX_ASSESSOR_GEO_STATS
+        description: >
+          Assessor geography rollups; often a Dynamic Table. Downstream: ref('cherre_tax_assessor_geo_stats').
+
+      - name: USA_AVM_GEO_STATS
+        identifier: USA_AVM_GEO_STATS
+        description: >
+          AVM geography aggregates (not parcel-level USA_AVM_V2). Often a Dynamic Table. Downstream: ref('cherre_avm_geo_stats').
+
+      - name: MLS_LISTING_EVENTS
+        identifier: MLS_LISTING_EVENTS
+        description: >
+          MLS listing events warehouse copy (base table in typical accounts).
+
+      - name: USA_DEMOGRAPHICS_V2
+        identifier: USA_DEMOGRAPHICS_V2
+        description: >
+          Cherre demographics / risk wide table (tract / ZIP / MA grain columns).

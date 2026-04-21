@@ -1,0 +1,58 @@
+-- =============================================================================
+-- BPS / Census ACS5 / BLS LAUS / LODES — Phase-1 fast inventory (batch 002+)
+--
+-- Purpose: Cheap probes for MIGRATION_LOG / §1.5 without full-table ACS scans.
+-- Full script (includes heavy ACS-D, ACS-E, ACS-F, LODES-D): sibling file
+--   inventory_transform_bps_census_bls_lodes.sql
+--
+-- Run from inner project root:
+--   snowsql -c pretium -f scripts/sql/migration/inventory_transform_bps_census_bls_lodes_phase1_fast.sql
+-- =============================================================================
+
+USE DATABASE TRANSFORM;
+
+-- One result set: row counts + cheap metadata
+SELECT 'BPS_PERMITS_COUNTY_ROWS' AS probe, COUNT(*)::VARCHAR AS value FROM BPS.PERMITS_COUNTY
+UNION ALL SELECT 'LAUS_CBSA_ROWS', COUNT(*)::VARCHAR FROM BLS.LAUS_CBSA
+UNION ALL SELECT 'LAUS_COUNTY_ROWS', COUNT(*)::VARCHAR FROM BLS.LAUS_COUNTY
+UNION ALL SELECT 'LODES_OD_BG_ROWS', COUNT(*)::VARCHAR FROM LODES.OD_BG
+UNION ALL SELECT 'LAUS_CBSA_DATE_MIN', MIN(DATE_REFERENCE)::VARCHAR FROM BLS.LAUS_CBSA
+UNION ALL SELECT 'LAUS_CBSA_DATE_MAX', MAX(DATE_REFERENCE)::VARCHAR FROM BLS.LAUS_CBSA
+UNION ALL SELECT 'LODES_OD_BG_VINTAGE_MIN', MIN(VINTAGE_YEAR)::VARCHAR FROM LODES.OD_BG
+UNION ALL SELECT 'LODES_OD_BG_VINTAGE_MAX', MAX(VINTAGE_YEAR)::VARCHAR FROM LODES.OD_BG
+ORDER BY 1;
+
+-- Column counts (INFORMATION_SCHEMA — metadata only)
+SELECT 'BPS_PERMITS_COUNTY_COLUMNS' AS probe, COUNT(*)::VARCHAR AS value
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_catalog = 'TRANSFORM' AND UPPER(table_schema) = 'BPS' AND UPPER(table_name) = 'PERMITS_COUNTY'
+UNION ALL SELECT 'CENSUS_ACS5_COLUMNS', COUNT(*)::VARCHAR
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_catalog = 'TRANSFORM' AND UPPER(table_schema) = 'CENSUS' AND UPPER(table_name) = 'ACS5'
+UNION ALL SELECT 'LAUS_CBSA_COLUMNS', COUNT(*)::VARCHAR
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_catalog = 'TRANSFORM' AND UPPER(table_schema) = 'BLS' AND UPPER(table_name) = 'LAUS_CBSA'
+UNION ALL SELECT 'LAUS_COUNTY_COLUMNS', COUNT(*)::VARCHAR
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_catalog = 'TRANSFORM' AND UPPER(table_schema) = 'BLS' AND UPPER(table_name) = 'LAUS_COUNTY'
+UNION ALL SELECT 'LODES_OD_BG_COLUMNS', COUNT(*)::VARCHAR
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_catalog = 'TRANSFORM' AND UPPER(table_schema) = 'LODES' AND UPPER(table_name) = 'OD_BG'
+ORDER BY 1;
+
+-- Grain dup probes (BPS ~3M; LAUS county ~5.5M — acceptable for dev warehouse)
+SELECT 'BPS_DUP_GRAIN_ROWS' AS probe, COUNT(*)::VARCHAR AS value
+FROM (
+    SELECT DATE_REFERENCE, ID_CBSA, BUILDING_USE, MEASURE, ESTIMATE_TYPE, YEAR_REFERENCE, MONTH_REFERENCE, COUNT(*) AS c
+    FROM BPS.PERMITS_COUNTY
+    GROUP BY 1, 2, 3, 4, 5, 6, 7
+    HAVING c > 1
+) s
+UNION ALL SELECT 'LAUS_COUNTY_DUP_GRAIN_ROWS', COUNT(*)::VARCHAR
+FROM (
+    SELECT DATE_REFERENCE, COUNTY_FIPS, MEASURE_CODE, COUNT(*) AS c
+    FROM BLS.LAUS_COUNTY
+    GROUP BY 1, 2, 3
+    HAVING c > 1
+) t
+ORDER BY 1;

@@ -3,7 +3,7 @@ version: 2
 # ============================================================
 # REFERENCE.CATALOG — seed documentation
 # Owner: Alex
-# All 67 seed tables live here. This file documents them as
+# All catalog seed tables live here. This file documents them as
 # dbt sources so models can ref() them via source() calls.
 # Naming convention: source('catalog', '<table_name>')
 # ============================================================
@@ -164,3 +164,42 @@ sources:
         description: Dataset registry; populate after vendor; one row per vendor x concept x geo x frequency
       - name: metric
         description: Metric registry; populate after dataset; requires snowflake_column and table_path
+      - name: metric_derived
+        description: >
+          Analytics-layer metric registry (FEATURE_* / MODEL_* / ESTIMATE_* logical outputs).
+          Depends on function, model_type, estimate_type, metric, concept, geo_level, frequency, data_status.
+          Layout doc: docs/reference/CATALOG_METRIC_DERIVED_LAYOUT.md
+
+      - name: metric_derived_input
+        description: >
+          Bridge from metric_derived to one or more upstream metric_code rows (N:1 inputs; WL_040).
+          Load after metric_derived and metric. Layout: docs/reference/CATALOG_METRIC_DERIVED_LAYOUT.md §6.
+
+      - name: concept_definition_package
+        description: >
+          Concept definition contract (one row per concept_code) with canonical grain, vendor priority,
+          QA bounds, slot policy, and required semantic-layer keys for assignment governance.
+
+      # Wave 6d — backlog / wishlist (no FK to concept; free-text ontology slugs)
+      - name: catalog_wishlist
+        description: >
+          REFERENCE.CATALOG.wishlist — not-yet-deliverable items (concept chains, infra, catalog gaps).
+          Doc: docs/reference/CATALOG_WISHLIST.md
+
+      # Wave 7 — tearsheet / offering (B2B tenant_type; not unit occupancy tenancy)
+      - name: tenant_type
+        description: B2B consumer class for governed analytics access (IC internal DS OpCo demo)
+      - name: asset_type
+        description: Asset scope for an offering (property portfolio or geography-first)
+      - name: offering
+        description: Commercial analytics offering distinct from dataset vendor x concept grain
+      - name: bridge_offering_product_type
+        description: Offering to product_type applicability
+      - name: bridge_offering_asset_type
+        description: Offering to asset_type scope modes
+      - name: bridge_tenant_type_offering
+        description: Tenant type to offering access with default access tier
+      - name: bridge_product_type_metric
+        description: Product type to metric linkage; populate after metric seed has rows
+      - name: offering_signal_relevance
+        description: Concept-level signal relevance per offering until metric grain is authoritative

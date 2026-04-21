@@ -1,0 +1,585 @@
+version: 2
+
+models:
+  - name: concept_rent_market_monthly
+    description: >
+      Market rent concept, monthly. **Vendors:** ZILLOW, APARTMENTIQ, YARDI_MATRIX, COSTAR (``SCENARIOS`` quarter→month linear),
+      MARKERR_MF (``RENT_PROPERTY_CBSA_MONTHLY``), MARKERR_SFR (ZIP→``zip_enriched``→CBSA), HUD_CYBERSYN (``fact_hud_housing_series``
+      CBSA rows matching rent regex — often **0 rows** until ACS-style variables exist), CHERRE (stub).
+      **Geo alignment:** ZIP vendors use ``reference_geo_zip_to_cbsa_ctes``; CBSA vendors use ``LPAD(...,5,'0')`` on CBSA codes.
+      For ``geo_level_code = cbsa``, ``geo_id`` = ``cbsa_id``.
+      **Success contract (pipeline QA):** (1) **CHERRE** branch is a typed **stub** — **0 output rows** is PASS (``WHERE 1 = 0``).
+      (2) **HUD_CYBERSYN** — **0 rows** is PASS when Cybersyn variables do not match ``concept_rent_market_hud_variable_regex`` or HUD slice is empty;
+      set ``concept_rent_market_hud_include: false`` to omit the HUD branch entirely. (3) **Non-stub vendors** — any row emitted must have
+      non-null ``concept_code``, ``vendor_code``, ``month_start``, ``geo_level_code``, ``geo_id`` (Zillow may use **zip** or **cbsa** grain; others are **cbsa**).
+      See [`QA_CONCEPT_PREFLIGHT_CHECKLIST.md`](../../../docs/migration/QA_CONCEPT_PREFLIGHT_CHECKLIST.md) §B.
+    meta:
+      parent_fact_models:
+        - fact_zillow_rentals
+        - fact_zillow_rental_forecasts
+        - fact_hud_housing_series
+      parent_sources:
+        - source:transform_apartmentiq.propertykpi_bh
+        - source:transform_apartmentiq.property_bh
+        - source:transform_yardi_matrix.marketperformance_bh
+        - source:transform_yardi_matrix.submarketmatchzipzcta_bh
+        - source:transform_costar.scenarios
+        - source:transform_markerr.rent_property_cbsa_monthly
+        - source:transform_markerr.markerr_rent_sfr
+      governance: docs/migration/PLAYBOOK_ANALYTICS_FEATURES_FROM_CATALOG.md §M.7 Pilot A lineage
+    config:
+      tags: ["semantic", "concept", "rent", "rent_market"]
+    columns:
+      - name: concept_code
+        description: Registry slug; ``rent_market`` for this object.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["rent_market"]
+      - name: vendor_code
+        description: >
+          ``ZILLOW`` | ``APARTMENTIQ`` | ``YARDI_MATRIX`` | ``COSTAR`` | ``MARKERR_MF`` | ``MARKERR_SFR`` |
+          ``HUD_CYBERSYN`` | ``CHERRE`` (stub).
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  [
+                    "cbsa",
+                    "zip",
+                    "county",
+                    "state",
+                    "national",
+                    "zcta",
+                    "city",
+                    "place",
+                    "corridor_h3",
+                    "metro_division",
+                  ]
+      - name: geo_id
+        tests: [not_null]
+      - name: cbsa_id
+      - name: county_fips
+      - name: state_fips
+      - name: rent_current
+      - name: rent_historical
+      - name: rent_forecast
+      - name: metric_id_observe
+      - name: metric_id_forecast
+      - name: forecast_month_start
+
+  - name: concept_rent_property_monthly
+    description: >
+      Property rent concept, monthly. **Vendors:** APARTMENTIQ (property KPI + property master, ZIP→same geography spine
+      for ``cbsa_id`` / ``county_fips`` / ``state_fips``), CHERRE and YARDI_MATRIX as typed zero-row stubs (Matrix has no
+      property grain in TRANSFORM today). Align to market rent at CBSA via shared ``cbsa_id`` / county keys.
+      **Success contract:** (1) **CHERRE** / **YARDI_MATRIX** stubs — **0 rows** is PASS. (2) **APARTMENTIQ** rows must have
+      non-null ``month_start``, ``property_natural_key``, ``geo_level_code`` = ``property``, ``geo_id``, and rent slots where defined.
+      See [`QA_CONCEPT_PREFLIGHT_CHECKLIST.md`](../../../docs/migration/QA_CONCEPT_PREFLIGHT_CHECKLIST.md) §B.
+    config:
+      tags: ["semantic", "concept", "rent", "rent_property"]
+    columns:
+      - name: concept_code
+        description: Registry slug; ``rent_property``.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["rent_property"]
+      - name: property_natural_key
+        description: Vendor-stable property id (ApartmentIQ uses ``TO_VARCHAR(PROPERTYID)``).
+        tests: [not_null]
+      - name: vendor_code
+        description: "``APARTMENTIQ`` | ``CHERRE`` (stub) | ``YARDI_MATRIX`` (stub)."
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["property"]
+      - name: geo_id
+        tests: [not_null]
+
+  - name: concept_avm_market_monthly
+    description: >
+      Market AVM concept. **Cherre** ``USA_AVM_GEO_STATS`` at ``GEOGRAPHY_TYPE = 'MA'`` (CBSA), snapshot ``month_start``;
+      ``avm_historical`` / ``avm_forecast`` NULL until monthly AVM facts land. **Redfin** stub (empty).
+      **Success contract:** (1) **REDFIN** branch — **0 rows** is PASS (typed stub). (2) **CHERRE** — **0 rows** is PASS if
+      `cherre_avm_geo_stats` is empty or role lacks **SELECT** on **TRANSFORM.CHERRE** (pipeline gap, not a failing test).
+      (3) Any **CHERRE** row must satisfy MA filter and non-null ``MEDIAN_ESTIMATED_VALUE`` per SQL.
+      See [`QA_CONCEPT_PREFLIGHT_CHECKLIST.md`](../../../docs/migration/QA_CONCEPT_PREFLIGHT_CHECKLIST.md) §B.
+    config:
+      tags: ["semantic", "concept", "avm", "avm_market"]
+    columns:
+      - name: concept_code
+        description: "Registry slug: avm_market."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["avm_market"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: avm_current
+      - name: avm_historical
+      - name: avm_forecast
+
+  - name: concept_valuation_market_monthly
+    description: >
+      Market valuation concept. **Cherre** MA/CBSA snapshot (`AVG_ESTIMATED_VALUE`), **Zillow** home-values
+      + forecasts, and **FHFA** CBSA slices (`fact_fhfa_house_price_cbsa`, `fact_fhfa_uniform_appraisal_cbsa`).
+    config:
+      tags: ["semantic", "concept", "valuation", "valuation_market"]
+    columns:
+      - name: concept_code
+        description: "Registry slug: valuation_market."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["valuation_market"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: valuation_current
+      - name: valuation_historical
+      - name: valuation_forecast
+
+  - name: concept_listings_market_monthly
+    description: >
+      Listings (on-market channel) concept at CBSA grain from Realtor inventory plus Zillow DOM/price-cuts and
+      for-sale listings. Uses one prioritized metric per Zillow source via configurable metric-id pattern vars
+      ``concept_listings_market_zillow_*`` (defaults); legacy overrides ``concept_absorption_market_zillow_*`` are
+      still read as fallbacks so older project vars keep working.
+    config:
+      tags: ["semantic", "concept", "listings"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["listings"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: listings_current
+      - name: listings_historical
+      - name: listings_forecast
+
+  - name: concept_absorption_market_monthly
+    description: >
+      **Absorption** (market clearing / net demand vs supply flow) at CBSA × month — **not** listings, DOM, vacancy,
+      or closed transaction counts. Primary branch: CoStar MF DataExport ``ABSORPTION_UNITS`` on
+      ``fact_costar_mf_market_cbsa_monthly`` (observe rows, Multifamily slice via
+      ``concept_absorption_market_costar_property_type_pattern``). Zillow DOM / for-sale inventory stay on
+      ``concept_listings_market_monthly``.
+    config:
+      tags: ["semantic", "concept", "absorption"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["absorption"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: absorption_current
+      - name: absorption_historical
+      - name: absorption_forecast
+
+  - name: concept_transactions_market_monthly
+    description: >
+      Transactions concept at CBSA grain from `fact_zillow_sales` (observe + trailing-12m historical slot).
+    config:
+      tags: ["semantic", "concept", "transactions"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["transactions"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: transactions_current
+      - name: transactions_historical
+      - name: transactions_forecast
+
+  - name: concept_home_price_market_monthly
+    description: >
+      Home-price concept at CBSA grain from Zillow home values (current + forecast), FHFA CBSA slices,
+      Zillow affordability, and Zillow for-sale listings.
+    config:
+      tags: ["semantic", "concept", "homeprice"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["homeprice"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: homeprice_current
+      - name: homeprice_historical
+      - name: homeprice_forecast
+
+  - name: concept_employment_market_monthly
+    description: >
+      Employment concept from BLS LAUS CBSA observe-only feed (`AREA_CODE` metro coding, not guaranteed OMB CBSA).
+      `has_census_geo` is false until an explicit area-code crosswalk is applied.
+    config:
+      tags: ["semantic", "concept", "employment"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["employment"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: employment_current
+      - name: employment_historical
+      - name: employment_forecast
+
+  - name: concept_unemployment_market_monthly
+    description: >
+      Unemployment concept from BLS LAUS CBSA observe-only feed (`AREA_CODE` metro coding, not guaranteed OMB CBSA).
+      Includes unemployment rate and unemployed count metric rows.
+    config:
+      tags: ["semantic", "concept", "unemployment"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["unemployment"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: unemployment_current
+      - name: unemployment_historical
+      - name: unemployment_forecast
+
+  - name: concept_occupancy_market_monthly
+    description: >
+      Occupancy concept at CBSA x month from HUD Cybersyn series (`fact_hud_housing_series_cbsa_monthly`),
+      selecting occupancy/vacancy-like variables via regex.
+      **Success contract (HUD):** **0 rows** is PASS when the account’s HUD slice has no CBSA rows matching the occupancy/vacancy
+      regex (e.g. continuum-of-care only variables) or grants are missing — pipeline gap, not a failing dbt compile.
+      See [`QA_CONCEPT_PREFLIGHT_CHECKLIST.md`](../../../docs/migration/QA_CONCEPT_PREFLIGHT_CHECKLIST.md) §B.
+    config:
+      tags: ["semantic", "concept", "occupancy"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["occupancy"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: occupancy_current
+      - name: occupancy_historical
+      - name: occupancy_forecast
+
+  - name: concept_migration_market_annual
+    description: >
+      Migration concept at CBSA grain from IRS by-characteristic annual feeds (direct CBSA + county rollup to CBSA).
+    config:
+      tags: ["semantic", "concept", "migration"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["migration"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: migration_current
+      - name: migration_historical
+      - name: migration_forecast
+
+  - name: concept_delinquency_market_monthly
+    description: >
+      Delinquency concept at CBSA x month from FHFA mortgage performance (direct CBSA + county rollup to CBSA).
+    config:
+      tags: ["semantic", "concept", "delinquency"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["delinquency"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: delinquency_current
+      - name: delinquency_historical
+      - name: delinquency_forecast
+
+  - name: concept_permits_market_monthly
+    description: >
+      Permits concept — monthly CBSA from Census BPS ``fact_bps_permits_county``. **Default:** MET_001 mode
+      (``concept_permits_met_001_canonical: true``) → one row per month × CBSA with ``metric_id_observe = bps_permits_measure_value``
+      after ``concept_permits_met_001_*_ilike`` filters and dedupe. Set ``concept_permits_met_001_canonical: false`` for
+      composite series keys and ``concept_permits_market_bps_*_ilike`` exploration filters.
+    config:
+      tags: ["semantic", "concept", "permits"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["permits"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: permits_current
+      - name: permits_historical
+      - name: permits_forecast
+
+  - name: concept_income_market_annual
+    description: >
+      Income concept — annual CBSA from ACS5 H3 snapshot rollups; ``month_start`` = Dec 31 of ``concept_acs5_cbsa_reference_year``.
+    config:
+      tags: ["semantic", "concept", "income"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["income"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: income_current
+      - name: income_historical
+      - name: income_forecast
+
+  - name: concept_labor_market_annual
+    description: >
+      Labor concept — CBSA labor-force participation proxy from ACS5 H3 snapshot (see ``int_acs5_h3_r8_cbsa_demographics_rollups``).
+    config:
+      tags: ["semantic", "concept", "labor"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["labor"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: labor_current
+      - name: labor_historical
+      - name: labor_forecast
+
+  - name: concept_population_market_annual
+    description: >
+      Population concept — CBSA sum of ACS5 H3 ``total_population_wavg`` (ACS snapshot proxy; not PEP official stock).
+    config:
+      tags: ["semantic", "concept", "population"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["population"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: population_current
+      - name: population_historical
+      - name: population_forecast
+
+  - name: concept_vacancy_market_monthly
+    description: >
+      Vacancy concept — monthly CBSA from HUD Cybersyn (CBSA + county rollup) with ``concept_vacancy_market_hud_variable_regex``,
+      plus annual ACS5 H3 vacancy-share proxies on Dec 31 of ``concept_acs5_cbsa_reference_year``. Cherre vacant FACT_* read-throughs
+      are not in this repo yet.
+    config:
+      tags: ["semantic", "concept", "vacancy"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["vacancy"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cbsa"]
+      - name: geo_id
+        tests: [not_null]
+      - name: vacancy_current
+      - name: vacancy_historical
+      - name: vacancy_forecast

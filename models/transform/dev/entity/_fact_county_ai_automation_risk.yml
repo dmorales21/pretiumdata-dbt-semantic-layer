@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: fact_county_ai_automation_risk
+    description: >
+      Latest county **`feature_structural_unemployment_risk_county`** plus optional AIGE columns
+      (**`aige_counties_enabled`**). Same grain as pretium **`edw_prod.mart.mart_county_ai_automation_risk`**;
+      physical relation in **TRANSFORM.DEV** is **`FACT_COUNTY_AI_AUTOMATION_RISK`** (FACT_* contract).
+    columns:
+      - name: county_fips
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - county_fips
+          config:
+            enabled: "{{ var('onet_soc_naics_enabled', false) }}"

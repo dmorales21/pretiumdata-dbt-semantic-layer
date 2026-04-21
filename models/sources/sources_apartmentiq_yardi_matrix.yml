@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  # TRANSFORM.APARTMENTIQ / TRANSFORM.YARDI_MATRIX — Jon silver; read-only source() parity with pretium-ai-dbt
+  # `dbt/models/sources.yml`. Gates: `docs/migration/MIGRATION_TASKS_APARTMENTIQ_YARDI_MATRIX.md` §1.5
+  # (`scripts/sql/migration/inventory_apartmentiq_yardi_matrix_for_dev_facts.sql`).
+
+  - name: transform_apartmentiq
+    database: TRANSFORM
+    schema: APARTMENTIQ
+    description: >
+      ApartmentIQ BH-suffixed silver in TRANSFORM.APARTMENTIQ. Parity with pretium-ai-dbt `transform_apartmentiq`;
+      FACT_* wrappers land in TRANSFORM.DEV after §1.5 inventory artifacts exist.
+
+    tables:
+      - name: propertykpi_bh
+        identifier: PROPERTYKPI_BH
+      - name: bhcomp_bh
+        identifier: BHCOMP_BH
+      - name: property_bh
+        identifier: PROPERTY_BH
+      - name: unitkpi_bh
+        identifier: UNITKPI_BH
+      - name: unit_bh
+        identifier: UNIT_BH
+
+  - name: transform_yardi_matrix
+    database: TRANSFORM
+    schema: YARDI_MATRIX
+    description: >
+      Yardi Matrix market performance (BH) in TRANSFORM.YARDI_MATRIX. Parity with pretium-ai-dbt `transform_yardi_matrix`.
+
+    tables:
+      - name: submarketmatchzipzcta_bh
+        identifier: SUBMARKETMATCHZIPZCTA_BH
+      - name: marketperformance_bh
+        identifier: MARKETPERFORMANCE_BH

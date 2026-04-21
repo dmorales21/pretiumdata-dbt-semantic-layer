@@ -1,0 +1,143 @@
+version: 2
+
+models:
+  - name: feature_ai_replacement_risk_county
+    meta:
+      operator_note: >
+        Set **`vars.onet_soc_naics_enabled: true`** after **TRANSFORM.DEV** labor stack + **`REF_ONET_SOC_TO_NAICS`**
+        are built (`docs/runbooks/RUN_LABOR_AUTOMATION_RISK_STACK_DBT.md`).
+        Build: `dbt run --select +feature_structural_unemployment_risk_county` or FACT eight-pack then these FEATURE views.
+    description: >
+      County grain AI replacement scores from **`ref('fact_county_ai_replacement_risk')`**.
+      Replaces legacy pretium-ai-dbt `analytics_prod/features/feature_ai_replacement_risk_county.sql` (CBSA allocation via deprecated `h3_xwalk_6810_canon`).
+      **`date_reference`** = `DATE_FROM_PARTS(data_year, 12, 31)` snapshot anchor.
+    columns:
+      - name: date_reference
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - name: county_fips
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - name: ai_replacement_risk_score
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+    tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('fact_county_ai_replacement_risk')
+          config:
+            enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - date_reference
+              - county_fips
+          config:
+            enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+
+  - name: feature_ai_replacement_risk_cbsa
+    description: >
+      CBSA grain; **`naics_code = 'ALL'`** synthetic bucket (employment-weighted metrics from county fact).
+      Legacy CBSA×NAICS incremental path not ported — see **`LABOR_AUTOMATION_RISK_STACK_SEMANTIC_LAYER.md`**.
+    columns:
+      - name: date_reference
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - name: cbsa_code
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - name: naics_code
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - name: risk_tier
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["HIGH", "MEDIUM", "LOW"]
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - date_reference
+              - cbsa_code
+              - naics_code
+          config:
+            enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+
+  - name: feature_ai_replacement_risk_cbsa_rollup
+    description: >
+      One row per (date_reference, cbsa_code) from **`feature_ai_replacement_risk_cbsa`** (`naics_code = 'ALL'`).
+    columns:
+      - name: date_reference
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - name: cbsa_code
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - date_reference
+              - cbsa_code
+          config:
+            enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('feature_ai_replacement_risk_cbsa')
+          config:
+            enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+
+  - name: feature_structural_unemployment_risk_county
+    description: >
+      County structural risk score + **fixed 0.5 / 0.7 tiers** on `ai_replacement_risk_score`.
+      Differs from **`fact_county_ai_replacement_risk.risk_tier`** (percentile-based) — document for IC consumers.
+    columns:
+      - name: date_reference
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - name: county_fips
+        tests:
+          - not_null:
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - name: risk_tier
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["HIGH", "MEDIUM", "LOW"]
+              config:
+                enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+    tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('feature_ai_replacement_risk_county')
+          config:
+            enabled: "{{ var('onet_soc_naics_enabled', false) }}"
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - date_reference
+              - county_fips
+          config:
+            enabled: "{{ var('onet_soc_naics_enabled', false) }}"

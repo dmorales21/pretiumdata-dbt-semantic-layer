@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  # Cherre data share (external). Override with --vars when account uses a different share name.
+  # Complements source('cherre_transform', …) for objects materialized under TRANSFORM.CHERRE.
+  # Corridor spine: tax_assessor_v2 → FACT_CHERRE_STOCK_H3_R8 (see MIGRATION_TASKS_CORRIDOR_PIPELINE_SOURCES.md §3).
+  - name: cherre
+    database: "{{ var('cherre_database', 'CHERRECO_CHERRE_US_WEST_2_PRETIUM_PRD_SHARE') }}"
+    schema: "{{ var('cherre_schema', 'PUBLIC') }}"
+    description: >
+      Cherre vendor share (MLS, assessor, recorder, …). Legacy share database name; repoint vars after
+      SOURCE_SNOW migration (pretium-ai-dbt CLEANED_SOURCE_AND_MODEL_DB.md). Prefer cherre_transform for
+      warehouse-native TRANSFORM.CHERRE snapshots when both exist.
+    meta:
+      deprecated: true
+      canonical_target: SOURCE_SNOW
+    tables:
+      - name: tax_assessor_v2
+        identifier: TAX_ASSESSOR_V2
+        description: >
+          Tax assessor property universe (wide). Corridor Ward / stock H3 builds — inventory grants before
+          heavy SELECT; see MIGRATION_TASKS_CHERRE.md.

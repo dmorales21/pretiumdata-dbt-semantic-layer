@@ -1,6 +1,20 @@
 version: 2
 
 models:
+  - name: fact_lodes_od_h3_r8_annual
+    tests:
+      - dbt_utils.equal_rowcount:
+          name: fact_lodes_od_h3_r8_annual_same_rowcount_as_silver
+          arguments:
+            compare_model: "{{ source('transform_lodes', 'od_h3_r8') }}"
+          config:
+            severity: warn
+            tags: ['transform_dev', 'lodes', 'parity', 'corridor']
+    description: >
+      **Vendor:** U.S. Census Bureau — LEHD / LODES. View over **TRANSFORM.LODES.OD_H3_R8** (hex-pair OD by vintage).
+      Do not materialize as table without Alex/DE sign-off. Downstream (same folder): **`fact_lodes_od_workplace_hex_annual`**
+      → employment-center chain (`MIGRATION_TASKS_CORRIDOR_PIPELINE_SOURCES.md` §2.3). Lineage registry: **`registry/lineage/corridor_lodes_h3_r8_lineage.yml`**.
+
   - name: fact_lodes_od_bg
     tests:
       - dbt_utils.equal_rowcount:
@@ -25,3 +39,27 @@ models:
         description: Workplace block group GEO_ID.
       - name: lodes_job_type_code
         description: Job type segment (e.g. JT00); align to corridor / metric catalog when used.
+
+  - name: fact_lodes_od_workplace_hex_annual
+    description: >
+      **TRANSFORM.DEV** LODES workplace-hex inflow summary from **`ref('fact_lodes_od_h3_r8_annual')`**
+      (**TRANSFORM.LODES.OD_H3_R8**). Feeds **`ref_corridor_employment_centers`**. No `ANALYTICS.FACTS` sources.
+      Lineage: **`registry/lineage/corridor_lodes_h3_r8_lineage.yml`**.
+
+  - name: ref_corridor_employment_centers
+    description: >
+      **TRANSFORM.DEV** employment-center classification at H3 R8 (same logic as pretium-ai-dbt
+      `analytics.reference.ref_corridor_employment_centers`, materialized here under **DEV**).
+      Lineage: **`registry/lineage/corridor_lodes_h3_r8_lineage.yml`**.
+
+  - name: fact_lodes_h3r8_workplace_gravity
+    description: >
+      **TRANSFORM.DEV** BG-pair OD apportioned to workplace H3 R8 via **`source('h3_polyfill_bridges','bridge_bg_h3_r8_polyfill')`**
+      (vars **`h3_polyfill_bridge_*`**; default **REFERENCE.GEOGRAPHY**) and **`source('transform_lodes','od_bg')`**.
+      Lineage: **`registry/lineage/corridor_lodes_h3_r8_lineage.yml`**.
+
+  - name: fact_lodes_nearest_center_h3_r8_annual
+    description: >
+      **TRANSFORM.DEV** precomputed H3 grid distance from each CBSA hex to nearest classified center;
+      uses **`source('h3_polyfill_bridges','bridge_bg_h3_r8_polyfill')`** for the hex universe (default **`REFERENCE.GEOGRAPHY.BLOCKGROUP_H3_R8_POLYFILL`**; same `h3_polyfill_bridge_*` vars).
+      Lineage: **`registry/lineage/corridor_lodes_h3_r8_lineage.yml`**.

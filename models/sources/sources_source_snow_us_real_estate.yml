@@ -1,0 +1,63 @@
+version: 2
+
+sources:
+  # IRS SOI migration (and other US residential series) often land on SOURCE_SNOW.US_REAL_ESTATE
+  # rather than GLOBAL_GOVERNMENT.CYBERSYN — same Cybersyn-backed content, different share path.
+  - name: source_snow_us_real_estate
+    database: SOURCE_SNOW
+    schema: US_REAL_ESTATE
+    description: >
+      Snowflake Marketplace / data share — US residential schema. IRS migration, FHFA house price,
+      Freddie Mac PMMS, and related tables for TRANSFORM.DEV.FACT_* models. Override database/schema in dbt if your account
+      aliases this share differently.
+
+    tables:
+      - name: fhfa_house_price_timeseries
+        identifier: FHFA_HOUSE_PRICE_TIMESERIES
+        description: >
+          FHFA house price long metrics (Cybersyn-backed US_REAL_ESTATE share). Grain GEO_ID × DATE × VARIABLE;
+          join fhfa_house_price_attributes on VARIABLE.
+      - name: fhfa_house_price_attributes
+        identifier: FHFA_HOUSE_PRICE_ATTRIBUTES
+        description: Variable dictionary companion to fhfa_house_price_timeseries.
+
+      - name: fhfa_mortgage_performance_timeseries
+        identifier: FHFA_MORTGAGE_PERFORMANCE_TIMESERIES
+        description: >
+          FHFA mortgage performance long metrics (Cybersyn-backed US_REAL_ESTATE share). Grain GEO_ID × DATE × VARIABLE;
+          join fhfa_mortgage_performance_attributes on VARIABLE.
+      - name: fhfa_mortgage_performance_attributes
+        identifier: FHFA_MORTGAGE_PERFORMANCE_ATTRIBUTES
+        description: Variable dictionary companion to fhfa_mortgage_performance_timeseries.
+
+      - name: fhfa_uniform_appraisal_timeseries
+        identifier: FHFA_UNIFORM_APPRAISAL_TIMESERIES
+        description: >
+          FHFA Uniform Appraisal Dataset (UAD) long metrics (Cybersyn-backed US_REAL_ESTATE share). Grain GEO_ID × DATE × VARIABLE;
+          join fhfa_uniform_appraisal_attributes on VARIABLE.
+      - name: fhfa_uniform_appraisal_attributes
+        identifier: FHFA_UNIFORM_APPRAISAL_ATTRIBUTES
+        description: Variable dictionary companion to fhfa_uniform_appraisal_timeseries.
+
+      - name: irs_migration_by_characteristic_timeseries
+        identifier: IRS_MIGRATION_BY_CHARACTERISTIC_TIMESERIES
+        description: >
+          IRS SOI migration stratified by characteristic. Grain GEO_ID × DATE × VARIABLE; join
+          irs_migration_by_characteristic_attributes on VARIABLE.
+      - name: irs_migration_by_characteristic_attributes
+        identifier: IRS_MIGRATION_BY_CHARACTERISTIC_ATTRIBUTES
+        description: Variable metadata (VARIABLE_NAME, RETURN_GROUP, INCOME_BRACKET, AGE_GROUP, UNIT, …).
+
+      - name: irs_origin_destination_migration_timeseries
+        identifier: IRS_ORIGIN_DESTINATION_MIGRATION_TIMESERIES
+        description: >
+          IRS SOI county-to-county flows. Grain FROM_GEO_ID × TO_GEO_ID × DATE × VARIABLE_NAME;
+          SUPPRESSED marks disclosure-limited cells.
+
+      - name: freddie_mac_housing_timeseries
+        identifier: FREDDIE_MAC_HOUSING_TIMESERIES
+        description: >
+          Freddie Mac PMMS and related series. Grain GEO_ID × DATE × VARIABLE; join freddie_mac_housing_attributes on VARIABLE.
+      - name: freddie_mac_housing_attributes
+        identifier: FREDDIE_MAC_HOUSING_ATTRIBUTES
+        description: Companion attribute rows for freddie_mac_housing_timeseries.
