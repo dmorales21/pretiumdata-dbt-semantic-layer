@@ -2,89 +2,73 @@
 # REFERENCE.CATALOG seed wave order — must be respected to avoid FK failures
 # Run: dbt seed --target reference --select reference.catalog.<table>
 
-## Wave 1 — no FK dependencies
+## Wave 1 — core dimensions + consolidated enum source (no FK dependencies)
+
+**`catalog_enum_source`** replaces ~57 separate small-enum CSV seeds (tiers, types, statuses). Regenerate
+from split CSVs only when restoring historical files from git — see
+`scripts/reference/catalog/build_catalog_enum_source_seed.py`.
+
+```bash
 dbt seed --target reference --select \
   reference.catalog.vertical \
+  reference.catalog.domain \
   reference.catalog.frequency \
   reference.catalog.geo_level \
-  reference.catalog.data_status \
-  reference.catalog.metric_category \
-  reference.catalog.risk_rating \
-  reference.catalog.rate_type
+  reference.catalog.unit \
+  reference.catalog.asset_type \
+  reference.catalog.tenant_type \
+  reference.catalog.catalog_enum_source
+```
 
-## Wave 2 — depend on Wave 1
+## Wave 2 — depend on Wave 1 (includes **`domain`** before **`concept`**)
+
+```bash
 dbt seed --target reference --select \
   reference.catalog.product_type \
-  reference.catalog.concept \
-  reference.catalog.function \
-  reference.catalog.model_type \
-  reference.catalog.estimate_type \
-  reference.catalog.hold_period \
-  reference.catalog.exit_strategy \
-  reference.catalog.amenity_tier \
-  reference.catalog.rent_tier \
-  reference.catalog.ltv_tier \
-  reference.catalog.market_tier \
-  reference.catalog.flood_zone \
-  reference.catalog.natural_hazard_type
-
-## Wave 3 — depend on Wave 2
-dbt seed --target reference --select \
-  reference.catalog.opco \
-  reference.catalog.class \
-  reference.catalog.investment_strategy \
-  reference.catalog.loan_type \
-  reference.catalog.score_tier \
-  reference.catalog.insurance_type \
-  reference.catalog.construction_status \
-  reference.catalog.vacancy_tier \
-  reference.catalog.cap_rate_tier
-
-## Wave 4 — depend on Wave 3
-dbt seed --target reference --select \
-  reference.catalog.business_team \
-  reference.catalog.geography_status \
-  reference.catalog.deal_status \
-  reference.catalog.delinquency_bucket \
-  reference.catalog.portfolio_size_tier \
-  reference.catalog.renovation_type \
-  reference.catalog.property_condition
-
-## Wave 5 — no FK dependencies (simple dimension tables)
-dbt seed --target reference --select \
-  reference.catalog.absorption_tier \
-  reference.catalog.bath_type \
   reference.catalog.bedroom_type \
-  reference.catalog.crime_tier \
-  reference.catalog.dscr_tier \
-  reference.catalog.employment_sector \
-  reference.catalog.hoa_type \
-  reference.catalog.income_band \
-  reference.catalog.lease_term \
-  reference.catalog.market_cycle_phase \
-  reference.catalog.market_status \
-  reference.catalog.migration_type \
-  reference.catalog.noi_tier \
-  reference.catalog.occupancy_status \
-  reference.catalog.ownership_type \
-  reference.catalog.parking_type \
-  reference.catalog.permit_type \
-  reference.catalog.population_segment \
-  reference.catalog.price_tier \
-  reference.catalog.promotion_gate \
-  reference.catalog.school_rating_tier \
-  reference.catalog.tenancy \
-  reference.catalog.transit_score_tier \
-  reference.catalog.units_in_structure \
-  reference.catalog.utility_type \
-  reference.catalog.vintage \
-  reference.catalog.walk_score_tier \
-  reference.catalog.zoning_type
+  reference.catalog.bridge_product_type_bedroom_type \
+  reference.catalog.concept \
+  reference.catalog.concept_geo_level \
+  reference.catalog.concept_frequency \
+  reference.catalog.concept_vertical \
+  reference.catalog.concept_explanation
+```
+
+After editing **bridge_product_type_bedroom_type.csv**, refresh the legacy comma field:
+
+`python3 scripts/reference/catalog/sync_product_type_bedroom_codes_from_bridge.py`
+
+## Wave 3 — opco
+
+```bash
+dbt seed --target reference --select reference.catalog.opco
+```
+
+## Wave 4 — business_team
+
+```bash
+dbt seed --target reference --select reference.catalog.business_team
+```
 
 ## Wave 6 — manual population required first
-# Populate vendor.csv, dataset.csv, metric.csv before running
+# Populate vendor.csv, dataset.csv, metric_raw.csv before running
+# **Built metric:** run `python3 scripts/reference/catalog/build_metric_csv_from_metric_raw.py`
+# so `metric.csv` exists (CI runs this before `dbt parse`). Then seed raw + built:
 dbt seed --target reference --select reference.catalog.vendor
 dbt seed --target reference --select reference.catalog.dataset
+# **dataset_product_type** is the authoring source for product-type scope. Refresh the legacy
+# **dataset.product_type_codes** comma field from the bridge (do not hand-edit that column):
+#   python3 scripts/reference/catalog/sync_dataset_product_type_from_bridge.py
+# First time adding **product_type_codes** / fixing bridge types on Snowflake:
+#   dbt seed --full-refresh --target reference --select reference.catalog.dataset reference.catalog.dataset_product_type
+dbt seed --target reference --select \
+  reference.catalog.dataset_product_type \
+  reference.catalog.dataset_vertical
+# If **`relationships`** on the bridges fail** (dataset_code not found on **`dataset`**), Snowflake
+# **`REFERENCE.CATALOG.DATASET`** is usually out of sync with git — full-refresh **`dataset`** and both
+# bridges in one go: `dbt seed --full-refresh --target reference --select reference.catalog.dataset
+# reference.catalog.dataset_product_type reference.catalog.dataset_vertical`. See **`docs/vendors/README.md`**.
+dbt seed --target reference --select reference.catalog.metric_raw
 dbt seed --target reference --select reference.catalog.metric
 
 ## Wave 6c — `metric_derived` (depends on Wave 2 + Wave 6 `metric`)
@@ -132,8 +116,56 @@ dbt test --target reference --select cybersyn_catalog_table_vendor_map
 
 Equivalent minimal selects (resource names only): `dbt seed --select vendor cybersyn_catalog_table_vendor_map` then `dbt test --select cybersyn_catalog_table_vendor_map`. Full runbook: [`reference/CYBERSYN_GLOBAL_GOVERNMENT_BRING_IN_MATRIX.md`](./reference/CYBERSYN_GLOBAL_GOVERNMENT_BRING_IN_MATRIX.md#how-to-run-dataset-tests).
 
+## Wave 7a — offerings (B2B / tearsheet pack; before `concept_offering_weight`)
+
+```bash
+dbt seed --target reference --select \
+  reference.catalog.offering \
+  reference.catalog.bridge_offering_product_type \
+  reference.catalog.bridge_offering_asset_type \
+  reference.catalog.bridge_tenant_type_offering \
+  reference.catalog.bridge_product_type_metric \
+  reference.catalog.offering_signal_relevance
+```
+
+## Wave 7b — `concept_offering_weight` (depends on `offering` + `concept`)
+
+Numeric Presley routing weights; edit **`offering_concept_weight_matrix.yml`** then regenerate the seed:
+
+```bash
+python3 scripts/reference/catalog/sync_concept_offering_weight_from_matrix.py
+dbt seed --target reference --select reference.catalog.concept_offering_weight
+dbt test --target reference --select concept_offering_weight
+```
+
+## MotherDuck / lake freshness stamps on `dataset`
+
+After Iceberg (or other lake) export completes, run **`scripts/sql/reference/catalog/stamp_dataset_motherduck_after_iceberg_export.sql`**
+(or fold its `UPDATE` into the same Snowflake Task) so **`is_motherduck_served`** and **`last_refresh_date`** reflect Presley-ready datasets.
+
+Full task trees and portfolio/market stamp hooks: [`reference/AUTO_REFRESH_STRATEGY_BY_CONTENT_TYPE.md`](./reference/AUTO_REFRESH_STRATEGY_BY_CONTENT_TYPE.md).
+
+## Derived catalog table — `ENUM` (unified small enumerations)
+
+After **Wave 1** (including **`catalog_enum_source`**, **`frequency`**, **`asset_type`**, **`tenant_type`**), build **`REFERENCE.CATALOG.ENUM`** from the dbt model **`catalog_enum`** (physical alias **`enum`**):
+
+```bash
+dbt run --target reference --select catalog_enum
+```
+
 ## Run all tests after seeding
 dbt test --target reference --select reference.catalog.*
+dbt test --target reference --select catalog_enum
+
+## Catalog hard-gate singulars (no warehouse — compile only)
+
+CI runs **`dbt compile --select tag:catalog_hard_gate`** so Q6/Q7/Q11/Q19 blocking tests resolve refs. Locally after Snowflake seed:
+
+```bash
+dbt test --target reference --select tag:catalog_hard_gate
+```
+
+Selector name: **`catalog_hard_gates`** (see **`selectors.yml`**).
 
 ## Enforcement
 # - All CATALOG seeds target REFERENCE.CATALOG regardless of dbt target

@@ -15,6 +15,7 @@
 #
 # **Vendor vs catalog:** Vendor-native content stays in **`SOURCE_PROD`** / **`TRANSFORM.DEV`** / Jon **`TRANSFORM.[VENDOR]`**.
 # **`REFERENCE.CATALOG`** = canonical dims / controlled vocabulary — not vendor tables.
+# **`CONCEPT.domain`** is one of **`housing` \| `household` \| `place` \| `capital` \| `portfolio`** (seed **`domain.csv`**); assignment rules: **`CONCEPT_DOMAIN_POLICY.md`**.
 #
 # **Naming:** Keep the semantic-layer pattern (**`SCHEMA_RULES.md`**) — short, prefixed identifiers; do not
 # migrate toward longer or more complex names than the new canon requires. See **`NAMING_RULES_INDEX.md`** for links.
@@ -26,11 +27,11 @@
   **RAW_ models must write to SOURCE_PROD.[VENDOR], NOT TRANSFORM.DEV.**
   Any model in the old repo (pretium-ai-dbt) that writes a RAW_* table to TRANSFORM.DEV
   is misplaced — migrate it to SOURCE_PROD.[VENDOR] in the new repo.
-- **TRANSFORM.DEV** — **`FACT_*`** and **`CONCEPT_*`** objects (typed facts / concepts). In Alex's dev path, these models read directly
+- **TRANSFORM.DEV** — **`FACT_*`** (vendor-native cleaned corridor / vendor tables only — typing, renames, vendor-grain fixes, vendor-appropriate rollups) and **`CONCEPT_*`** (semantic concept unions from facts with catalog-driven grain). **Multi-vendor assembly panels** (joining several corridor facts for an app surface) do **not** belong here; they materialize under **ANALYTICS** **`FEATURE_*`** (see **`SCHEMA_RULES.md`**). In Alex's dev path, these models read directly
   from SOURCE_PROD.[VENDOR].RAW_* when no TRANSFORM.[VENDOR] schema exists yet.
   Once Jon promotes a vendor's cleanse layer, FACT models re-point to ref() calls against
   TRANSFORM.[VENDOR] instead of SOURCE_PROD.
-- **TRANSFORM.DEV REF_*** — vendor-specific crosswalks (e.g. REF_ZILLOW_COUNTY_TO_FIPS).
+- **TRANSFORM.DEV `REF_*`** — vendor-specific crosswalks (e.g. REF_ZILLOW_COUNTY_TO_FIPS).
   Not census spine — do NOT place in REFERENCE.GEOGRAPHY. Stay in TRANSFORM.DEV until
   Jon promotes to TRANSFORM.[VENDOR].
 - **REFERENCE.GEOGRAPHY** — census spine objects only (ZCTA, COUNTY, CBSA, BLOCKGROUP, H3
@@ -44,7 +45,7 @@
 
 | Schema | Owner | Notes |
 |---|---|---|
-| TRANSFORM.DEV | Alex | Dev FACT_, CONCEPT_, REF_, CLEANED_ work — **physical home for dbt-authored `CONCEPT_*` unions** (`models/transform/dev/concept/`). Do **not** place those reads on `MART_{env}.SEMANTIC`; use `ref()` and this repo’s target resolution. |
+| TRANSFORM.DEV | Alex | Dev **`FACT_*`** (vendor-native only), **`CONCEPT_*`**, **`REF_*`**, CLEANED_ work — **physical home for dbt-authored `CONCEPT_*` unions** (`models/transform/dev/concept/`). Do **not** place those reads on `MART_{env}.SEMANTIC`; use `ref()` and this repo’s target resolution. |
 | TRANSFORM.[VENDOR] | **Jon (PROD)** | Canonical vendor **PROD** schemas — Alex **reads** only; no dbt writes from Alex migration |
 | ANALYTICS.DBT_DEV | Alex | **`FEATURE_`**, **`MODEL_`**, **`ESTIMATE_`** dev models only — **no** `FACT_*` / `CONCEPT_*` (those live in **TRANSFORM.DEV** only). Legacy `BI_*` / `AI_*` names in older work → rename into **`MODEL_*`** / **`ESTIMATE_*`** (or move out of `ANALYTICS` per `SCHEMA_RULES.md`). |
 | SERVING.DEMO | Alex | Delivery surface for dev analytics outputs |
@@ -52,9 +53,25 @@
 | REFERENCE.CATALOG | Alex | Controlled vocabulary and dimension registry |
 | REFERENCE.DRAFT | Alex | In-progress seeds pending promotion to CATALOG |
 
-## Metric Registration Gates
+## Metric registry — built `metric` vs backlog `metric_raw`
 
-**Production catalog:** governed rows for **`REFERENCE.CATALOG.metric`** are authored only in **pretiumdata-dbt-semantic-layer** `seeds/reference/catalog/metric.csv` (see **`docs/migration/MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md`**). Do not treat other repo copies as a second source of truth.
+**Hand edits and bulk merges** go to **`seeds/reference/catalog/metric_raw.csv`**. **REFERENCE.CATALOG.METRIC**
+is loaded from **`seeds/reference/catalog/metric.csv`**, which is **generated** by
+`scripts/reference/catalog/build_metric_csv_from_metric_raw.py` (TRANSFORM.DEV **FACT_** / **CONCEPT_**
+core ∪ catalog FK closure — see **`docs/reference/METRIC_CSV_BUILD_SPEC.md`**). CI runs the generator before `dbt parse`.
+
+**`REFERENCE.CATALOG.METRIC`** is the **sole metric object**; **`metric_code`** is unique and is the FK for tall
+concept observation rows. **Do not** add **`REFERENCE.CATALOG.CONCEPT_METRIC`** unless many-to-many or
+concept-specific aliases are proven necessary — default is **`METRIC.concept_code`** plus **`vendor_code`** /
+**`dataset_code`** on the observation row.
+
+**Governance:** ACS housing burden, renter counts, and similar fields must not stay loosely grouped under
+market **rent** semantics — fix **`concept_code`** / **`metric_code`** in raw before treating them as P0
+canonical rent measures (see **`docs/reference/CONCEPT_OBSERVATION_TALL_ROW_CONTRACT.md`**).
+
+**Vendor intake:** **`docs/migration/MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md`**. Do not treat other repo copies as a second source of truth.
+
+## Metric Registration Gates
 
 A metric column cannot be registered in `REFERENCE.DRAFT.CATALOG_METRIC` (seed `catalog_metric`) until it passes all four gates:
 
@@ -62,6 +79,14 @@ A metric column cannot be registered in `REFERENCE.DRAFT.CATALOG_METRIC` (seed `
 2. **History** — ≥12 months of data
 3. **Catalog compliance** — geo_level_code, frequency_code, concept_code, vendor_code must exist as active rows in REFERENCE.CATALOG
 4. **Census geography compliance** — geographic IDs must join to canonical census spine at ≥95% coverage; if not, a crosswalk is required before registration
+
+## Concept row governance gate
+
+Adding a new row to `seeds/reference/catalog/concept.csv` requires explicit approver confirmation in the PR/chat before merge.
+
+- Treat concept-row additions as **schema-governance changes**, not routine data edits.
+- Approval must include: proposed `concept_code`, semantic definition, why existing concepts are insufficient, and expected `CONCEPT_*` / metric assignment impact.
+- Without explicit approval, do not add a new active concept row; use docs/backlog notes or inactive legacy aliases instead.
 
 ## Census Geography Compliance — Canonical Spines by Grain
 

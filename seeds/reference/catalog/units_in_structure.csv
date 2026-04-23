@@ -1,8 +1,0 @@
-units_id,units_code,units_label,range_min,range_max,sort_order,is_active
-UIS_001,1,1 Unit,1,1,1,TRUE
-UIS_002,2_to_4,2 to 4 Units,2,4,2,TRUE
-UIS_003,5_to_19,5 to 19 Units,5,19,3,TRUE
-UIS_004,20_to_49,20 to 49 Units,20,49,4,TRUE
-UIS_005,50_to_199,50 to 199 Units,50,199,5,TRUE
-UIS_006,200_to_349,200 to 349 Units,200,349,6,TRUE
-UIS_007,350_plus,350+ Units,350,,7,TRUE

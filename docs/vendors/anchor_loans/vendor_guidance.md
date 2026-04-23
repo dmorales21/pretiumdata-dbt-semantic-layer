@@ -1,0 +1,110 @@
+# Anchor Loans — Data Guidance
+
+⚠️ **INTERNAL — contract and operational context**
+
+**Intake bundle:** `docs/vendors/anchor_loans/` (machine column inventory + this narrative).  
+**Canonical vendor hub:** `docs/vendor/anchor_loans/` (dictionary + structured stubs).
+
+---
+
+## Catalog snapshot (seeds/reference/catalog/vendor.csv)
+
+| Field | Value |
+|-------|-------|
+| **vendor_id** | `VND_033` |
+| **vendor_code** | `anchor_loans` |
+| **vendor_label** | Anchor Loans |
+| **definition** | Anchor Loans deal pipeline and active loan portfolio for RED vertical |
+| **data_type** | operational |
+| **refresh_cadence** | monthly |
+| **contract_status** | active |
+| **source_schema** | `SOURCE_ENTITY.ANCHOR_LOANS` |
+| **data_share_type** | manual |
+| **vertical_codes** | red |
+
+**Primary migration doc (inventory):** — (see `docs/vendor/0_inventory/vendors_inventory.csv`)
+
+---
+
+## Vendor methodology (full text from `docs/vendor/anchor_loans/anchor_loans.md`)
+
+**Catalog row:** `vendor_id` = `VND_033` in `seeds/reference/catalog/vendor.csv`.
+
+## 1. Identity
+
+Anchor Loans deal pipeline and active loan portfolio for RED vertical
+
+## 2. Contract (catalog)
+
+| Attribute | Value |
+|-----------|-------|
+| **data_type** | operational |
+| **refresh_cadence** | monthly |
+| **contract_status** | active |
+| **source_schema** | `SOURCE_ENTITY.ANCHOR_LOANS` |
+| **is_active** | TRUE |
+| **data_share_type** | manual |
+| **is_motherduck_served** | FALSE |
+| **vertical_codes** | red |
+
+## 3. Read path (methodology)
+
+1. Prefer **Jon silver** on **TRANSFORM** (vendor schema, e.g. `TRANSFORM.ZILLOW`, `TRANSFORM.MARKERR`) or **`TRANSFORM.FACT`** when the object exists and is vetted (see [MIGRATION_RULES.md](../migration/MIGRATION_RULES.md)).
+2. Otherwise use the catalog **`source_schema`** (`RAW.*`, `SOURCE_ENTITY.*`, `SOURCE_SNOW.*`, etc.) and declare reads in `models/sources/*.yml`.
+3. **Alex dbt** implements **`TRANSFORM.DEV`** read-throughs and typed facts under `models/transform/dev/` where applicable.
+4. **REFERENCE.CATALOG** (`metric`, `dataset`, `bridge_product_type_metric`) must align with real column names after `DESCRIBE` / lineage — see [METRIC_INTAKE_CHECKLIST.md](../migration/METRIC_INTAKE_CHECKLIST.md).
+
+## 4. Grain and concepts
+
+See [VENDOR_CONCEPT_COVERAGE_MATRIX.md](../migration/VENDOR_CONCEPT_COVERAGE_MATRIX.md) for **`anchor_loans`** × concept × dataset gaps and stretch mappings.
+
+## 5. Field dictionary (machine-readable)
+
+| File | Description |
+|------|-------------|
+| `dictionary.csv` | Column/metric-level rows (extend per inventory). |
+| `dictionary.yaml` | Vendor-level metadata + empty `fields` list until filled. |
+
+## 6. Migration and QA
+
+No vendor-specific migration file is mapped in `generate_vendor_context_from_seed.py` yet. Use [`migration/VENDOR_CONCEPT_COVERAGE_MATRIX.md`](../migration/VENDOR_CONCEPT_COVERAGE_MATRIX.md) and [`migration/MIGRATION_REGISTRY_VENDORS_DATASETS_METRICS.md`](../migration/MIGRATION_REGISTRY_VENDORS_DATASETS_METRICS.md).
+
+## 7. Related rules
+
+- [OPERATING_MODEL.md](../OPERATING_MODEL.md)
+- [rules/TRANSFORM_VENDOR_DESIGN_PRINCIPLES.md](../rules/TRANSFORM_VENDOR_DESIGN_PRINCIPLES.md)
+
+---
+
+## Physical metrics summary (`vendor_metrics.csv`)
+
+| Metric | Value |
+|--------|-------|
+| **Unique physical columns** | 1 |
+| **Rows pointing at TRANSFORM.DEV / DEV paths** | 0 |
+| **Raw catalog metrics (metric.csv rows for this vendor)** | 0 |
+
+Long-form facts collapse many catalog `metric_id` values onto one `snowflake_column` (for example `VALUE` / `METRIC_VALUE`); use **`seeds/reference/catalog/metric.csv`** (this repo) or pretium-ai-dbt merged `metric.csv` for the full metric registry.
+
+---
+
+## Concept mapping (physical rows, first 50)
+
+| metric_id | concept_code | domain | direction | table_path | snowflake_column |
+|-----------|--------------|--------|-----------|------------|------------------|
+| ANCHOR_LOANS_MAN_6E9E1495 | pipeline | place | neutral | `SOURCE_ENTITY.ANCHOR_LOANS` | `TBD` |
+
+
+---
+
+## Join keys, refresh detection, limitations
+
+**[UNKNOWN — needs profiling]** unless the embedded methodology above states otherwise. Align postal vs ZCTA, CBSA vintages, and agency attribution (especially Cybersyn-sourced agency tables) before production joins.
+
+---
+
+## Changelog
+
+| Date | Commit | Notes |
+|------|--------|-------|
+| 2026-04-23 | `[auto]` | Full intake regeneration via `scripts/docs/generate_all_vendors_intake_full.py`. |

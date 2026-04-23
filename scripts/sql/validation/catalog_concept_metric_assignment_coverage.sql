@@ -4,6 +4,9 @@
 --   2) Flag concepts with no active metrics assigned
 --   3) Flag active metrics assigned to unknown concepts
 --
+-- Tall-store FK checks (metric_code + dataset_code on an observation table) live in
+-- scripts/sql/validation/catalog_tall_metric_code_coverage.sql once the physical table exists.
+--
 -- Usage (Snowflake):
 --   snowsql -f scripts/sql/validation/catalog_concept_metric_assignment_coverage.sql
 

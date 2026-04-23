@@ -58,6 +58,19 @@ fhfa_pick AS (
         PARTITION BY vendor_code, month_start, cbsa_id
         ORDER BY metric_id_observe
     ) = 1
+),
+
+fhfa_county_direct AS (
+    SELECT
+        DATE_TRUNC('month', f.date_reference)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(f.geo_id)), 5, '0') AS county_fips,
+        TRIM(TO_VARCHAR(f.variable)) AS metric_id_observe,
+        TRY_TO_DOUBLE(TO_VARCHAR(f.value)) AS metric_value
+    FROM {{ ref('fact_fhfa_mortgage_performance_county_monthly') }} AS f
+    WHERE f.date_reference IS NOT NULL
+      AND f.geo_id IS NOT NULL
+      AND f.value IS NOT NULL
+      AND REGEXP_LIKE(LOWER(TRIM(TO_VARCHAR(f.variable))), '{{ _delinq_rx }}')
 )
 
 SELECT
@@ -84,3 +97,29 @@ LEFT JOIN fhfa_pick AS h
    AND p.cbsa_id = h.cbsa_id
    AND p.metric_id_observe = h.metric_id_observe
    AND h.month_start = ADD_MONTHS(p.month_start, -12)
+
+UNION ALL
+
+SELECT
+    'delinquency' AS concept_code,
+    'FHFA_COUNTY' AS vendor_code,
+    c.month_start,
+    'county' AS geo_level_code,
+    c.county_fips AS geo_id,
+    CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+    c.county_fips,
+    SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+    TRUE AS has_census_geo,
+    'fact_fhfa_mortgage_performance_county_monthly' AS census_geo_source,
+    c.metric_id_observe,
+    CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('delinquency', 'current') }},
+    CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('delinquency', 'historical') }},
+    CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('delinquency', 'forecast') }},
+    CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+    CAST(NULL AS DATE) AS forecast_month_start,
+    CURRENT_TIMESTAMP() AS dbt_updated_at
+FROM fhfa_county_direct AS c
+LEFT JOIN fhfa_county_direct AS h
+    ON c.county_fips = h.county_fips
+   AND c.metric_id_observe = h.metric_id_observe
+   AND h.month_start = ADD_MONTHS(c.month_start, -12)

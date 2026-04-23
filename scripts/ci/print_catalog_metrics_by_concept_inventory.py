@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CONCEPT = ROOT / "seeds/reference/catalog/concept.csv"
+# Built **metric.csv** (REFERENCE slice). For full backlog by concept, point at **metric_raw.csv** instead.
 METRIC = ROOT / "seeds/reference/catalog/metric.csv"
 OUT = ROOT / "docs/migration/CATALOG_METRICS_BY_CONCEPT_INVENTORY.md"
 
@@ -35,7 +36,7 @@ def main() -> None:
         "",
         "**Generated:** `scripts/ci/print_catalog_metrics_by_concept_inventory.py` from `metric.csv` (active) × `concept.csv`.",
         "",
-        "**Naming:** single-token `concept_code` where practical (`homeprice`, `pipeline`, `education`, `automation`, `spine`, `underwriting`); `cap_rate` kept as a standard acronym.",
+        "**Naming:** single-token `concept_code` where practical (`homeprice`, `supply_pipeline`, `school_quality`, `listings`, `automation`, `spine`, `underwriting`); `cap_rate` kept as a standard acronym.",
         "",
         "| `concept_code` | Active MET rows | Promoted (`data_status_code=active`) | Distinct `table_path` (count) | Example `table_path` |",
         "|----------------|----------------:|---------------------------------------:|------------------------------:|------------------------|",

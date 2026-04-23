@@ -1,6 +1,0 @@
-deal_status_id,deal_status_code,deal_status_label,is_active_deal,sort_order,is_active,vertical_code,opco_code
-DLS_001,prospecting,Prospecting,TRUE,1,TRUE,,
-DLS_002,under_loi,Under LOI,TRUE,2,TRUE,,
-DLS_003,under_contract,Under Contract,TRUE,3,TRUE,,
-DLS_004,closed,Closed,FALSE,4,TRUE,,
-DLS_005,passed,Passed,FALSE,5,TRUE,,

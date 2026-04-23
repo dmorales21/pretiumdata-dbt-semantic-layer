@@ -101,7 +101,7 @@ def write_vendor_md(path: Path, row: dict[str, str], mig: str) -> None:
 | **source_schema** | `{row.get("source_schema", "")}` |
 | **is_active** | {row.get("is_active", "")} |
 | **data_share_type** | {row.get("data_share_type", "")} |
-| **is_motherduck_served** | {row.get("is_motherduck_served", "")} |
+| **MotherDuck served** | Derive from **`dataset`** rows (`is_motherduck_served` / `last_refresh_date`) for this `vendor_code` — not stored on **vendor**. |
 | **vertical_codes** | {row.get("vertical_codes", "") or "—"} |
 
 ## 3. Read path (methodology)

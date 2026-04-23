@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: catalog_enum
+    description: >
+      Unified lookup for small catalog enumerations. Physical relation **REFERENCE.CATALOG.ENUM**
+      (`alias='enum'`). Built from seed **`catalog_enum_source`** plus **frequency**, **asset_type**, and
+      **tenant_type** (first-class dimensions kept as separate seeds). FK **`relationships`** tests use
+      ephemeral **`erf__*`** models; see **docs/migration/ENUM_CONSOLIDATION_DBT_REFS.md**.
+    config:
+      contract:
+        enforced: false
+    columns:
+      - name: enum_table
+        description: Logical seed / table name (snake_case), e.g. absorption_tier, frequency.
+        tests: [not_null]
+      - name: code
+        description: Stable code column from the source enumeration.
+        tests: [not_null]
+      - name: label
+        description: Human-readable label from the source enumeration.
+        tests: [not_null]
+      - name: sort_order
+        description: Source sort_order when present; null for enumerations without ordering.
+      - name: range_min
+        description: Optional numeric lower bound when the source defines a paired min/max range.
+      - name: range_max
+        description: Optional numeric upper bound when the source defines a paired min/max range.
+      - name: is_active
+        description: Pass-through from source is_active when defined; true otherwise.
+        tests: [not_null]
+      - name: updated_at
+        description: Date the row was last built (run date).
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - enum_table
+              - code

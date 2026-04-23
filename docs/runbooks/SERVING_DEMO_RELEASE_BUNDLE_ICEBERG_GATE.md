@@ -2,7 +2,7 @@
 
 Treat each publish to **`SERVING.DEMO`** (and any Iceberg mirror) as a **release bundle**: **REFERENCE.CATALOG** seeds, **TRANSFORM / ANALYTICS** upstreams, thin **`demo_*`** views, **QA**, then the **replication job**. This runbook is the **minimal gate list** for **this repo** with **copy-paste `dbt` selectors**.
 
-**Related:** [`SERVING_DEMO_ICEBERG_TARGETS.md`](../reference/SERVING_DEMO_ICEBERG_TARGETS.md) (matrix + object intent), [`SCHEMA_RULES.md`](../rules/SCHEMA_RULES.md) **§6** (PROD must not read **`SERVING.DEMO`**), [`CONTRACT_RENT_AVM_VALUATION.md`](../reference/CONTRACT_RENT_AVM_VALUATION.md) (Cherre AVM snapshot / time truth).
+**Related:** [`SERVING_DEMO_ICEBERG_TARGETS.md`](../reference/SERVING_DEMO_ICEBERG_TARGETS.md) (matrix + object intent), [`SNOWFLAKE_ICEBERG_EXPORT_DUCKDB_BEST_PRACTICES.md`](../reference/SNOWFLAKE_ICEBERG_EXPORT_DUCKDB_BEST_PRACTICES.md) (Snowflake → Iceberg / Parquet export for DuckDB pushdown — applies to **`SERVING.DEMO`** / **`SERVING.ICEBERG`**), [`SCHEMA_RULES.md`](../rules/SCHEMA_RULES.md) **§6** (PROD must not read **`SERVING.DEMO`**), [`CONTRACT_RENT_AVM_VALUATION.md`](../reference/CONTRACT_RENT_AVM_VALUATION.md) (Cherre AVM snapshot / time truth).
 
 ---
 

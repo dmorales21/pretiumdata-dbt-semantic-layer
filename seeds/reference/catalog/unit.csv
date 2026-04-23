@@ -1,0 +1,12 @@
+unit_code,unit_label,is_active
+boolean,Boolean measure,TRUE
+bp,Basis points,TRUE
+count,Count / cardinality,TRUE
+days,Days (duration),TRUE
+index,Index (unitless scale),TRUE
+pct,Percent,TRUE
+ratio,Ratio (unitless),TRUE
+sqft,Square feet,TRUE
+usd,US dollars,TRUE
+varies,Mixed or vendor-specific unit,TRUE
+years,Years (duration),TRUE

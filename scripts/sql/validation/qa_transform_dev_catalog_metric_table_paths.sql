@@ -1,4 +1,5 @@
 -- QA: REFERENCE.CATALOG.METRIC rows that register TRANSFORM.DEV objects (FACT_ / CONCEPT_ / REF_*).
+-- Metrics whose table_path is ANALYTICS.* (e.g. MF ranker MET_146–MET_162 on FEATURE_MULTIFAMILY_MARKET_RANKER_MONTHLY) are intentionally out of scope here.
 -- Prerequisites: seeds deployed to REFERENCE.CATALOG (e.g. dbt seed --select path:seeds/reference/catalog).
 --
 -- This is NOT the same as ANALYTICS.DBT_STAGE.QA_* promotion-gate tables (see SCHEMA_RULES.md /

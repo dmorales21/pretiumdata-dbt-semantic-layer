@@ -25,6 +25,19 @@ laus_county AS (
       AND l.county_fips IS NOT NULL
       AND TRY_TO_NUMBER(TO_VARCHAR(l.measure_code)) = 5
       AND l.value IS NOT NULL
+),
+
+laus_state AS (
+    SELECT
+        DATE_TRUNC('month', TRY_TO_DATE(TO_VARCHAR(l.date_reference)))::DATE AS month_start,
+        LPAD(SUBSTRING(LPAD(TRIM(TO_VARCHAR(l.county_fips)), 5, '0'), 1, 2), 2, '0') AS state_fips,
+        SUM(TRY_TO_DOUBLE(TO_VARCHAR(l.value))) AS employment_value
+    FROM {{ ref('fact_bls_laus_county') }} AS l
+    WHERE l.date_reference IS NOT NULL
+      AND l.county_fips IS NOT NULL
+      AND TRY_TO_NUMBER(TO_VARCHAR(l.measure_code)) = 5
+      AND l.value IS NOT NULL
+    GROUP BY 1, 2
 )
 
 SELECT
@@ -73,4 +86,29 @@ SELECT
 FROM laus_county AS c
 LEFT JOIN laus_county AS h
     ON c.county_fips = h.county_fips
+   AND h.month_start = ADD_MONTHS(c.month_start, -12)
+
+UNION ALL
+
+SELECT
+    'employment' AS concept_code,
+    'BLS_LAUS_STATE' AS vendor_code,
+    c.month_start,
+    'state' AS geo_level_code,
+    c.state_fips AS geo_id,
+    CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+    CAST(NULL AS VARCHAR(8)) AS county_fips,
+    c.state_fips,
+    TRUE AS has_census_geo,
+    'fact_bls_laus_county_measure_5_state_sum' AS census_geo_source,
+    'bls_laus_state_employment' AS metric_id_observe,
+    CAST(c.employment_value AS DOUBLE) AS {{ concept_metric_slot('employment', 'current') }},
+    CAST(h.employment_value AS DOUBLE) AS {{ concept_metric_slot('employment', 'historical') }},
+    CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('employment', 'forecast') }},
+    CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+    CAST(NULL AS DATE) AS forecast_month_start,
+    CURRENT_TIMESTAMP() AS dbt_updated_at
+FROM laus_state AS c
+LEFT JOIN laus_state AS h
+    ON c.state_fips = h.state_fips
    AND h.month_start = ADD_MONTHS(c.month_start, -12)

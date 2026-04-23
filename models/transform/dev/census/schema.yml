@@ -28,8 +28,12 @@ models:
       area-weighted to **H3 R8** via **`source('h3_polyfill_bridges','bridge_bg_h3_r8_polyfill')`**. Grain **(cbsa_id, h3_r8_hex)**.
       No **TRANSFORM_PROD** / **ANALYTICS** dependencies — see MIGRATION_RULES.md and corridor smoke matrix §6.
 
-  - name: int_acs5_h3_r8_cbsa_demographics_rollups
+  - name: int_h3_r8_hex_dominant_county
     description: >
-      CBSA-level rollups from ``fact_census_acs5_h3_r8_snapshot`` (population-weighted LFPR, HH-weighted median HHI wavg,
-      summed population wavg, population-weighted vacancy **share** proxies). Feeds ``concept_income_market_annual``,
-      ``concept_labor_market_annual``, ``concept_population_market_annual``, ``concept_vacancy_market_monthly`` (ACS branch).
+      **Dominant county** per H3 R8 hex from BG→H3 polyfill weights (``source('h3_polyfill_bridges','bridge_bg_h3_r8_polyfill')``).
+      County FIPS = first five characters of ``bg_geoid``. Used for ACS county rollups and H3 transaction facts assigned to county.
+
+  - name: int_acs5_h3_r8_county_demographics_rollups
+    description: >
+      County-level weighted rollups of ``fact_census_acs5_h3_r8_snapshot`` after mapping each hex to ``int_h3_r8_hex_dominant_county``.
+      Same methodology as ``int_acs5_h3_r8_cbsa_demographics_rollups`` plus population-weighted ``school_age_share`` and ``bachelors_plus_share``.

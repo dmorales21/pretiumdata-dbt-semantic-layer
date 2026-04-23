@@ -19,155 +19,76 @@ sources:
       Owner: Alex. Seeded via dbt seed --target reference.
 
     tables:
-      # Wave 1 — no FK dependencies
+      # Wave 1 — core dimensions + consolidated small enums (single tall seed)
       - name: vertical
         description: Investment vertical registry (RED, REQ, RESI)
+      - name: domain
+        description: >
+          Concept domain vocabulary (capital, housing, household, place, portfolio). CONCEPT.domain FK;
+          see docs/rules/CONCEPT_DOMAIN_POLICY.md
       - name: frequency
         description: Canonical time grain vocabulary
       - name: geo_level
         description: Canonical geography grain vocabulary; property through national
-      - name: data_status
-        description: Lifecycle status governing read and promotion permissions
-      - name: metric_category
-        description: Leading / lagging / coincident classification for IC scoring
-      - name: risk_rating
-        description: Risk rating with max LTV ceiling for underwriting
-      - name: rate_type
-        description: Interest rate type (fixed, floating, hybrid)
+      - name: catalog_enum_source
+        description: >
+          Tall merged seed for ~57 small enumerations (data_status, tiers, types, statuses) that were
+          previously separate CSVs. **`catalog_enum`** unions this with **frequency**, **asset_type**, and
+          **tenant_type**. dbt **`relationships`** tests use ephemeral **`erf__*`** models over this seed;
+          see **docs/migration/ENUM_CONSOLIDATION_DBT_REFS.md** and **scripts/reference/catalog/build_catalog_enum_source_seed.py**.
+      - name: asset_type
+        description: Asset scope for an offering (property portfolio or geography-first); unioned into **ENUM**
+      - name: tenant_type
+        description: B2B consumer class for governed analytics access (IC internal DS OpCo demo); unioned into **ENUM**
 
       # Wave 2 — depend on Wave 1
       - name: product_type
         description: Investment product type with vertical, SFR/MF flags, bedroom defaults
+      - name: unit
+        description: Canonical metric unit codes; FK target for **metric.unit** / **metric_raw.unit**
+      - name: bedroom_type
+        description: Bedroom-band vocabulary; **bridge_product_type_bedroom_type** is authoring source for product ↔ bedroom scope
+      - name: bridge_product_type_bedroom_type
+        description: Bridge product_type_code → bedroom_type_code + sort_order (machine-syncs **product_type.bedroom_type_codes** until column drop)
       - name: concept
-        description: Canonical concept vocabulary with supported grain and frequency
-      - name: function
-        description: Controlled vocabulary for FEATURE function types
-      - name: model_type
-        description: Controlled vocabulary for MODEL types
-      - name: estimate_type
-        description: Controlled vocabulary for ESTIMATE types with scenario grouping
-      - name: hold_period
-        description: Investment hold period classification
-      - name: exit_strategy
-        description: Investment exit strategy classification
-      - name: amenity_tier
-        description: Property amenity quality classification
-      - name: rent_tier
-        description: Monthly rent band classification; product-type-specific
-      - name: ltv_tier
-        description: Loan-to-value ratio tier classification
-      - name: market_tier
-        description: Primary / secondary / tertiary market classification
-      - name: flood_zone
-        description: FEMA flood zone classification
-      - name: natural_hazard_type
-        description: Natural hazard type with FEMA NRI tracking flag
+        description: Canonical concept vocabulary; supported grains / frequencies / verticals live in bridge seeds concept_geo_level, concept_frequency, concept_vertical
+      - name: concept_geo_level
+        description: Bridge concept_code → geo_level_code (replaces CONCEPT.geo_level_codes)
+      - name: concept_frequency
+        description: Bridge concept_code → frequency_code (replaces CONCEPT.frequency_codes)
+      - name: concept_vertical
+        description: Bridge concept_code → vertical_code (replaces CONCEPT.vertical_codes; all-verticals = cross join)
+      - name: concept_explanation
+        description: >
+          Canonical prose for each concept (description, definition, explanation); promoted from REFERENCE.DRAFT.
 
-      # Wave 3 — depend on Wave 2
+      # Wave 3 — opco (no longer depends on class / loan ladder seeds as separate tables)
       - name: opco
         description: Operating company registry; unit_count requires manual population
-      - name: class
-        description: Property class A+ through D with amenity and rent tier linkage
-      - name: investment_strategy
-        description: Core / core-plus / value-add / opportunistic with hold and exit linkage
-      - name: loan_type
-        description: Loan type with rate type and LTV tier linkage
-      - name: score_tier
-        description: Composite score tier linked to risk rating
-      - name: insurance_type
-        description: Insurance type with required flag and hazard linkage
-      - name: construction_status
-        description: Supply pipeline construction status
-      - name: vacancy_tier
-        description: Vacancy rate tier; product-type-specific
-      - name: cap_rate_tier
-        description: Cap rate band; vertical-specific
 
-      # Wave 4 — depend on Wave 3
+      # Wave 4 — business_team (independent of former Wave 3 enum ladder)
       - name: business_team
         description: Consumer team registry with Snowflake role and MotherDuck access flag
-      - name: geography_status
-        description: IC-approved acquisition status per geography
-      - name: deal_status
-        description: Deal pipeline status classification
-      - name: delinquency_bucket
-        description: Rent delinquency aging bucket classification
-      - name: portfolio_size_tier
-        description: Portfolio unit count tier classification
-      - name: renovation_type
-        description: Renovation scope with cost PSF range for underwriting
-      - name: property_condition
-        description: Physical condition with capex multiplier for underwriting
-
-      # Wave 5 — no FK dependencies
-      - name: absorption_tier
-        description: Absorption rate tier classification
-      - name: bath_type
-        description: Bathroom count classification
-      - name: bedroom_type
-        description: Bedroom count with SFR/MF applicability flags
-      - name: crime_tier
-        description: Crime index tier; safest=1
-      - name: dscr_tier
-        description: Debt service coverage ratio tier
-      - name: employment_sector
-        description: Employment sector with NAICS code and demand weight
-      - name: hoa_type
-        description: HOA type with dues and underwriting impact flags
-      - name: income_band
-        description: Household income band aligned with ACS tiers; includes AMI pct
-      - name: lease_term
-        description: Lease term classification
-      - name: market_cycle_phase
-        description: Mueller market cycle phase with vacancy and rent direction indicators
-      - name: market_status
-        description: IC-level market lifecycle status; controls acquisition permissions
-      - name: migration_type
-        description: Migration flow type classification
-      - name: noi_tier
-        description: Net operating income tier classification
-      - name: occupancy_status
-        description: Operational unit occupancy status with revenue flag
-      - name: ownership_type
-        description: Owner entity type for competitive supply analysis
-      - name: parking_type
-        description: Parking type classification
-      - name: permit_type
-        description: Building permit type with supply signal flag
-      - name: population_segment
-        description: Generational cohort with renter propensity flag
-      - name: price_tier
-        description: Acquisition price tier classification
-      - name: promotion_gate
-        description: DEV/STAGE/PROD gate rules; enforces QA requirements and row count minimums
-      - name: school_rating_tier
-        description: School quality tier based on GreatSchools 1-10 scale
-      - name: tenancy
-        description: Occupancy/tenancy status classification
-      - name: transit_score_tier
-        description: Transit Score tier classification
-      - name: units_in_structure
-        description: ACS-aligned units-in-structure classification
-      - name: utility_type
-        description: Utility type with owner vs tenant paid flag
-      - name: vintage
-        description: Construction decade with default capex PSF for underwriting
-      - name: walk_score_tier
-        description: Walk Score tier classification
-      - name: zoning_type
-        description: Zoning classification with residential and ADU flags
 
       # Wave 6 — manual population required before seeding
       - name: vendor
         description: Vendor registry; populate manually before seeding
       - name: dataset
         description: Dataset registry; populate after vendor; one row per vendor x concept x geo x frequency
+      - name: dataset_product_type
+        description: Bridge dataset_code → product_type_code (replaces DATASET.product_type_codes)
+      - name: dataset_vertical
+        description: Bridge dataset_code → vertical_code (replaces DATASET.vertical_codes)
+      - name: metric_raw
+        description: >
+          Bulk / hand-maintained metric backlog (FACT + non-FACT registrations). Built **metric** seed
+          is generated from this file — see **docs/reference/METRIC_CSV_BUILD_SPEC.md**.
       - name: metric
-        description: Metric registry; populate after dataset; requires snowflake_column and table_path
+        description: Metric registry (generated from metric_raw + FK closure); populate after dataset; requires snowflake_column and table_path
       - name: metric_derived
         description: >
           Analytics-layer metric registry (FEATURE_* / MODEL_* / ESTIMATE_* logical outputs).
-          Depends on function, model_type, estimate_type, metric, concept, geo_level, frequency, data_status.
+          Depends on catalog_enum_source (via FK tests / erf__*), metric, concept, geo_level, frequency.
           Layout doc: docs/reference/CATALOG_METRIC_DERIVED_LAYOUT.md
 
       - name: metric_derived_input
@@ -186,11 +107,7 @@ sources:
           REFERENCE.CATALOG.wishlist — not-yet-deliverable items (concept chains, infra, catalog gaps).
           Doc: docs/reference/CATALOG_WISHLIST.md
 
-      # Wave 7 — tearsheet / offering (B2B tenant_type; not unit occupancy tenancy)
-      - name: tenant_type
-        description: B2B consumer class for governed analytics access (IC internal DS OpCo demo)
-      - name: asset_type
-        description: Asset scope for an offering (property portfolio or geography-first)
+      # Wave 7 — tearsheet / offering (seed **asset_type** / **tenant_type** in Wave 1 before `catalog_enum`)
       - name: offering
         description: Commercial analytics offering distinct from dataset vendor x concept grain
       - name: bridge_offering_product_type
@@ -203,3 +120,6 @@ sources:
         description: Product type to metric linkage; populate after metric seed has rows
       - name: offering_signal_relevance
         description: Concept-level signal relevance per offering until metric grain is authoritative
+      - name: concept_offering_weight
+        description: >
+          Presley offering × concept numeric weights (0–5); matrix YAML in offering_concept_weight_matrix.yml

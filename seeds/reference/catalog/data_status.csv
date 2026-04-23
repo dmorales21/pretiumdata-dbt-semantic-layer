@@ -1,5 +1,0 @@
-data_status_id,data_status_code,data_status_label,allows_read,allows_promotion,description,is_active
-DS_001,active,Active,TRUE,TRUE,Object is current and available for all downstream use,TRUE
-DS_002,deprecated,Deprecated,TRUE,FALSE,Superseded but retained for lineage; do not use in new models,TRUE
-DS_003,under_review,Under Review,TRUE,FALSE,Quality or coverage concern flagged; use with caution,TRUE
-DS_004,blocked,Blocked,FALSE,FALSE,Do not read; data quality failure or contract issue,TRUE

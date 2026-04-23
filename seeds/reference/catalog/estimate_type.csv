@@ -1,7 +1,0 @@
-estimate_type_id,estimate_type_code,estimate_type_label,is_interval,scenario_group,sort_order,is_active
-EST_001,point,Point Estimate,FALSE,,1,TRUE
-EST_002,lower,Lower Bound,TRUE,,2,TRUE
-EST_003,upper,Upper Bound,TRUE,,3,TRUE
-EST_004,scenario_base,Base Scenario,FALSE,base,4,TRUE
-EST_005,scenario_bull,Bull Scenario,FALSE,bull,5,TRUE
-EST_006,scenario_bear,Bear Scenario,FALSE,bear,6,TRUE

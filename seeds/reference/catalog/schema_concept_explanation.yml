@@ -1,0 +1,38 @@
+version: 2
+
+seeds:
+  - name: concept_explanation
+    description: >
+      Canonical prose contract for concept semantics (description / definition / explanation).
+      Promoted from REFERENCE.DRAFT.concept_explanations; physical table **REFERENCE.CATALOG.CONCEPT_EXPLANATION**.
+    config:
+      schema: CATALOG
+    columns:
+      - name: concept_id
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('concept')
+                field: concept_id
+      - name: domain_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('domain')
+                field: domain_code
+      - name: concept_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('concept')
+                field: concept_code
+      - name: description
+        tests: [not_null]
+      - name: definition
+        tests: [not_null]
+      - name: explanation
+        tests: [not_null]

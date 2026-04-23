@@ -1,0 +1,67 @@
+# Anchor Tear Sheet metric dictionary — single source for appendix / payload_json.metadata.metric_definitions
+# Payload builder should inject these into payload so renderer only displays what's in the payload.
+# See: docs/governance/ANCHOR_TEAR_SHEET_PR_PLAN_CONTRACTS_AND_OPS.md §6
+
+metrics:
+  - metric_name: location_hbf_market_score
+    definition: "Pretium HBF market score at ZIP (0–100 or normalized)."
+    source_table: "EDW_PROD.DELIVERY.V_ANCHOR_DEAL_SCREENER (from capital_cap_economy fact)"
+    logic_owner: DELIVERY
+    unit: score
+    format: integer
+
+  - metric_name: location_school_district_rank
+    definition: "School district / education quality score at ZIP."
+    source_table: "fact_place_plc_education_all_ts"
+    logic_owner: DELIVERY
+    unit: score
+    format: decimal
+
+  - metric_name: location_crime_rating_range
+    definition: "Crime rating or safety score at ZIP."
+    source_table: "fact_place_plc_safety_all_ts"
+    logic_owner: DELIVERY
+    unit: score
+    format: decimal
+
+  - metric_name: housing_median_sale_price
+    definition: "Median sale price (ZIP), typically Redfin or ParclLabs."
+    source_table: "housing_hou_pricing_all_ts"
+    logic_owner: DELIVERY
+    unit: USD
+    format: currency
+
+  - metric_name: housing_months_of_supply
+    definition: "Months of supply (ZIP), inventory metric."
+    source_table: "housing_hou_inventory_all_ts"
+    logic_owner: DELIVERY
+    unit: months
+    format: decimal
+
+  - metric_name: housing_median_dom
+    definition: "Median days on market (ZIP)."
+    source_table: "housing_hou_demand_all_ts"
+    logic_owner: DELIVERY
+    unit: days
+    format: integer
+
+  - metric_name: demographics_population
+    definition: "Population at ZIP."
+    source_table: "household_hh_demographics_all_ts"
+    logic_owner: DELIVERY
+    unit: count
+    format: integer
+
+  - metric_name: demographics_median_hh_income
+    definition: "Median household income at ZIP."
+    source_table: "household_hh_demographics_all_ts"
+    logic_owner: DELIVERY
+    unit: USD
+    format: currency
+
+  - metric_name: portfolio_progress_homes_10mi
+    definition: "Count of Progress portfolio properties within 10 miles (haversine)."
+    source_table: "TRANSFORM_PROD.REF.UNIFIED_PORTFOLIO + DEALS lat/lon"
+    logic_owner: DELIVERY
+    unit: count
+    format: integer

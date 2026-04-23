@@ -12,5 +12,18 @@ sources:
     tables:
       - name: rent_property_cbsa_monthly
         identifier: RENT_PROPERTY_CBSA_MONTHLY
+      - name: rent_property
+        identifier: RENT_PROPERTY
+        description: >
+          Property-level Markerr rent / listing long grain (Jon silver). Use for county or custom rollups
+          when CBSA monthly aggregates are insufficient; heavy table — filter aggressively.
+      - name: rent_property_monthly
+        identifier: RENT_PROPERTY_MONTHLY
+        description: >
+          Property × month rent series (Jon silver). Companion to **rent_property** at monthly cadence.
+      - name: rent_listings
+        identifier: RENT_LISTINGS
+        description: >
+          Listings-level rent feed (Jon silver). Pair with **FACT_MARKERR_RENT_LISTINGS_COUNTY_MONTHLY** for county rollups.
       - name: markerr_rent_sfr
         identifier: MARKERR_RENT_SFR

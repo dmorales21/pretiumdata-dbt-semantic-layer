@@ -1,6 +1,0 @@
-risk_rating_id,risk_rating_code,risk_rating_label,sort_order,is_active,max_ltv_pct
-RSK_001,low,Low,1,TRUE,75.0
-RSK_002,moderate,Moderate,2,TRUE,70.0
-RSK_003,elevated,Elevated,3,TRUE,65.0
-RSK_004,high,High,4,TRUE,55.0
-RSK_005,critical,Critical,5,TRUE,45.0

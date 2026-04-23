@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  # SOURCE_PROD.JBREC — John Burns BTR / apartment panels (Jon load; cleaning in **fact_jbrec_btr_rent_occupancy_cleaned**).
+  - name: jbrec
+    database: SOURCE_PROD
+    schema: JBREC
+    tables:
+      - name: btr_rent_and_occupancy
+        description: >
+          BBTRI BTR rent and occupancy panel (metro text dates, currency strings, % strings).
+          Canonical parsing: **pretium-ai-dbt** ``cleaned_jbrec_btr_rent_and_occupancy.sql`` — mirrored here in **fact_jbrec_btr_rent_occupancy_cleaned**.
+          Raw read-through: **fact_jbrec_btr_rent_occupancy** (vendor-native columns).
+      - name: sfr_metro
+        description: "Single-family rental metro panel (legacy John Burns / JBREC table)."

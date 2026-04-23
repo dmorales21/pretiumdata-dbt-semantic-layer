@@ -6,5 +6,9 @@
     tags=['transform', 'transform_dev', 'bls', 'fact_bls', 'laus'],
 ) }}
 
-SELECT *
-FROM {{ source('bls_transform', 'laus_county') }}
+SELECT
+    src.* REPLACE (
+        LPAD(TRIM(TO_VARCHAR(src.county_fips)), 5, '0') AS county_fips
+    ),
+    'county'::varchar AS geo_level_code
+FROM {{ source('bls_transform', 'laus_county') }} AS src

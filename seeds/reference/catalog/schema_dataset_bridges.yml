@@ -1,0 +1,64 @@
+version: 2
+
+seeds:
+  - name: dataset_product_type
+    description: >
+      **Authoring source** for dataset ↔ product-type scope. **dataset.product_type_codes** is
+      machine-synced from this bridge (frozen for humans) via
+      **scripts/reference/catalog/sync_dataset_product_type_from_bridge.py** until the comma column is
+      dropped in a follow-up PR (same pattern as **dataset_vertical** replacing **vertical_codes**).
+    config:
+      schema: CATALOG
+      # Snowflake must keep slugs as VARCHAR (legacy tables sometimes inferred numeric columns).
+      column_types:
+        dataset_code: varchar(256)
+        product_type_code: varchar(64)
+    columns:
+      - name: dataset_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dataset')
+                field: dataset_code
+      - name: product_type_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('product_type')
+                field: product_type_code
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - dataset_code
+              - product_type_code
+
+  - name: dataset_vertical
+    description: >
+      Bridge **dataset_code** → **vertical_code** (replaces comma-delimited DATASET.vertical_codes
+      and legacy mis-filed vertical tokens that lived in **product_type_codes**).
+    config:
+      schema: CATALOG
+    columns:
+      - name: dataset_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dataset')
+                field: dataset_code
+      - name: vertical_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('vertical')
+                field: vertical_code
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - dataset_code
+              - vertical_code

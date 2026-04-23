@@ -62,6 +62,48 @@ laus_county_long AS (
         metric_value
     FROM laus_county_base
     WHERE measure_code = 4
+),
+
+laus_state_base AS (
+    SELECT
+        DATE_TRUNC('month', TRY_TO_DATE(TO_VARCHAR(l.date_reference)))::DATE AS month_start,
+        LPAD(SUBSTRING(LPAD(TRIM(TO_VARCHAR(l.county_fips)), 5, '0'), 1, 2), 2, '0') AS state_fips,
+        TRY_TO_NUMBER(TO_VARCHAR(l.measure_code)) AS measure_code,
+        TRY_TO_DOUBLE(TO_VARCHAR(l.value)) AS metric_value
+    FROM {{ ref('fact_bls_laus_county') }} AS l
+    WHERE l.date_reference IS NOT NULL
+      AND l.county_fips IS NOT NULL
+      AND TRY_TO_NUMBER(TO_VARCHAR(l.measure_code)) IN (4, 6)
+      AND l.value IS NOT NULL
+),
+
+laus_state_agg AS (
+    SELECT
+        month_start,
+        state_fips,
+        SUM(IFF(measure_code = 4, metric_value, 0)) AS unemployed_persons,
+        SUM(IFF(measure_code = 6, metric_value, 0)) AS labor_force
+    FROM laus_state_base
+    GROUP BY 1, 2
+),
+
+laus_state_long AS (
+    SELECT
+        month_start,
+        state_fips,
+        'bls_laus_state_unemployment_rate' AS metric_id_observe,
+        unemployed_persons / NULLIF(labor_force, 0) AS metric_value
+    FROM laus_state_agg
+    WHERE labor_force IS NOT NULL
+      AND labor_force > 0
+    UNION ALL
+    SELECT
+        month_start,
+        state_fips,
+        'bls_laus_state_unemployed_persons' AS metric_id_observe,
+        unemployed_persons AS metric_value
+    FROM laus_state_agg
+    WHERE unemployed_persons IS NOT NULL
 )
 
 SELECT
@@ -111,5 +153,31 @@ SELECT
 FROM laus_county_long AS c
 LEFT JOIN laus_county_long AS h
     ON c.county_fips = h.county_fips
+   AND c.metric_id_observe = h.metric_id_observe
+   AND h.month_start = ADD_MONTHS(c.month_start, -12)
+
+UNION ALL
+
+SELECT
+    'unemployment' AS concept_code,
+    'BLS_LAUS_STATE' AS vendor_code,
+    c.month_start,
+    'state' AS geo_level_code,
+    c.state_fips AS geo_id,
+    CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+    CAST(NULL AS VARCHAR(8)) AS county_fips,
+    c.state_fips,
+    TRUE AS has_census_geo,
+    'fact_bls_laus_county_measures_4_6_state_agg' AS census_geo_source,
+    c.metric_id_observe,
+    CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('unemployment', 'current') }},
+    CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('unemployment', 'historical') }},
+    CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('unemployment', 'forecast') }},
+    CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+    CAST(NULL AS DATE) AS forecast_month_start,
+    CURRENT_TIMESTAMP() AS dbt_updated_at
+FROM laus_state_long AS c
+LEFT JOIN laus_state_long AS h
+    ON c.state_fips = h.state_fips
    AND c.metric_id_observe = h.metric_id_observe
    AND h.month_start = ADD_MONTHS(c.month_start, -12)

@@ -1,11 +1,14 @@
 {#-
-  **Vacancy** — monthly CBSA.
+  **Vacancy** — monthly **CBSA** plus **county** (HUD county slice).
 
   - **HUD (Cybersyn)** — ``fact_hud_housing_series_cbsa_monthly`` plus county → CBSA rollup via ``geography_latest``
-    (same pattern as ``concept_migration_market_annual``). Series filter: ``concept_vacancy_market_hud_variable_regex``
+    (same pattern as ``concept_migration_market_annual``). **County grain:** direct rows from
+    ``fact_hud_housing_series_county_monthly`` (``geo_level_code = county``, ``vendor_code = HUD_CYBERSYN_COUNTY``).
+    Series filter: ``concept_vacancy_market_hud_variable_regex``
     (default emphasizes **vacancy** / **vacant**, not occupancy-only HUD labels — adjust if your Cybersyn slice differs).
 
-  - **ACS5 H3 snapshot (annual anchor)** — CBSA rollups from ``int_acs5_h3_r8_cbsa_demographics_rollups`` for
+  - **ACS5 H3 snapshot (annual anchor)** — **CBSA** rollups from ``int_acs5_h3_r8_cbsa_demographics_rollups`` and
+    **county** rollups from ``int_acs5_h3_r8_county_demographics_rollups`` (hex→dominant-county mapping) for
     ``total_vacant_share_wavg``, ``vacant_for_rent_share_wavg``, ``for_sale_vacant_share_wavg`` (population-weighted
     hex blend; **Dec 31** of ``concept_acs5_cbsa_reference_year``). These rows are **annual** values keyed on that
     month_start; YoY join uses ``DATEADD(year, -1, month_start)``.
@@ -92,6 +95,32 @@ acs_vacancy_unpivot AS (
     WHERE r.for_sale_vacant_share_wavg IS NOT NULL
 ),
 
+acs_vacancy_unpivot_county AS (
+    SELECT
+        DATE_FROM_PARTS({{ _yr }}, 12, 31)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(r.county_fips)), 5, '0') AS county_fips,
+        'census_acs5_h3_r8_total_vacant_share_wavg' AS metric_id_observe,
+        r.total_vacant_share_wavg AS metric_value
+    FROM {{ ref('int_acs5_h3_r8_county_demographics_rollups') }} AS r
+    WHERE r.total_vacant_share_wavg IS NOT NULL
+    UNION ALL
+    SELECT
+        DATE_FROM_PARTS({{ _yr }}, 12, 31)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(r.county_fips)), 5, '0') AS county_fips,
+        'census_acs5_h3_r8_vacant_for_rent_share_wavg' AS metric_id_observe,
+        r.vacant_for_rent_share_wavg AS metric_value
+    FROM {{ ref('int_acs5_h3_r8_county_demographics_rollups') }} AS r
+    WHERE r.vacant_for_rent_share_wavg IS NOT NULL
+    UNION ALL
+    SELECT
+        DATE_FROM_PARTS({{ _yr }}, 12, 31)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(r.county_fips)), 5, '0') AS county_fips,
+        'census_acs5_h3_r8_for_sale_vacant_share_wavg' AS metric_id_observe,
+        r.for_sale_vacant_share_wavg AS metric_value
+    FROM {{ ref('int_acs5_h3_r8_county_demographics_rollups') }} AS r
+    WHERE r.for_sale_vacant_share_wavg IS NOT NULL
+),
+
 acs_vacancy AS (
     SELECT
         'CENSUS_ACS5_H3_CBSA' AS vendor_code,
@@ -106,6 +135,20 @@ vacancy_union AS (
     SELECT * FROM hud_union
     UNION ALL
     SELECT * FROM acs_vacancy
+),
+
+hud_county_direct AS (
+    SELECT
+        DATE_TRUNC('month', f.date_reference)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(f.geo_id)), 5, '0') AS county_fips,
+        TRIM(TO_VARCHAR(f.variable)) AS metric_id_observe,
+        TRY_TO_DOUBLE(TO_VARCHAR(f.value)) AS metric_value
+    FROM {{ ref('fact_hud_housing_series_county_monthly') }} AS f
+    WHERE f.date_reference IS NOT NULL
+      AND f.geo_id IS NOT NULL
+      AND f.value IS NOT NULL
+      AND f.variable IS NOT NULL
+      AND REGEXP_LIKE(LOWER(TRIM(TO_VARCHAR(f.variable))), '{{ _hud_rx }}')
 )
 
 SELECT
@@ -135,3 +178,55 @@ LEFT JOIN vacancy_union AS h
        WHEN v.vendor_code = 'CENSUS_ACS5_H3_CBSA' THEN DATEADD('year', -1, v.month_start)
        ELSE ADD_MONTHS(v.month_start, -12)
    END
+
+UNION ALL
+
+SELECT
+    'vacancy' AS concept_code,
+    'HUD_CYBERSYN_COUNTY' AS vendor_code,
+    c.month_start,
+    'county' AS geo_level_code,
+    c.county_fips AS geo_id,
+    CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+    c.county_fips,
+    SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+    TRUE AS has_census_geo,
+    'fact_hud_housing_series_county_monthly' AS census_geo_source,
+    c.metric_id_observe,
+    CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('vacancy', 'current') }},
+    CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('vacancy', 'historical') }},
+    CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('vacancy', 'forecast') }},
+    CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+    CAST(NULL AS DATE) AS forecast_month_start,
+    CURRENT_TIMESTAMP() AS dbt_updated_at
+FROM hud_county_direct AS c
+LEFT JOIN hud_county_direct AS h
+    ON c.county_fips = h.county_fips
+   AND c.metric_id_observe = h.metric_id_observe
+   AND h.month_start = ADD_MONTHS(c.month_start, -12)
+
+UNION ALL
+
+SELECT
+    'vacancy' AS concept_code,
+    'CENSUS_ACS5_H3_COUNTY' AS vendor_code,
+    c.month_start,
+    'county' AS geo_level_code,
+    c.county_fips AS geo_id,
+    CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+    c.county_fips,
+    SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+    TRUE AS has_census_geo,
+    'int_acs5_h3_r8_county_demographics_rollups' AS census_geo_source,
+    c.metric_id_observe,
+    CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('vacancy', 'current') }},
+    CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('vacancy', 'historical') }},
+    CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('vacancy', 'forecast') }},
+    CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+    CAST(NULL AS DATE) AS forecast_month_start,
+    CURRENT_TIMESTAMP() AS dbt_updated_at
+FROM acs_vacancy_unpivot_county AS c
+LEFT JOIN acs_vacancy_unpivot_county AS h
+    ON c.county_fips = h.county_fips
+   AND c.metric_id_observe = h.metric_id_observe
+   AND h.month_start = DATEADD('year', -1, c.month_start)

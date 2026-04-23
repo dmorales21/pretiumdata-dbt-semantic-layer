@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"/><title>BLOCKED — LIBERTY_HILLS</title></head><body>
+<h1>BLOCKED — Missing required geography resolution</h1>
+<p><strong>Deal:</strong> LIBERTY_HILLS</p>
+<p>This artifact is not a tear sheet. Do not use for underwriting. Key underwriting inputs are missing or unresolved.</p>
+
+<h2>Structured (machine-actionable)</h2>
+<pre id="blocked-structured" data-blocked-reason-code="" data-resolver-stage-failed="">{
+  "blocked_reason_code": "",
+  "blocked_reason_detail": {},
+  "resolver_stage_failed": "",
+  "missing_critical": [
+    "latitude",
+    "longitude",
+    "cbsa_code",
+    "(at least one of: location_school_district_rank, location_crime_rating_range)"
+  ],
+  "deal_id": "LIBERTY_HILLS"
+}</pre>
+
+<h2>Missing required (joinability gate)</h2>
+<ul>
+<li>latitude</li>
+<li>longitude</li>
+<li>cbsa_code</li>
+<li>(at least one of: location_school_district_rank, location_crime_rating_range)</li>
+</ul>
+<p><strong>Reason code:</strong> {reason_code} &emsp; <strong>Resolver stage failed:</strong> {resolver_stage}</p>
+
+<h2>Debug — geography</h2>
+<p>{debug_geo}</p>
+
+<h2>Coverage (section status)</h2>
+<table border="1"><thead><tr><th>Section</th><th>Status</th></tr></thead><tbody>
+<tr><td>retailers</td><td>STUB</td></tr>
+<tr><td>comps</td><td>STUB</td></tr>
+<tr><td>starts_closings</td><td>STUB</td></tr>
+<tr><td>school</td><td>STUB</td></tr>
+<tr><td>crime</td><td>STUB</td></tr>
+</tbody></table>
+<p>LIVE = data present; STUB = empty/placeholder; MISSING_SOURCE = source not available.</p>
+
+<h2>Next actions</h2>
+
+<ul>
+<li>Fix canon coverage: ensure H3_XWALK_6810_CANON covers deal geography, or use alternate CBSA/ZIP resolver (Census TIGER / Overture boundary).</li>
+<li>Enrich Anchor deals table with CBSA/ZIP at ingest (geocode + resolve once at write time).</li>
+<li>Add fallback resolver path: lat/lon → CBSA via polygon containment (Census ZCTA + CBSA shapes) when canon misses.</li>
+</ul>
+
+<p>Do not generate a tear sheet PDF until stop_ship passes and coverage is acceptable.</p>
+</body></html>

@@ -1,7 +1,0 @@
-insurance_type_id,insurance_type_code,insurance_type_label,is_required,sort_order,is_active,hazard_type_code
-INS_001,hazard,Hazard,TRUE,1,TRUE,
-INS_002,flood,Flood,FALSE,2,TRUE,flood
-INS_003,wind,Wind/Hurricane,FALSE,3,TRUE,hurricane
-INS_004,earthquake,Earthquake,FALSE,4,TRUE,earthquake
-INS_005,liability,General Liability,TRUE,5,TRUE,
-INS_006,title,Title,TRUE,6,TRUE,

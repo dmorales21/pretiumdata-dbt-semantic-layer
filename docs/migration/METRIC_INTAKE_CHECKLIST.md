@@ -3,9 +3,11 @@
 **Owner:** Alex  
 **Status:** **canonical index** (single entry point; detailed gates below).
 
-**Authoritative `metric` seed:** only **`pretiumdata-dbt-semantic-layer/pretiumdata-dbt-semantic-layer/seeds/reference/catalog/metric.csv`** — not copies under **pretium-ai-dbt**. Vendor-by-vendor formatting, SoT policy, and execution steps: **`MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md`**.
+**Authoritative backlog:** **`seeds/reference/catalog/metric_raw.csv`** (hand edits + `scripts/sync_metric_csv_from_pretium_ai_dbt.py`). **Built `metric` seed:** **`seeds/reference/catalog/metric.csv`** — **generated** by **`scripts/reference/catalog/build_metric_csv_from_metric_raw.py`** before `dbt seed` / CI (`docs/reference/METRIC_CSV_BUILD_SPEC.md`). Do not edit **`metric.csv`** directly in PRs unless the generator output is intentional.
 
-Use this path before adding or renaming **`metric`**, **`metric_derived`**, **`dataset`**, or other **`REFERENCE.CATALOG`** seeds consumed by **`FACT_*` / `FEATURE_*` / `MODEL_*` / `ESTIMATE_*`**.
+**Tall concept observations:** every emitted **`metric_code`** on a tall **TRANSFORM.DEV** table must exist on an active **`METRIC`** row; add the FACT/CONCEPT registration to **`metric_raw`**, re-run the generator, then ship the dbt model. Row contract: **`docs/reference/CONCEPT_OBSERVATION_TALL_ROW_CONTRACT.md`**.
+
+Use this path before adding or renaming **`metric`**, **`metric_raw`**, **`metric_derived`**, **`dataset`**, or other **`REFERENCE.CATALOG`** seeds consumed by **`FACT_*` / `FEATURE_*` / `MODEL_*` / `ESTIMATE_*`**.
 
 ## Checklist (order)
 

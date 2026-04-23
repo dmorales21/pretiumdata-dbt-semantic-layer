@@ -1,6 +1,0 @@
-walk_score_tier_id,walk_score_tier_code,walk_score_tier_label,score_min,score_max,sort_order,is_active
-WLK_001,walkers_paradise,Walker's Paradise,90,100,1,TRUE
-WLK_002,very_walkable,Very Walkable,70,89,2,TRUE
-WLK_003,walkable,Walkable,50,69,3,TRUE
-WLK_004,some_errands,Some Errands on Foot,25,49,4,TRUE
-WLK_005,car_dependent,Car-Dependent,0,24,5,TRUE

@@ -26,21 +26,21 @@ seeds:
         tests:
           - relationships:
               arguments:
-                to: ref('function')
+                to: ref('erf__function')
                 field: function_code
               where: "coalesce(trim(function_code), '') <> ''"
       - name: model_type_code
         tests:
           - relationships:
               arguments:
-                to: ref('model_type')
+                to: ref('erf__model_type')
                 field: model_type_code
               where: "coalesce(trim(model_type_code), '') <> ''"
       - name: estimate_type_code
         tests:
           - relationships:
               arguments:
-                to: ref('estimate_type')
+                to: ref('erf__estimate_type')
                 field: estimate_type_code
               where: "coalesce(trim(estimate_type_code), '') <> ''"
       - name: primary_metric_code
@@ -76,7 +76,7 @@ seeds:
           - not_null
           - relationships:
               arguments:
-                to: ref('data_status')
+                to: ref('erf__data_status')
                 field: data_status_code
       - name: is_active
         tests: [not_null]

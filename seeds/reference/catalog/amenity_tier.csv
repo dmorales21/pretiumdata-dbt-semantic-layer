@@ -1,5 +1,0 @@
-amenity_tier_id,amenity_tier_code,amenity_tier_label,sort_order,is_active
-AMN_001,basic,Basic,4,TRUE
-AMN_002,standard,Standard,3,TRUE
-AMN_003,premium,Premium,2,TRUE
-AMN_004,luxury,Luxury,1,TRUE

@@ -1,0 +1,8 @@
+# Expected column names for CLIENT_APPOINTMENTS (from Funnel API)
+# Run: .venv/bin/python scripts/discovery/list_funnel_view_columns.py CLIENT_APPOINTMENTS
+# Save output to CLIENT_APPOINTMENTS_columns.txt and update fact_funnel_appointment_outcomes_daily.sql if names differ.
+#
+# API (https://developers.funnelleasing.com/api/v2/appointments.html):
+# - start (datetime) -> START or START_TIME or APPOINTMENT_START
+# - status (integer) -> STATUS; 50=Completed, 60=No Show
+# - community/geo may be on appointment or via client -> COMMUNITY_ID, PMS_COMMUNITY_ID, GROUP_ID, COMPANY_ID, or join to CLIENTS

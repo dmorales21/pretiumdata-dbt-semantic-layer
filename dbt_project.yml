@@ -135,15 +135,10 @@ models:
       model:
         +materialized: view
         +tags: ["analytics", "model"]
-      # estimate / bi / ai — add dbt_project subtrees when first model lands under those folders (inherit +database from `analytics`).
-
-    # SERVING.DEMO — `models/serving/demo/*` thin delivery views (must not inherit ANALYTICS target defaults).
-    serving:
-      demo:
-        +database: "{{ var('serving_database', 'SERVING') }}"
-        +schema: DEMO
+      estimate:
         +materialized: view
-        +tags: ["serving", "demo"]
+        +tags: ["analytics", "estimate"]
+      # bi / ai — add dbt_project subtrees when first model lands under those folders (inherit +database from `analytics`).
 
     # MART SEMANTIC — Alex + Spencer
     # DB: MART_DEV / MART_STAGING / MART_PROD | Schema: SEMANTIC
@@ -158,6 +153,15 @@ models:
         concept:
           +tags: ["semantic", "concept"]
       # dim / bridge / registry / glossary / explain / retrieval — add when models exist under those paths.
+
+    # SERVING.ICEBERG — native Iceberg landings (contract = one disabled stub per relation under models/serving/iceberg).
+    # Column spec Markdown is generated from pretium-ai-dbt: scripts/serving/run_generate_serving_iceberg_landing_zone_spec.sh
+    serving:
+      iceberg:
+        +database: "{{ var('serving_database', 'SERVING') }}"
+        +schema: ICEBERG
+        +materialized: view
+        +tags: ["serving", "iceberg"]
 
     # TRANSFORM.DEV — FACT_ / vendor dev facts (Alex). Reads SOURCE_PROD + REFERENCE.GEOGRAPHY.
     transform:
@@ -237,11 +241,36 @@ models:
           +schema: DEV
           +materialized: view
           +tags: ["transform", "transform_dev", "costar", "fact_costar"]
+        apartmentiq:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "apartmentiq", "fact_apartmentiq", "rent"]
+        green_street:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "greenstreet", "fact_green_street", "observe_only"]
         markerr:
           +database: TRANSFORM
           +schema: DEV
           +materialized: view
           +tags: ["transform", "transform_dev", "markerr", "fact_markerr"]
+        jbrec:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "jbrec", "fact_jbrec", "rent"]
+        parcllabs:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "parcllabs", "fact_parcllabs", "rent"]
+        zonda:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "zonda", "fact_zonda", "rent"]
         yardi_matrix:
           +database: TRANSFORM
           +schema: DEV
@@ -268,13 +297,21 @@ models:
           +schema: DEV
           +materialized: table
           +tags: ["transform", "transform_dev", "entity", "fact_entity"]
-        # CONCEPT_* unions (`models/transform/dev/concept/`) — **must** be TRANSFORM.DEV per `docs/rules/ARCHITECTURE_RULES.md`
-        # (without this block, `dbt run` lands `concept_*` in ANALYTICS.DBT_DEV by target default).
-        concept:
+        deephaven:
           +database: TRANSFORM
           +schema: DEV
-          +materialized: table
-          +tags: ["transform", "transform_dev", "concept", "semantic"]
+          +materialized: view
+          +tags: ["transform", "transform_dev", "deephaven", "fact_deephaven", "opco"]
+        insurance:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "insurance", "place", "pit_i"]
+        tax_foundation:
+          +database: TRANSFORM
+          +schema: DEV
+          +materialized: view
+          +tags: ["transform", "transform_dev", "tax_foundation", "place", "pit_i"]
 
     # REFERENCE.GEOGRAPHY — canonical Cybersyn-backed geography utilities (Alex).
     reference:
@@ -302,6 +339,10 @@ seeds:
       draft:
         +schema: DRAFT
         +tags: ["seed", "reference", "draft"]
+      # NBER CPS column ↔ Census mnemonic dictionary (pretium-ai-dbt source of truth; copy CSV on update).
+      nber_cps:
+        +schema: NBER_CPS
+        +tags: ["seed", "reference", "nber", "cps", "dictionary"]
 
     # Vendor xwalk CSVs — MIGRATION_RULES § TRANSFORM.DEV (seeds): seeds/transform_dev/*.csv
     transform_dev:

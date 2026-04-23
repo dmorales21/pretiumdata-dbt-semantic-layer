@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Merge pretium-ai-dbt ``metric.csv`` into canonical semantic-layer ``metric.csv``.
+"""Merge pretium-ai-dbt ``metric.csv`` into semantic-layer ``metric_raw.csv`` (bulk backlog).
 
 Applies REFERENCE.CATALOG FK-safe **geo_level_code** remaps (e.g. Oxford ``varies`` → ``cbsa``/``national``) documented in
 ``docs/migration/MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md``. Appends any
@@ -82,7 +82,7 @@ def main() -> None:
     if not source.is_file():
         raise SystemExit(f"Source metric.csv not found: {source}")
 
-    out_path = root / "seeds" / "reference" / "catalog" / "metric.csv"
+    out_path = root / "seeds" / "reference" / "catalog" / "metric_raw.csv"
     bridge_path = root / "seeds" / "reference" / "catalog" / "bridge_product_type_metric.csv"
 
     with source.open(newline="", encoding="utf-8") as f:
@@ -95,13 +95,24 @@ def main() -> None:
     bridge_codes = {r["metric_code"] for r in csv.DictReader(bridge_path.open(newline="", encoding="utf-8"))}
     missing_bridge = sorted(bridge_codes - set(by_code))
     if missing_bridge:
-        extra_from = out_path if out_path.is_file() else None
+        extra_from = None
+        for candidate in (
+            out_path,
+            root / "seeds" / "reference" / "catalog" / "metric.csv",
+        ):
+            if candidate.is_file():
+                extra_from = candidate
+                break
         if not extra_from:
-            raise SystemExit(f"bridge requires metric_codes not in source and no existing {out_path}: {missing_bridge}")
+            raise SystemExit(
+                f"bridge requires metric_codes not in source and no existing metric_raw/metric: {missing_bridge}"
+            )
         existing = {r["metric_code"]: r for r in csv.DictReader(extra_from.open(newline="", encoding="utf-8"))}
         for code in missing_bridge:
             if code not in existing:
-                raise SystemExit(f"metric_code in bridge but not in source or current metric.csv: {code}")
+                raise SystemExit(
+                    f"metric_code in bridge but not in source or existing catalog metric files: {code}"
+                )
             by_code[code] = _transform_row(dict(existing[code]))
 
     out_rows = list(by_code.values())
@@ -114,6 +125,7 @@ def main() -> None:
 
     print(f"wrote {len(out_rows)} rows to {out_path}")
     print(f"source {source}")
+    print("next: python3 scripts/reference/catalog/build_metric_csv_from_metric_raw.py")
 
 
 if __name__ == "__main__":

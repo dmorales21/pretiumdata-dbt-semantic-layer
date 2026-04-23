@@ -1,0 +1,20 @@
+version: 2
+
+seeds:
+  - name: domain
+    description: >
+      Canonical concept domains for REFERENCE.CATALOG.CONCEPT.domain (FK).
+      Policy: docs/rules/CONCEPT_DOMAIN_POLICY.md
+    config:
+      schema: CATALOG
+    columns:
+      - name: domain_code
+        tests: [not_null, unique]
+      - name: domain
+        tests: [not_null, unique]
+      - name: description
+        tests: [not_null]
+      - name: description_ai
+        tests: [not_null]
+      - name: description_long
+        tests: [not_null]

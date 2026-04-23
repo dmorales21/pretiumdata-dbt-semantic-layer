@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: fact_zonda_btr_rent_cbsa_monthly_cleaned
+    description: >
+      **tpanalytics_share** Zonda BTR comprehensive + floorplans → CBSA unit-weighted rent and occupancy — same contract as **pretium-ai-dbt** ``cleaned_zonda_btr_rent_cbsa``.
+    config:
+      tags: ["transform", "transform_dev", "zonda", "fact_zonda", "rent"]

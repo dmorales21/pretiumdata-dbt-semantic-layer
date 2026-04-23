@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: tax_foundation_property_taxes_by_county
+    description: Wide Tax Foundation county tax + county_fips (REFERENCE.GEOGRAPHY); feeds fact_property_tax_by_county.
+    config:
+      tags: ['transform', 'transform_dev', 'tax_foundation', 'cleaned']
+  - name: fact_property_tax_by_county
+    description: >
+      Tax Foundation property tax metrics by county FIPS (long). Migrated from pretium-ai-dbt
+      **FACT_PROPERTY_TAX_BY_COUNTY**; county FIPS from **REFERENCE.GEOGRAPHY.COUNTY** (no legacy prod transform ref seeds).
+    config:
+      tags: ['transform', 'transform_dev', 'tax_foundation', 'place']
+    columns:
+      - name: date_reference
+      - name: geo_id
+        description: 5-digit county FIPS
+      - name: geo_level_code
+      - name: metric_id
+      - name: value
+      - name: unit
+      - name: vendor_name
+      - name: quality_flag
+      - name: source_dataset
+      - name: created_at
+      - name: updated_at

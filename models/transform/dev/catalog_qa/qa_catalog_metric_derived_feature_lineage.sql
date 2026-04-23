@@ -22,6 +22,8 @@ WITH feature_physical_map AS (
         SELECT 'rent_market_monthly_spine' AS metric_derived_code, 'FEATURE_RENT_MARKET_MONTHLY' AS expected_table_name
         UNION ALL
         SELECT 'listings_velocity_monthly_spine', 'FEATURE_LISTINGS_VELOCITY_MONTHLY'
+        UNION ALL
+        SELECT 'multifamily_market_ranker_monthly_spine', 'FEATURE_MULTIFAMILY_MARKET_RANKER_MONTHLY'
     ) AS m
 ),
 

@@ -4,7 +4,7 @@ models:
   - name: concept_rent_market_monthly
     description: >
       Market rent concept, monthly. **Vendors:** ZILLOW, APARTMENTIQ, YARDI_MATRIX, COSTAR (``SCENARIOS`` quarter→month linear),
-      MARKERR_MF (``RENT_PROPERTY_CBSA_MONTHLY``), MARKERR_SFR (ZIP→``zip_enriched``→CBSA), HUD_CYBERSYN (``fact_hud_housing_series``
+      **markerr** (catalog ``vendor_code``; MF CBSA via ``fact_markerr_rent_property_cbsa_monthly`` + SFR ZIP rollup via ``fact_markerr_rent_sfr`` — use ``metric_id_observe`` to tell the two lines apart), HUD_CYBERSYN (``fact_hud_housing_series``
       CBSA rows matching rent regex — often **0 rows** until ACS-style variables exist), CHERRE (stub).
       **Geo alignment:** ZIP vendors use ``reference_geo_zip_to_cbsa_ctes``; CBSA vendors use ``LPAD(...,5,'0')`` on CBSA codes.
       For ``geo_level_code = cbsa``, ``geo_id`` = ``cbsa_id``.
@@ -40,8 +40,9 @@ models:
                 values: ["rent_market"]
       - name: vendor_code
         description: >
-          ``ZILLOW`` | ``APARTMENTIQ`` | ``YARDI_MATRIX`` | ``COSTAR`` | ``MARKERR_MF`` | ``MARKERR_SFR`` |
-          ``HUD_CYBERSYN`` | ``CHERRE`` (stub).
+          ``ZILLOW`` | ``APARTMENTIQ`` | ``YARDI_MATRIX`` | ``COSTAR`` | ``markerr`` | ``HUD_CYBERSYN`` | ``CHERRE`` (stub).
+          **Markerr:** MF CBSA and SFR CBSA-aggregated lines both use catalog ``vendor_code = markerr``; discriminate with ``metric_id_observe``
+          (``markerr_avg_rent_effective`` vs ``markerr_rent_asking_mean_zip_agg_cbsa``) and MF bedroom/class dbt vars.
         tests: [not_null]
       - name: month_start
         tests: [not_null]
@@ -215,7 +216,9 @@ models:
       or closed transaction counts. Primary branch: CoStar MF DataExport ``ABSORPTION_UNITS`` on
       ``fact_costar_mf_market_cbsa_monthly`` (observe rows, Multifamily slice via
       ``concept_absorption_market_costar_property_type_pattern``). Zillow DOM / for-sale inventory stay on
-      ``concept_listings_market_monthly``.
+      ``concept_listings_market_monthly``. Silver upstream is CBSA-native; county absorption would require a new FACT grain.
+    meta:
+      spatial_grains_emitted: [cbsa]
     config:
       tags: ["semantic", "concept", "absorption"]
     columns:
@@ -243,10 +246,14 @@ models:
 
   - name: concept_transactions_market_monthly
     description: >
-      Transactions concept at CBSA grain: **Zillow** ``fact_zillow_sales`` (observe + trailing-12m historical slot)
+      Transactions concept at **CBSA** grain (**Zillow** ``fact_zillow_sales`` observe + trailing-12m historical slot)
       plus optional **Cherre Recorder** SFR/MF, **RCA MF transactions**, **Zonda deeds**, and **Zonda SFR** CBSA rollups from
-      ``TRANSFORM.DEV`` FACTs via ``source('transform_dev_corridor_transaction_facts', …)``. Disable Cherre/RCA/Zonda deeds
-      with ``vars.concept_transactions_include_cherre_rca_zonda: false``. Disable **Zonda SFR** only with
+      ``TRANSFORM.DEV`` FACTs via ``source('transform_dev_corridor_transaction_facts', …)``. **County:** **Cherre + RCA** use
+      **vendor-native** ``FACT_*_COUNTY_MONTHLY`` in the same source (pretium-ai-dbt ``analytics/facts`` physicalized to
+      ``TRANSFORM.DEV`` when ``analytics_facts_to_transform_dev`` is true). **Zonda** county arms use H3 ×
+      ``int_h3_r8_hex_dominant_county`` until native county FACTs exist. **Run order:** pretium-ai-dbt
+      ``dbt run --select +vendor_native_geography_pipeline`` (``analytics_facts_to_transform_dev``), then this concept.
+      Disable Cherre/RCA/Zonda deeds with ``vars.concept_transactions_include_cherre_rca_zonda: false``. Disable **Zonda SFR** only with
       ``vars.concept_transactions_include_zonda_sfr: false``. **0 rows** for a vendor branch is PASS when the upstream FACT is empty.
     config:
       tags: ["semantic", "concept", "transactions"]
@@ -266,7 +273,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa"]
+                values: ["cbsa", "county"]
       - name: geo_id
         tests: [not_null]
       - name: transactions_current
@@ -306,6 +313,7 @@ models:
     description: >
       Employment concept from BLS LAUS: **CBSA** branch uses ``fact_bls_laus_cbsa_monthly`` (``AREA_CODE`` observe-only,
       not guaranteed OMB CBSA; ``has_census_geo`` false). **County** branch uses ``fact_bls_laus_county`` (measure 5).
+      **State** branch sums county employment (measure 5) by two-digit state FIPS.
     config:
       tags: ["semantic", "concept", "employment"]
     columns:
@@ -324,7 +332,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa", "county"]
+                values: ["cbsa", "county", "state"]
       - name: geo_id
         tests: [not_null]
       - name: employment_current
@@ -334,9 +342,29 @@ models:
   - name: concept_unemployment_market_monthly
     description: >
       Unemployment concept from BLS LAUS: **CBSA** branch (``fact_bls_laus_cbsa_monthly`` — rate + unemployed count),
-      and **county** branch (``fact_bls_laus_county`` measures 3 and 4) with ``vendor_code`` = ``BLS_LAUS_COUNTY``.
+      **county** branch (``fact_bls_laus_county`` measures 3 and 4) with ``vendor_code`` = ``BLS_LAUS_COUNTY``, and
+      **state** branch (``BLS_LAUS_STATE``) aggregating county unemployed (measure 4) and labor force (measure 6).
     config:
       tags: ["semantic", "concept", "unemployment"]
+    tests:
+      - fact_semantic_bundle:
+          arguments:
+            date_column: month_start
+            geo_id_column: geo_id
+            geo_level_column: geo_level_code
+            enforce_geography_join: false
+            max_future_days: 0
+            min_calendar_year: 1990
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              ['month_start', 'geo_level_code', 'geo_id', 'vendor_code', 'metric_id_observe']
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(metric_id_observe not ilike '%unemployment_rate%') or (unemployment_current is null) or (unemployment_current >= 0 and unemployment_current <= 100)"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(metric_id_observe ilike '%unemployment_rate%') or (unemployment_current is null) or (unemployment_current >= 0)"
     columns:
       - name: concept_code
         tests:
@@ -353,8 +381,12 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa", "county"]
+                values: ["cbsa", "county", "state"]
       - name: geo_id
+        tests: [not_null]
+      - name: metric_id_observe
+        description: >
+          Vendor-native measure discriminator for this long union (rate vs level rows share ``concept_metric_slot`` names).
         tests: [not_null]
       - name: unemployment_current
       - name: unemployment_historical
@@ -364,7 +396,8 @@ models:
     description: >
       School quality concept — annual **CBSA** spine (``month_start`` = Dec 31 of ``concept_acs5_cbsa_reference_year``):
       **Stanford SEDA** enrollment-weighted rollups from ``fact_stanford_seda_h3_r8_snapshot``; optional **ACS5** branch
-      from ``fact_census_acs5_h3_r8_snapshot`` (disable with ``vars.concept_school_quality_include_acs_branch: false``).
+      from ``fact_census_acs5_h3_r8_snapshot`` at CBSA and **county** (via ``int_acs5_h3_r8_county_demographics_rollups``;
+      disable with ``vars.concept_school_quality_include_acs_branch: false``).
     config:
       tags: ["semantic", "concept", "school_quality"]
     columns:
@@ -383,7 +416,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa"]
+                values: ["cbsa", "county"]
       - name: geo_id
         tests: [not_null]
       - name: school_quality_current
@@ -423,6 +456,9 @@ models:
     description: >
       Crime concept — annual **CBSA** from Markerr ``FACT_MARKERR_CRIME_H3_R8_SNAPSHOT`` (mean of hex-level indices within CBSA;
       ``month_start`` = Dec 31 of ``concept_acs5_cbsa_reference_year``). **0 rows** is PASS when the snapshot is empty in **TRANSFORM.DEV**.
+      County or ZIP grains are not emitted here (hex→CBSA only); county-native Markerr crime feeds are a separate promotion path.
+    meta:
+      spatial_grains_emitted: [cbsa]
     config:
       tags: ["semantic", "concept", "crime"]
     columns:
@@ -450,11 +486,18 @@ models:
 
   - name: concept_occupancy_market_monthly
     description: >
-      Occupancy concept at CBSA x month from HUD Cybersyn series (`fact_hud_housing_series_cbsa_monthly`),
-      selecting occupancy/vacancy-like variables via regex.
-      **Success contract (HUD):** **0 rows** is PASS when the account’s HUD slice has no CBSA rows matching the occupancy/vacancy
-      regex (e.g. continuum-of-care only variables) or grants are missing — pipeline gap, not a failing dbt compile.
+      Occupancy concept — monthly **CBSA** from ``fact_hud_housing_series_cbsa_monthly`` (one prioritized ``metric_id_observe``
+      per CBSA × month via ``ROW_NUMBER``) and native **county** rows from ``fact_hud_housing_series_county_monthly``
+      (``vendor_code = HUD_CYBERSYN_COUNTY``; all matching series). Both branches filter with ``concept_occupancy_market_hud_variable_regex``
+      (default ``occupancy|vacancy``), mirroring the vacancy concept’s HUD county pattern without duplicating ACS H3 vacancy shares
+      (those stay on ``concept_vacancy_market_monthly``).
+      **Success contract (HUD):** **0 rows** is PASS when the HUD slice has no rows matching the regex or grants are missing.
       See [`QA_CONCEPT_PREFLIGHT_CHECKLIST.md`](../../../docs/migration/QA_CONCEPT_PREFLIGHT_CHECKLIST.md) §B.
+    meta:
+      spatial_grains_emitted: [cbsa, county]
+      primary_upstream_facts:
+        - fact_hud_housing_series_cbsa_monthly
+        - fact_hud_housing_series_county_monthly
     config:
       tags: ["semantic", "concept", "occupancy"]
     columns:
@@ -473,7 +516,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa"]
+                values: ["cbsa", "county"]
       - name: geo_id
         tests: [not_null]
       - name: occupancy_current
@@ -482,7 +525,8 @@ models:
 
   - name: concept_migration_market_annual
     description: >
-      Migration concept at CBSA grain from IRS by-characteristic annual feeds (direct CBSA + county rollup to CBSA).
+      Migration concept from IRS by-characteristic annual feeds: **CBSA** rows (direct CBSA + county rollup to CBSA) and
+      **county** rows (``fact_irs_soi_migration_by_characteristic_annual_county`` at native county grain).
     config:
       tags: ["semantic", "concept", "migration"]
     columns:
@@ -501,7 +545,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa"]
+                values: ["cbsa", "county"]
       - name: geo_id
         tests: [not_null]
       - name: migration_current
@@ -510,7 +554,8 @@ models:
 
   - name: concept_delinquency_market_monthly
     description: >
-      Delinquency concept at CBSA x month from FHFA mortgage performance (direct CBSA + county rollup to CBSA).
+      Delinquency concept from FHFA mortgage performance: **CBSA** x month (direct CBSA + county rollup to CBSA) and
+      **county** rows (``fact_fhfa_mortgage_performance_county_monthly`` at native county grain).
     config:
       tags: ["semantic", "concept", "delinquency"]
     columns:
@@ -529,7 +574,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa"]
+                values: ["cbsa", "county"]
       - name: geo_id
         tests: [not_null]
       - name: delinquency_current
@@ -541,7 +586,10 @@ models:
       Permits concept — monthly CBSA from Census BPS ``fact_bps_permits_county``. **Default:** MET_001 mode
       (``concept_permits_met_001_canonical: true``) → one row per month × CBSA with ``metric_id_observe = bps_permits_measure_value``
       after ``concept_permits_met_001_*_ilike`` filters and dedupe. Set ``concept_permits_met_001_canonical: false`` for
-      composite series keys and ``concept_permits_market_bps_*_ilike`` exploration filters.
+      composite series keys and ``concept_permits_market_bps_*_ilike`` exploration filters. Silver BPS relation is CBSA-keyed
+      (see ``fact_bps_permits_county`` model comment); county permits would need a county-grain FACT promotion.
+    meta:
+      spatial_grains_emitted: [cbsa]
     config:
       tags: ["semantic", "concept", "permits"]
     columns:
@@ -569,7 +617,9 @@ models:
 
   - name: concept_income_market_annual
     description: >
-      Income concept — annual CBSA from ACS5 H3 snapshot rollups; ``month_start`` = Dec 31 of ``concept_acs5_cbsa_reference_year``.
+      Income concept — annual **CBSA** and **county** from ACS5 H3 snapshot rollups
+      (``int_acs5_h3_r8_cbsa_demographics_rollups``, ``int_acs5_h3_r8_county_demographics_rollups``);
+      ``month_start`` = Dec 31 of ``concept_acs5_cbsa_reference_year``.
     config:
       tags: ["semantic", "concept", "income"]
     columns:
@@ -588,7 +638,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa"]
+                values: ["cbsa", "county"]
       - name: geo_id
         tests: [not_null]
       - name: income_current
@@ -597,7 +647,8 @@ models:
 
   - name: concept_labor_market_annual
     description: >
-      Labor concept — CBSA labor-force participation proxy from ACS5 H3 snapshot (see ``int_acs5_h3_r8_cbsa_demographics_rollups``).
+      Labor concept — **CBSA** and **county** labor-force participation proxy from ACS5 H3 snapshot
+      (``int_acs5_h3_r8_cbsa_demographics_rollups``, ``int_acs5_h3_r8_county_demographics_rollups``).
     config:
       tags: ["semantic", "concept", "labor"]
     columns:
@@ -616,7 +667,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa"]
+                values: ["cbsa", "county"]
       - name: geo_id
         tests: [not_null]
       - name: labor_current
@@ -625,7 +676,7 @@ models:
 
   - name: concept_population_market_annual
     description: >
-      Population concept — CBSA sum of ACS5 H3 ``total_population_wavg`` (ACS snapshot proxy; not PEP official stock).
+      Population concept — **CBSA** and **county** sum of ACS5 H3 ``total_population_wavg`` (ACS snapshot proxy; not PEP official stock).
     config:
       tags: ["semantic", "concept", "population"]
     columns:
@@ -644,7 +695,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa"]
+                values: ["cbsa", "county"]
       - name: geo_id
         tests: [not_null]
       - name: population_current
@@ -685,8 +736,8 @@ models:
     description: >
       Supply pipeline concept — monthly **CBSA** from **Realtor** inventory (months-of-supply style ``metric_id`` filter),
       **Zillow** new-construction (primary series via ``concept_supply_pipeline_zillow_nc_metric_pattern``),
-      optional **Markerr** rent listings county fact rolled to CBSA (**listing_count**), **RCA MF construction**
-      county fact rolled to CBSA (**units_under_construction**), and **Zonda SFR** ``FACT_ZONDA_SFR_H3_R8_MONTHLY`` rolled
+      optional **Markerr** rent listings (**CBSA** rollups + native **county** rows from the same county-monthly fact),
+      **RCA MF construction** (**CBSA** rollups + native **county** rows), and **Zonda SFR** ``FACT_ZONDA_SFR_H3_R8_MONTHLY`` rolled
       to CBSA (**sfr_inventory_uc_wavg** sum). Disable Markerr + RCA with ``vars.concept_supply_pipeline_include_markerr_rca: false``.
       Disable Zonda SFR with ``vars.concept_supply_pipeline_include_zonda_sfr: false``. **0 rows** for a vendor branch is PASS when upstream
       has no matching metrics or empty facts.
@@ -708,18 +759,65 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa"]
+                values: ["cbsa", "county"]
       - name: geo_id
         tests: [not_null]
       - name: supply_pipeline_current
       - name: supply_pipeline_historical
       - name: supply_pipeline_forecast
 
+  - name: concept_multifamily_market_monthly
+    description: >
+      Multifamily Market Ranker wide **county × month** panel: Markerr rent county monthly (driver), Cherre stock PPSF,
+      Cherre MF snapshot (units_garden, pct_pre_1980), RCA MF construction, ACS 2024 county demographics, BLS LAUS unemployment.
+      MoM rent and concession derived in-concept; ``market_phase``, ``pretium_score``, ``custom_score``, ``rent_trend_flag`` are NULL placeholders.
+    config:
+      tags: ["semantic", "concept", "multifamily_market", "mfr_ranker"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["multifamily_market"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["county"]
+      - name: geo_id
+        tests: [not_null]
+      - name: cbsa_id
+      - name: state_fips
+      - name: rent_mom_pct_change
+      - name: avg_asking_rent
+      - name: avg_concession_mom_pct_change
+      - name: median_market_ppsf
+      - name: market_phase
+      - name: median_months_to_completion
+      - name: units_garden
+      - name: units_under_construction
+      - name: total_households
+      - name: pct_pre_1980
+      - name: renter_share
+      - name: pct_25_44
+      - name: rent_burden_30_plus_share
+      - name: unemployment_rate
+      - name: pretium_score
+      - name: custom_score
+      - name: rent_trend_flag
+      - name: dbt_updated_at
+
   - name: concept_vacancy_market_monthly
     description: >
-      Vacancy concept — monthly CBSA from HUD Cybersyn (CBSA + county rollup) with ``concept_vacancy_market_hud_variable_regex``,
-      plus annual ACS5 H3 vacancy-share proxies on Dec 31 of ``concept_acs5_cbsa_reference_year``. Cherre vacant FACT_* read-throughs
-      are not in this repo yet.
+      Vacancy concept — monthly **CBSA** from HUD Cybersyn (CBSA + county rollup to CBSA) with ``concept_vacancy_market_hud_variable_regex``,
+      native **HUD county** rows from ``fact_hud_housing_series_county_monthly``, plus annual ACS5 H3 vacancy-share proxies on Dec 31
+      of ``concept_acs5_cbsa_reference_year`` at **CBSA** and **county** (``int_acs5_h3_r8_county_demographics_rollups``). Cherre vacant FACT_* read-throughs are not in this repo yet.
     config:
       tags: ["semantic", "concept", "vacancy"]
     columns:
@@ -738,7 +836,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ["cbsa"]
+                values: ["cbsa", "county"]
       - name: geo_id
         tests: [not_null]
       - name: vacancy_current

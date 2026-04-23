@@ -41,6 +41,8 @@ See [VENDOR_CONCEPT_COVERAGE_MATRIX.md](../migration/VENDOR_CONCEPT_COVERAGE_MAT
 
 Primary task / vet doc: [`migration/MIGRATION_TASKS_CYBERSYN_SOURCE_SNOW.md`](../migration/MIGRATION_TASKS_CYBERSYN_SOURCE_SNOW.md)
 
+**US Real Estate share (`US_REAL_ESTATE.CYBERSYN`) — postal ↔ H3-10 support:** SnowSQL scripts under [`scripts/sql/cybersyn/`](../../scripts/sql/cybersyn/) — `vet_us_addresses_cybersyn.sql`, `build_reference_postalcode_h3_10_support.sql` (main build), **`build_reference_postalcode_h3_10_qa.sql`**, **`build_reference_postalcode_h3_10_production_smoothed.sql`** (`POSTALCODE_H3_10_PRODUCTION_SMOOTHED` — cartographic merge layer; leaves `POSTALCODE_H3_10_DOMINANT_CONFIDENT` unchanged). See script headers for **POI join dedupe**, **INTEGER `H3_GRID_DISK`**, and modeled-layer governance.
+
 ## 7. Related rules
 
 - [OPERATING_MODEL.md](../OPERATING_MODEL.md)

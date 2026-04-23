@@ -70,7 +70,7 @@ seeds:
           - not_null
           - relationships:
               arguments:
-                to: ref('data_status')
+                to: ref('erf__data_status')
                 field: data_status_code
       - name: sort_order
         tests: [not_null]
@@ -202,6 +202,7 @@ seeds:
   - name: offering_signal_relevance
     description: >
       Concept-level signal bundle per offering (aligns with catalog concept until metric grain is authoritative).
+      Presley numeric routing lives in **concept_offering_weight** (see **offering_concept_weight_matrix.yml**).
       Metric-grain bindings belong in bridge_product_type_metric and catalog metric when populated.
     config:
       schema: CATALOG

@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  # DS_SOURCE_PROD_TPANALYTICS.TPANALYTICS_SHARE — Zonda BTR project / floorplan landings (legacy DB; see pretium-ai-dbt ``sources.yml``).
+  - name: tpanalytics_share
+    database: DS_SOURCE_PROD_TPANALYTICS
+    schema: TPANALYTICS_SHARE
+    description: >
+      Zonda BTR comprehensive + floorplans. Canonical CBSA rent/occupancy aggregation:
+      **pretium-ai-dbt** ``cleaned_zonda_btr_rent_cbsa.sql`` — mirrored in **fact_zonda_btr_rent_cbsa_monthly_cleaned**.
+
+    tables:
+      - name: zonda_btr_comprehensive
+        identifier: ZONDA_BTR_COMPREHENSIVE
+      - name: zonda_btr_floorplans
+        identifier: ZONDA_BTR_FLOORPLANS

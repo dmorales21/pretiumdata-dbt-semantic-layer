@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: cleaned_bankrate_insurance_state
+    config:
+      tags: ['transform', 'transform_dev', 'bankrate', 'cleaned']
+  - name: cleaned_quadrant_insurance_state_rates
+    config:
+      tags: ['transform', 'transform_dev', 'quadrant', 'cleaned']
+  - name: fact_insurance_state
+    description: >
+      State-level home insurance metrics (Bankrate + Quadrant), long format on **TRANSFORM.DEV**.
+      Migrated from pretium-ai-dbt **FACT_INSURANCE_STATE**; grain (date_reference, geo_id, metric_id).
+    config:
+      tags: ['transform', 'transform_dev', 'insurance', 'place']
+    columns:
+      - name: date_reference
+      - name: geo_id
+        description: Two-letter state code
+      - name: geo_level_code
+      - name: metric_id
+      - name: value
+      - name: vendor_name
+      - name: quality_flag

@@ -1,0 +1,17 @@
+version: 2
+
+seeds:
+  - name: unit
+    description: >
+      Canonical **metric.unit** / **metric_raw.unit** vocabulary. Single source for unit codes — do not
+      duplicate allowlists in **schema_metric.yml** or **schema_metric_raw.yml** (use **relationships** /
+      **dbt_utils.relationships_where** only).
+    config:
+      schema: CATALOG
+    columns:
+      - name: unit_code
+        tests: [not_null, unique]
+      - name: unit_label
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]

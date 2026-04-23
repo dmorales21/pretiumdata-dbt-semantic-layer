@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: fact_green_street_macro_market_top50_raw
+    description: >
+      **SOURCE_PROD.GREEN_STREET.GS_MACRO_MARKET_TOP50_RAW** read-through (VARIANT **V**); **TRANSFORM.DEV** FACT_* anchor.
+    config:
+      tags: ['transform', 'transform_dev', 'greenstreet', 'fact_green_street', 'macro', 'observe_only']
+
+  - name: fact_green_street_market_forecast_base_top50_raw
+    description: >
+      **SOURCE_PROD.GREEN_STREET.GS_MARKET_FORECAST_BASE_TOP50_RAW** baseline quarterly forecast panel (VARIANT **V**).
+    config:
+      tags: ['transform', 'transform_dev', 'greenstreet', 'fact_green_street', 'forecast', 'observe_only']

@@ -1,6 +1,0 @@
-noi_tier_id,noi_tier_code,noi_tier_label,noi_min,noi_max,sort_order,is_active
-NOI_001,sub_500k,Sub $500K,0,500000,1,TRUE
-NOI_002,500k_1m,$500K–$1M,500000,1000000,2,TRUE
-NOI_003,1m_2m,$1–2M,1000000,2000000,3,TRUE
-NOI_004,2m_5m,$2–5M,2000000,5000000,4,TRUE
-NOI_005,5m_plus,$5M+,5000000,,5,TRUE

@@ -1,7 +1,7 @@
 {#-
-  **Labor** — CBSA labor-force participation proxy from ACS5 H3 R8 snapshot (B23025 roll-up), population-weighted across hexes.
+  **Labor** — **CBSA** and **county** labor-force participation proxy from ACS5 H3 R8 snapshot (B23025 roll-up), population-weighted across hexes.
 
-  See ``int_acs5_h3_r8_cbsa_demographics_rollups``. ``month_start`` = Dec 31 of ``vars.concept_acs5_cbsa_reference_year``.
+  See ``int_acs5_h3_r8_cbsa_demographics_rollups`` and ``int_acs5_h3_r8_county_demographics_rollups``. ``month_start`` = Dec 31 of ``vars.concept_acs5_cbsa_reference_year``.
 -#}
 
 {{ config(
@@ -18,6 +18,15 @@ WITH acs AS (
         r.cbsa_id,
         r.labor_force_participation_rate_wavg AS metric_value
     FROM {{ ref('int_acs5_h3_r8_cbsa_demographics_rollups') }} AS r
+    WHERE r.labor_force_participation_rate_wavg IS NOT NULL
+),
+
+acs_county AS (
+    SELECT
+        DATE_FROM_PARTS({{ _yr }}, 12, 31)::DATE AS month_start,
+        r.county_fips,
+        r.labor_force_participation_rate_wavg AS metric_value
+    FROM {{ ref('int_acs5_h3_r8_county_demographics_rollups') }} AS r
     WHERE r.labor_force_participation_rate_wavg IS NOT NULL
 )
 
@@ -42,4 +51,29 @@ SELECT
 FROM acs AS c
 LEFT JOIN acs AS h
     ON c.cbsa_id = h.cbsa_id
+   AND h.month_start = DATEADD('year', -1, c.month_start)
+
+UNION ALL
+
+SELECT
+    'labor' AS concept_code,
+    'CENSUS_ACS5_H3_COUNTY' AS vendor_code,
+    c.month_start,
+    'county' AS geo_level_code,
+    c.county_fips AS geo_id,
+    CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+    c.county_fips,
+    SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+    TRUE AS has_census_geo,
+    'int_acs5_h3_r8_county_demographics_rollups' AS census_geo_source,
+    'census_acs5_h3_r8_labor_force_participation_rate_wavg_county' AS metric_id_observe,
+    CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('labor', 'current') }},
+    CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('labor', 'historical') }},
+    CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('labor', 'forecast') }},
+    CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+    CAST(NULL AS DATE) AS forecast_month_start,
+    CURRENT_TIMESTAMP() AS dbt_updated_at
+FROM acs_county AS c
+LEFT JOIN acs_county AS h
+    ON c.county_fips = h.county_fips
    AND h.month_start = DATEADD('year', -1, c.month_start)

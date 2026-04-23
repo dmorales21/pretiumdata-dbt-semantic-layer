@@ -8,8 +8,10 @@
   **Realtor.com — CBSA inventory** (``fact_realtor_inventory_cbsa``): rows whose ``metric_id`` matches
   ``vars.concept_supply_pipeline_realtor_metric_pattern`` (default: months-of-supply style slugs).
 
-  **Markerr** — ``FACT_MARKERR_RENT_LISTINGS_COUNTY_MONTHLY`` aggregated to CBSA × month (**listing_count** sum).
-  **RCA** — ``FACT_RCA_MF_CONSTRUCTION_COUNTY_MONTHLY`` aggregated to CBSA × month (**units_under_construction** sum).
+  **Markerr** — ``FACT_MARKERR_RENT_LISTINGS_COUNTY_MONTHLY`` aggregated to CBSA × month (**listing_count** sum) and
+  native **county** rows (same source).
+  **RCA** — ``FACT_RCA_MF_CONSTRUCTION_COUNTY_MONTHLY`` aggregated to CBSA × month (**units_under_construction** sum) and
+  native **county** rows.
 
   **Zonda SFR** — ``FACT_ZONDA_SFR_H3_R8_MONTHLY`` aggregated to CBSA × month (**sfr_inventory_uc_wavg** sum across H3 rows).
   Disable: ``vars.concept_supply_pipeline_include_zonda_sfr: false``.
@@ -164,6 +166,43 @@ markerr_listings_out AS (
        AND h.month_start = ADD_MONTHS(c.month_start, -12)
 ),
 
+markerr_list_county AS (
+    SELECT
+        DATE_TRUNC('month', m.as_of_month)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(m.county_fips)), 5, '0') AS county_fips,
+        SUM(COALESCE(m.listing_count, 0))::DOUBLE AS metric_value
+    FROM {{ source('transform_dev_corridor_transaction_facts', 'fact_markerr_rent_listings_county_monthly') }} AS m
+    WHERE m.county_fips IS NOT NULL
+      AND TRIM(TO_VARCHAR(m.county_fips)) != ''
+      AND m.as_of_month IS NOT NULL
+    GROUP BY 1, 2
+),
+
+markerr_listings_county_out AS (
+    SELECT
+        'supply_pipeline' AS concept_code,
+        'MARKERR_RENT_LISTINGS_COUNTY' AS vendor_code,
+        c.month_start,
+        'county' AS geo_level_code,
+        c.county_fips AS geo_id,
+        CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+        c.county_fips,
+        SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+        TRUE AS has_census_geo,
+        'fact_markerr_rent_listings_county_monthly' AS census_geo_source,
+        'concept_supply_pipeline_markerr_listings_count_county_monthly' AS metric_id_observe,
+        CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('supply_pipeline', 'current') }},
+        CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('supply_pipeline', 'historical') }},
+        CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('supply_pipeline', 'forecast') }},
+        CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+        CAST(NULL AS DATE) AS forecast_month_start,
+        CURRENT_TIMESTAMP() AS dbt_updated_at
+    FROM markerr_list_county AS c
+    LEFT JOIN markerr_list_county AS h
+        ON c.county_fips = h.county_fips
+       AND h.month_start = ADD_MONTHS(c.month_start, -12)
+),
+
 rca_construction_cbsa AS (
     SELECT
         DATE_TRUNC('month', c.as_of_month)::DATE AS month_start,
@@ -198,6 +237,43 @@ rca_construction_out AS (
     FROM rca_construction_cbsa AS c
     LEFT JOIN rca_construction_cbsa AS h
         ON c.cbsa_id = h.cbsa_id
+       AND h.month_start = ADD_MONTHS(c.month_start, -12)
+),
+
+rca_construction_county AS (
+    SELECT
+        DATE_TRUNC('month', c.as_of_month)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(c.county_fips)), 5, '0') AS county_fips,
+        SUM(COALESCE(c.units_under_construction, 0))::DOUBLE AS metric_value
+    FROM {{ source('transform_dev_corridor_transaction_facts', 'fact_rca_mf_construction_county_monthly') }} AS c
+    WHERE c.county_fips IS NOT NULL
+      AND TRIM(TO_VARCHAR(c.county_fips)) != ''
+      AND c.as_of_month IS NOT NULL
+    GROUP BY 1, 2
+),
+
+rca_construction_county_out AS (
+    SELECT
+        'supply_pipeline' AS concept_code,
+        'RCA_MF_CONSTRUCTION_COUNTY' AS vendor_code,
+        c.month_start,
+        'county' AS geo_level_code,
+        c.county_fips AS geo_id,
+        CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+        c.county_fips,
+        SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+        TRUE AS has_census_geo,
+        'fact_rca_mf_construction_county_monthly' AS census_geo_source,
+        'concept_supply_pipeline_rca_mf_uc_units_county_monthly' AS metric_id_observe,
+        CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('supply_pipeline', 'current') }},
+        CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('supply_pipeline', 'historical') }},
+        CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('supply_pipeline', 'forecast') }},
+        CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+        CAST(NULL AS DATE) AS forecast_month_start,
+        CURRENT_TIMESTAMP() AS dbt_updated_at
+    FROM rca_construction_county AS c
+    LEFT JOIN rca_construction_county AS h
+        ON c.county_fips = h.county_fips
        AND h.month_start = ADD_MONTHS(c.month_start, -12)
 ),
 
@@ -245,7 +321,11 @@ SELECT * FROM zillow_nc
 UNION ALL
 SELECT * FROM markerr_listings_out
 UNION ALL
+SELECT * FROM markerr_listings_county_out
+UNION ALL
 SELECT * FROM rca_construction_out
+UNION ALL
+SELECT * FROM rca_construction_county_out
 {% endif %}
 {% if _zsf %}
 UNION ALL

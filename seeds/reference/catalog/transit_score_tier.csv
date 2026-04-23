@@ -1,6 +1,0 @@
-transit_score_tier_id,transit_score_tier_code,transit_score_tier_label,score_min,score_max,sort_order,is_active
-TST_001,excellent,Excellent Transit,90,100,1,TRUE
-TST_002,good,Good Transit,70,89,2,TRUE
-TST_003,some_transit,Some Transit,50,69,3,TRUE
-TST_004,minimal,Minimal Transit,25,49,4,TRUE
-TST_005,car_dependent,Car-Dependent,0,24,5,TRUE

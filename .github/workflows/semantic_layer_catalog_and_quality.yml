@@ -14,6 +14,8 @@ on:
       - "tests/**"
       - "ci/**"
       - "scripts/ci/**"
+      - "scripts/reference/catalog/**"
+      - "ddl/**"
       - ".github/workflows/semantic_layer_catalog_and_quality.yml"
   push:
     branches: [main, master]
@@ -26,6 +28,8 @@ on:
       - "tests/**"
       - "ci/**"
       - "scripts/ci/**"
+      - "scripts/reference/catalog/**"
+      - "ddl/**"
       - ".github/workflows/semantic_layer_catalog_and_quality.yml"
   workflow_dispatch:
 
@@ -58,8 +62,17 @@ jobs:
       - name: dbt deps
         run: dbt deps
 
+      - name: Build catalog metric.csv from metric_raw
+        run: python3 scripts/reference/catalog/build_metric_csv_from_metric_raw.py
+
       - name: dbt parse (no warehouse — validates project + YAML)
         run: dbt parse
+
+      - name: dbt compile — catalog hard-gate singulars (refs resolve; no warehouse execute)
+        run: dbt compile --select tag:catalog_hard_gate
+
+      - name: dbt compile — layer gate source tests (Jon silver before FACT; SQL only, no warehouse execute)
+        run: dbt compile --selector layer_gate_before_fact_bls_laus
 
       - name: dbt ls — catalog seeds resolve
         run: dbt ls --select path:seeds/reference/catalog --resource-type seed
@@ -91,5 +104,9 @@ jobs:
         run: |
           dbt seed --target ci --select path:seeds/reference/catalog
           dbt test --target ci --select path:seeds/reference/catalog
+      - name: Enforce — layer gate then BLS LAUS FACT + unemployment concept
+        run: bash scripts/ci/dbt_enforce_layer_gate_then_bls_laus_stack.sh --target ci
+      - name: Enforce — catalog metric TRANSFORM.DEV registration (seeds + QA lineage + singular)
+        run: bash scripts/ci/dbt_enforce_catalog_metric_registration.sh --target ci
       - name: dbt compile — analytics feature subgraph
         run: dbt compile --target ci --select path:models/analytics/feature

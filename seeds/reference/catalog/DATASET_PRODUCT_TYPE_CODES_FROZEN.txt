@@ -1,0 +1,1 @@
+FROZEN: do not edit dataset.csv column product_type_codes — authoring source is dataset_product_type.csv (bridge). Refresh the comma field only via scripts/reference/catalog/sync_dataset_product_type_from_bridge.py until a follow-up PR drops the column.

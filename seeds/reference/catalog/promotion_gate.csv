@@ -1,4 +1,0 @@
-gate_id,gate_code,gate_label,required_qa_status,allows_warn,promotion_target,approver,writes_to_pipeline_alert,sort_order,is_active,min_row_count
-PG_001,dev,DEV,0_errors,TRUE,stage,Alex,FALSE,1,TRUE,1
-PG_002,stage,STAGE,0_errors,TRUE,prod,Alex,TRUE,2,TRUE,100
-PG_003,prod,PROD,0_errors,FALSE,,Alex,TRUE,3,TRUE,1000

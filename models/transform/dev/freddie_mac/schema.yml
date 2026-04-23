@@ -7,6 +7,14 @@ models:
       `FREDDIE_MAC_HOUSING_*`. Long-form **GEO × date × variable** with REFERENCE.GEOGRAPHY join; national grain when index misses.
       Catalog **DS_083** / **MET_019** (`vendor_code` freddie_mac).
     tests:
+      # National / weekly Cybersyn grain: time + key nulls only (spine join often env-specific for USA).
+      - fact_semantic_bundle:
+          date_column: date_reference
+          geo_id_column: geo_id
+          geo_level_column: geo_level_code
+          enforce_geography_join: false
+          max_future_days: 7
+          min_calendar_year: 1970
       - dbt_utils.unique_combination_of_columns:
           arguments:
             # Cybersyn timeseries grain is GEO × DATE × VARIABLE (not DATE × VARIABLE alone).

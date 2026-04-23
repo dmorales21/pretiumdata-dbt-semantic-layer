@@ -1,6 +1,0 @@
-bucket_id,bucket_code,bucket_label,days_min,days_max,sort_order,is_active,opco_code
-DLQ_001,current,Current,0,0,1,TRUE,
-DLQ_002,30_days,30 Days,1,30,2,TRUE,
-DLQ_003,60_days,60 Days,31,60,3,TRUE,
-DLQ_004,90_days,90 Days,61,90,4,TRUE,
-DLQ_005,90_plus,90+ Days,91,,5,TRUE,

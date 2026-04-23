@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  # SOURCE_PROD.GREEN_STREET — VARIANT raw panels (Jon load). Parity with pretium-ai-dbt `green_street` source.
+  - name: green_street
+    database: SOURCE_PROD
+    schema: GREEN_STREET
+    description: >
+      GreenStreet Advisors economic projection and macro market data (VARIANT column V on raw tables).
+
+    tables:
+      - name: gs_macro_market_top50_raw
+        identifier: GS_MACRO_MARKET_TOP50_RAW
+        description: "Macro market monthly fundamentals — top-50 markets (VARIANT V)."
+      - name: gs_market_forecast_base_top50_raw
+        identifier: GS_MARKET_FORECAST_BASE_TOP50_RAW
+        description: "Baseline scenario quarterly forecast — top-50 markets (VARIANT V)."

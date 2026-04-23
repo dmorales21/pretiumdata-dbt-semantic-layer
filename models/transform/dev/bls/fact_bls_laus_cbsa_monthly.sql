@@ -6,5 +6,7 @@
     tags=['transform', 'transform_dev', 'bls', 'fact_bls', 'laus', 'observe_only'],
 ) }}
 
-SELECT *
-FROM {{ source('bls_transform', 'laus_cbsa') }}
+SELECT
+    src.*,
+    'cbsa'::varchar AS geo_level_code
+FROM {{ source('bls_transform', 'laus_cbsa') }} AS src

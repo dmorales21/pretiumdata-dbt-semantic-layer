@@ -1,5 +1,0 @@
-hold_period_id,hold_period_code,hold_period_label,year_min,year_max,sort_order,is_active
-HP_001,short_term,Short Term,1,3,1,TRUE
-HP_002,medium_term,Medium Term,3,7,2,TRUE
-HP_003,long_term,Long Term,7,15,3,TRUE
-HP_004,permanent,Permanent,15,,4,TRUE

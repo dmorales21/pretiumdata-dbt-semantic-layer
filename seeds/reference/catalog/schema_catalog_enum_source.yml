@@ -1,0 +1,42 @@
+version: 2
+
+seeds:
+  - name: catalog_enum_source
+    description: >
+      Merged tall-format rows for small catalog enumerations (enum_table + code + label + optional
+      sort_order / range / is_active). Replaces ~57 separate per-enum CSV seeds; see ENUM_CONSOLIDATION_DBT_REFS.md.
+    config:
+      tags: ["reference", "catalog", "enum_source"]
+    columns:
+      - name: enum_table
+        description: Logical enumeration name (snake_case), e.g. data_status, rent_tier.
+        tests:
+          - not_null
+      - name: code
+        description: Stable code for the row within enum_table.
+        tests:
+          - not_null
+      - name: label
+        description: Human-readable label.
+        tests:
+          - not_null
+      - name: sort_order
+        description: Optional integer sort when the source vocabulary defined ordering.
+      - name: range_min
+        description: Optional numeric lower bound when the source defined a paired range.
+      - name: range_max
+        description: Optional numeric upper bound when the source defined a paired range.
+      - name: is_active
+        description: Whether the code is active for new registrations.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Row refresh stamp (ISO date) when the merged file was built.
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - enum_table
+              - code

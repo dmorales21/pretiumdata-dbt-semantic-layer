@@ -9,6 +9,7 @@
     - Semantic CONCEPT_* (market marts) → **TRANSFORM.DEV** via ``dbt_project.yml`` ``models: ... transform: dev: concept:`` (+database / +schema)
     - Intermediate models           → INTERMEDIATE (always)
     - SERVING demo models           → DEMO (always)
+    - SERVING Iceberg landings      → ICEBERG (``+schema: ICEBERG`` under ``models/serving/iceberg``)
     - No default schema fallback    → explicit config required on all paths
   -#}
 

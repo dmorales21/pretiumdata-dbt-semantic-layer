@@ -21,7 +21,7 @@
 
 ## 2. Concept gaps (ontology vs vendor semantics)
 
-Stretch mappings below should be **re-pointed** after new `concept_code` rows exist (add to `concept.csv` + `geo_level_codes` / `frequency_codes` as needed).
+Stretch mappings below should be **re-pointed** after new `concept_code` rows exist (add to `concept.csv` and the **`concept_geo_level`** / **`concept_frequency`** bridge seeds as needed).
 
 | Gap | Why it matters | Typical vendors / datasets |
 |-----|----------------|----------------------------|
@@ -106,7 +106,7 @@ Stretch mappings below should be **re-pointed** after new `concept_code` rows ex
 
 ## 4. Order of operations (checklist)
 
-1. **Freeze concept taxonomy** — add missing **`concept_code`** rows (§2); update **`geo_level_codes` / `frequency_codes`** on `concept` where new grains appear.  
+1. **Freeze concept taxonomy** — add missing **`concept_code`** rows (§2); update **`concept_geo_level`** / **`concept_frequency`** (and **`concept_vertical`** when applicable) where new grains appear.  
 2. **Re-point stretch `dataset.concept_code`** (FEMA, First Street, Overture, FRED, Bankrate/Quadrant, Oxford WDMARCO-style macro series, epoch_ai, parcl).  
 3. **Add `dataset` (+ `pipeline_status`)** for the eight vendors with no row, or **deactivate** vendors not under contract.  
 4. **Populate `bridge_product_type_metric.csv`** — start with **rent** and **homeprice** (CoStar, Zillow, Markerr, Parcl, ApartmentIQ, Matrix).  

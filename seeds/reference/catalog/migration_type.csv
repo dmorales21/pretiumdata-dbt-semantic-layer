@@ -1,5 +1,0 @@
-migration_type_id,migration_type_code,migration_type_label,direction,sort_order,is_active
-MIG_001,domestic_inflow,Domestic Inflow,positive,1,TRUE
-MIG_002,domestic_outflow,Domestic Outflow,negative,2,TRUE
-MIG_003,international_inflow,International Inflow,positive,3,TRUE
-MIG_004,net,Net Migration,positive,4,TRUE

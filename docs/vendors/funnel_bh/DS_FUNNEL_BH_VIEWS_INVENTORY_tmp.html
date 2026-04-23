@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DS_FUNNEL_BH_VIEWS_INVENTORY.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="dsfunnelbh-%E2%80%93-views-inventory-and-cleaned-model-mapping">DS_FUNNEL_BH – Views inventory and cleaned-model mapping</h1>
+<p><strong>Source:</strong> Discovery run 2026-02-09 (Python Snowflake connector).<br>
+<strong>Database:</strong> <code>DS_FUNNEL_BH</code><br>
+<strong>Application schemas:</strong> <code>STANDARD</code> (primary), <code>DBT_CGENTRY</code>, <code>DBT_PROSPERO</code>.<br>
+<strong>Excluded:</strong> <code>INFORMATION_SCHEMA</code> (Snowflake system views).</p>
+<p>Every view below must have a <strong>cleaned model</strong> in <code>TRANSFORM_PROD.CLEANED</code> that preserves funnel data columns (one cleaned model per view).</p>
+<hr>
+<h2 id="schemas-in-dsfunnelbh">Schemas in DS_FUNNEL_BH</h2>
+<table>
+<thead>
+<tr>
+<th>Schema</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>STANDARD</td>
+<td>Primary application views (use this for sources)</td>
+</tr>
+<tr>
+<td>DBT_CGENTRY</td>
+<td>Alternate / dbt export schema</td>
+</tr>
+<tr>
+<td>DBT_PROSPERO</td>
+<td>Alternate (subset of views)</td>
+</tr>
+<tr>
+<td>INFORMATION_SCHEMA</td>
+<td>Snowflake system (do not clean)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="all-application-views-standard-%E2%86%92-cleaned-model-target">All application views (STANDARD) → cleaned model target</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Source view (DS_FUNNEL_BH.STANDARD)</th>
+<th>Cleaned model (transform_prod/cleaned/)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>ACCOUNT_GROUPS</td>
+<td>funnel_account_groups</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ACTION_REQUIRED</td>
+<td>funnel_action_required</td>
+</tr>
+<tr>
+<td>3</td>
+<td>AGENT_ASSIGNMENT</td>
+<td>funnel_agent_assignment</td>
+</tr>
+<tr>
+<td>4</td>
+<td>AGENT_GROUP_HOURS</td>
+<td>funnel_agent_group_hours</td>
+</tr>
+<tr>
+<td>5</td>
+<td>AMENITY_RESERVATION</td>
+<td>funnel_amenity_reservation</td>
+</tr>
+<tr>
+<td>6</td>
+<td>APPLICANTS</td>
+<td>funnel_applicants</td>
+</tr>
+<tr>
+<td>7</td>
+<td>APPLICANT_HISTORY</td>
+<td>funnel_applicant_history</td>
+</tr>
+<tr>
+<td>8</td>
+<td>APPOINTMENTS_AGENTAVAILABILITYBLOCK</td>
+<td>funnel_appointments_agentavailabilityblock</td>
+</tr>
+<tr>
+<td>9</td>
+<td>AUTH_USERS</td>
+<td>funnel_auth_users</td>
+</tr>
+<tr>
+<td>10</td>
+<td>BULKMESSAGES</td>
+<td>funnel_bulkmessages</td>
+</tr>
+<tr>
+<td>11</td>
+<td>CHATBOT_CONVERSATIONS</td>
+<td>funnel_chatbot_conversations</td>
+</tr>
+<tr>
+<td>12</td>
+<td>CLIENTS</td>
+<td>funnel_clients</td>
+</tr>
+<tr>
+<td>13</td>
+<td>CLIENTS_PERSON</td>
+<td>funnel_clients_person</td>
+</tr>
+<tr>
+<td>14</td>
+<td>CLIENT_APPOINTMENTS</td>
+<td>funnel_client_appointments</td>
+</tr>
+<tr>
+<td>15</td>
+<td>CLIENT_FUNNEL</td>
+<td>funnel_client_funnel</td>
+</tr>
+<tr>
+<td>16</td>
+<td>CLIENT_HISTORY</td>
+<td>funnel_client_history</td>
+</tr>
+<tr>
+<td>17</td>
+<td>CLIENT_QUOTES</td>
+<td>funnel_client_quotes</td>
+</tr>
+<tr>
+<td>18</td>
+<td>CLIENT_REMINDERS</td>
+<td>funnel_client_reminders</td>
+</tr>
+<tr>
+<td>19</td>
+<td>CLIENT_TOUCHES</td>
+<td>funnel_client_touches</td>
+</tr>
+<tr>
+<td>20</td>
+<td>CONCESSIONS</td>
+<td>funnel_concessions</td>
+</tr>
+<tr>
+<td>21</td>
+<td>CONVERSATIONS</td>
+<td>funnel_conversations</td>
+</tr>
+<tr>
+<td>22</td>
+<td>GROUP_ASSIGNMENTS</td>
+<td>funnel_group_assignments</td>
+</tr>
+<tr>
+<td>23</td>
+<td>INTEGRATION_AGENTS</td>
+<td>funnel_integration_agents</td>
+</tr>
+<tr>
+<td>24</td>
+<td>LEADACQUISITION_COST</td>
+<td>funnel_leadacquisition_cost</td>
+</tr>
+<tr>
+<td>25</td>
+<td>LEAD_ACQUISITION_COST</td>
+<td>funnel_lead_acquisition_cost</td>
+</tr>
+<tr>
+<td>26</td>
+<td>LEASE_TRANSACTION_HISTORY</td>
+<td>funnel_lease_transaction_history</td>
+</tr>
+<tr>
+<td>27</td>
+<td>LISTING_HISTORY_DAILY</td>
+<td>funnel_listing_history_daily</td>
+</tr>
+<tr>
+<td>28</td>
+<td>LISTING_HISTORY_PERIODS</td>
+<td>funnel_listing_history_periods</td>
+</tr>
+<tr>
+<td>29</td>
+<td>MERGED_CLIENTS</td>
+<td>funnel_merged_clients</td>
+</tr>
+<tr>
+<td>30</td>
+<td>ONLINELEASING_APPLICATION</td>
+<td>funnel_onlineleasing_application</td>
+</tr>
+<tr>
+<td>31</td>
+<td>ONLINELEASING_DEATHINUNITNOTICE</td>
+<td>funnel_onlineleasing_deathinunitnotice</td>
+</tr>
+<tr>
+<td>32</td>
+<td>ONLINELEASING_HOLDOVER</td>
+<td>funnel_onlineleasing_holdover</td>
+</tr>
+<tr>
+<td>33</td>
+<td>ONLINELEASING_LEASE</td>
+<td>funnel_onlineleasing_lease</td>
+</tr>
+<tr>
+<td>34</td>
+<td>ONLINELEASING_LEASEOFFER</td>
+<td>funnel_onlineleasing_leaseoffer</td>
+</tr>
+<tr>
+<td>35</td>
+<td>ONLINELEASING_LEASEPERSON</td>
+<td>funnel_onlineleasing_leaseperson</td>
+</tr>
+<tr>
+<td>36</td>
+<td>ONLINELEASING_MIDLEASECHANGE</td>
+<td>funnel_onlineleasing_midleasechange</td>
+</tr>
+<tr>
+<td>37</td>
+<td>ONLINELEASING_RECONCILIATION</td>
+<td>funnel_onlineleasing_reconciliation</td>
+</tr>
+<tr>
+<td>38</td>
+<td>ONLINELEASING_RENEWAL</td>
+<td>funnel_onlineleasing_renewal</td>
+</tr>
+<tr>
+<td>39</td>
+<td>ONLINELEASING_RENTALOPTIONITEMS</td>
+<td>funnel_onlineleasing_rentaloptionitems</td>
+</tr>
+<tr>
+<td>40</td>
+<td>ONLINELEASING_TRANSFER</td>
+<td>funnel_onlineleasing_transfer</td>
+</tr>
+<tr>
+<td>41</td>
+<td>ONLINELEASING_VACATE</td>
+<td>funnel_onlineleasing_vacate</td>
+</tr>
+<tr>
+<td>42</td>
+<td>ONLINELEASING_WARNING</td>
+<td>funnel_onlineleasing_warning</td>
+</tr>
+<tr>
+<td>43</td>
+<td>PUSHED_CLIENTS</td>
+<td>funnel_pushed_clients</td>
+</tr>
+<tr>
+<td>44</td>
+<td>PUSHED_PEOPLE</td>
+<td>funnel_pushed_people</td>
+</tr>
+<tr>
+<td>45</td>
+<td>RESAPP_LEASEPERSON</td>
+<td>funnel_resapp_leaseperson</td>
+</tr>
+<tr>
+<td>46</td>
+<td>RESAPP_MESSAGES</td>
+<td>funnel_resapp_messages</td>
+</tr>
+<tr>
+<td>47</td>
+<td>STRIPE_BALANCE_TRANSACTIONS</td>
+<td>funnel_stripe_balance_transactions</td>
+</tr>
+<tr>
+<td>48</td>
+<td>STRIPE_CHARGES</td>
+<td>funnel_stripe_charges</td>
+</tr>
+<tr>
+<td>49</td>
+<td>STRIPE_DISPUTES</td>
+<td>funnel_stripe_disputes</td>
+</tr>
+<tr>
+<td>50</td>
+<td>STRIPE_REFUNDS</td>
+<td>funnel_stripe_refunds</td>
+</tr>
+<tr>
+<td>51</td>
+<td>TWILIO_EMAILS</td>
+<td>funnel_twilio_emails</td>
+</tr>
+<tr>
+<td>52</td>
+<td>TWILIO_LIVECHAT</td>
+<td>funnel_twilio_livechat</td>
+</tr>
+<tr>
+<td>53</td>
+<td>TWILIO_PHONECALLS</td>
+<td>funnel_twilio_phonecalls</td>
+</tr>
+<tr>
+<td>54</td>
+<td>TWILIO_SMS</td>
+<td>funnel_twilio_sms</td>
+</tr>
+<tr>
+<td>55</td>
+<td>TWILIO_WORKER_EVENTS</td>
+<td>funnel_twilio_worker_events</td>
+</tr>
+<tr>
+<td>56</td>
+<td>UNITS</td>
+<td>funnel_units</td>
+</tr>
+<tr>
+<td>57</td>
+<td>UNMANAGED_LEADS</td>
+<td>funnel_unmanaged_leads</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total: 57 application views</strong> (excluding INFORMATION_SCHEMA). There are <strong>0 tables</strong> in the share; all are views.</p>
+<hr>
+<h2 id="sourcesyml-configuration">sources.yml configuration</h2>
+<p>Set the funnel source to:</p>
+<ul>
+<li><strong>database:</strong> <code>DS_FUNNEL_BH</code></li>
+<li><strong>schema:</strong> <code>STANDARD</code></li>
+</ul>
+<p>Then add a <code>tables</code> (or <code>views</code>) entry for each view name above so dbt can reference them via <code>source('funnel', 'VIEW_NAME')</code>.</p>
+<hr>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>The existing <code>funnel_property</code> cleaned model referred to <code>source('funnel', 'PROPERTY')</code>. In DS_FUNNEL_BH there is no view named PROPERTY; property/unit linkage is in <strong>UNITS</strong> and possibly <strong>CLIENTS</strong> / <strong>GROUP_ASSIGNMENTS</strong>. Align or rename <code>funnel_property</code> to match the share (e.g. point to UNITS or add a cleaned model for UNITS as <code>funnel_units</code>).</li>
+<li>DBT_CGENTRY and DBT_PROSPERO contain the same or a subset of view names; use STANDARD as the single source schema for cleaned models.</li>
+</ul>
+
+</body>
+</html>

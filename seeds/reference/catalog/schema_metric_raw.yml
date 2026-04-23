@@ -1,0 +1,66 @@
+version: 2
+
+seeds:
+  - name: metric_raw
+    description: >
+      Hand-maintained / bulk-synced metric backlog (pretium-ai-dbt merges, vendor fingerprints).
+      Built metric.csv is generated from this file — do not treat raw alone as REFERENCE load truth.
+    config:
+      schema: CATALOG
+    columns:
+      - name: metric_id
+        tests: [not_null, unique]
+      - name: metric_code
+        tests: [not_null, unique]
+      - name: metric_label
+        tests: [not_null]
+      - name: concept_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('concept')
+                field: concept_code
+      - name: vendor_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('vendor')
+                field: vendor_code
+      - name: geo_level_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('geo_level')
+                field: geo_level_code
+      - name: frequency_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('frequency')
+                field: frequency_code
+      - name: data_status_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('erf__data_status')
+                field: data_status_code
+      - name: metric_category_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('erf__metric_category')
+                field: category_code
+      - name: unit
+        # unit vocabulary: seeds/reference/catalog/unit.csv — do not add values here.
+        tests:
+          - not_null
+          - dbt_utils.relationships_where:
+              to: ref('unit')
+              field: unit_code
+              from_condition: "upper(trim(to_varchar(is_active))) in ('TRUE', '1', 'T')"

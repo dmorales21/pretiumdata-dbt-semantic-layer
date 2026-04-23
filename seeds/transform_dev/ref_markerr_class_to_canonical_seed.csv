@@ -1,0 +1,13 @@
+source_value,class_code,description
+A++,A_PLUS,Markerr A++ -> Class A+ (top tier)
+A+,A_PLUS,Markerr A+ -> Class A+ (top tier)
+A,A,Markerr A -> Class A
+A-,A_MINUS,Markerr A- -> Class A-
+B+,B_PLUS,Markerr B+ -> Class B+
+B,B,Markerr B -> Class B
+B-,B_MINUS,Markerr B- -> Class B-
+C+,C_PLUS,Markerr C+ -> Class C+
+C,C,Markerr C -> Class C
+C-,C_MINUS,Markerr C- -> Class C-
+D,D,Markerr D -> Class D
+ALL,,Markerr ALL -> no single class (NULL)

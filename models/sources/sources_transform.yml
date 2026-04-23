@@ -235,9 +235,12 @@ sources:
   - name: bls_transform
     database: TRANSFORM
     schema: BLS
+    tags: ["pretium_layer_gate_before_fact_dev_readthrough"]
     description: >
       BLS labor statistics in TRANSFORM.BLS. Alex FACT_ models use source() only. County LAUS is the
       preferred base for CBSA aggregates; see MIGRATION_TASKS_TRANSFORM_BPS_CENSUS_BLS_LODES.md Part D.
+      **Layer gate:** run ``dbt test --selector layer_gate_before_fact_bls_laus`` (or
+      ``scripts/ci/dbt_layer_gate_raw_transform_before_facts.sh``) before ``dbt run`` on ``fact_bls_laus_*``.
 
     tables:
       - name: laus_county
@@ -245,11 +248,35 @@ sources:
         description: >
           County-level LAUS (employment, unemployment, labor force, rate). Grain:
           date_reference × county_fips × measure_code (dup probe 0 in batch 002 phase-1).
+        columns:
+          - name: DATE_REFERENCE
+            description: Observation month (DATE).
+            tests: [not_null]
+          - name: COUNTY_FIPS
+            description: County FIPS (5-digit with leading zeros as stored in silver).
+            tests: [not_null]
+          - name: MEASURE_CODE
+            description: BLS measure discriminator (e.g. 3 = unemployment rate).
+            tests: [not_null]
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              arguments:
+                combination_of_columns: ["DATE_REFERENCE", "COUNTY_FIPS", "MEASURE_CODE"]
       - name: laus_cbsa
         identifier: LAUS_CBSA
         description: >
           Metro LAUS table in TRANSFORM.BLS. **`AREA_CODE` is not a reliable OMB CBSA join key** —
           prefer **`fact_bls_laus_county`** + county→CBSA rollups for OMB CBSA; this view is observe-only / legacy parity.
+        columns:
+          - name: DATE_REFERENCE
+            tests: [not_null]
+          - name: AREA_CODE
+            description: BLS LAUS metro series code (not vetted OMB CBSA).
+            tests: [not_null]
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              arguments:
+                combination_of_columns: ["DATE_REFERENCE", "AREA_CODE"]
 
   # ----------------------------------------------------------
   # TRANSFORM.CENSUS — ACS5 and related silver (Jon/DE; read-only)

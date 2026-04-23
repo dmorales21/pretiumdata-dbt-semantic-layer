@@ -8,15 +8,46 @@ models:
       for rolling up to CBSA via `dim_geo_county_cbsa` / REFERENCE.GEOGRAPHY — do not read LAUS_CBSA
       `AREA_CODE` as OMB CBSA without an explicit crosswalk (see migration doc Part C).
       Catalog: `REFERENCE.CATALOG.metric` MET_002–MET_005 (`vendor_code` bls).
+      **`geo_level_code`** is a constant `county` on this read-through so shared **`fact_semantic_bundle`**
+      tests can enforce time + key nulls.       **`enforce_geography_join: false`** because a small share of
+      LAUS **county_fips** values may not yet appear in **REFERENCE.GEOGRAPHY.GEOGRAPHY_LATEST** (coverage
+      / vintage drift); county rows that must join the spine are checked downstream on
+      **`concept_unemployment_market_monthly`** via **`qa_geography_referential_integrity`**.
+      **Spine coverage (scheduled):** singular test **`assert_fact_bls_laus_county_geography_spine_miss_rate_lt_threshold`**
+      (``tests/bls/``) — gated by ``enable_laus_county_geography_spine_miss_rate_test``; fails only if miss rate
+      ≥ ``laus_county_geography_spine_miss_rate_max`` (default **0.001**). Selector: **`monthly_geography_spine_qa`**.
+    tests:
+      - fact_semantic_bundle:
+          arguments:
+            date_column: date_reference
+            geo_id_column: county_fips
+            geo_level_column: geo_level_code
+            enforce_geography_join: false
+            max_future_days: 0
+            min_calendar_year: 1990
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['date_reference', 'county_fips', 'measure_code']
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(measure_code != 3) or (value is null) or (value >= 0 and value <= 100)"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(measure_code not in (4, 5, 6)) or (value is null) or (value >= 0)"
     columns:
       - name: date_reference
         description: Observation month (first of month).
+        tests: [not_null]
       - name: county_fips
         description: 5-digit county FIPS (state + county).
+        tests: [not_null]
       - name: measure_code
         description: BLS measure discriminator (e.g. 03 rate, 04–06 counts — align to dim_metric when cataloged).
+        tests: [not_null]
       - name: value
         description: Measure value (rate or level per METRIC_NAME semantics).
+      - name: geo_level_code
+        description: Constant `county` — synthetic column for semantic-bundle / spine QA (not from BLS silver).
 
   - name: fact_bls_laus_cbsa_monthly
     description: >
@@ -26,14 +57,41 @@ models:
       LAUS + `dim_geo_county_cbsa` for that reason. Use this semantic-layer object only for parity /
       exploration unless DE documents a vetted join. Catalog: **not** a `MET_*` registration in
       `seeds/reference/catalog/metric.csv` (prefer county LAUS **MET_002–MET_005** + explicit CBSA rollups).
+      **`geo_level_code`** is constant `cbsa` for bundle time/null checks; **`enforce_geography_join: false`**
+      because **`AREA_CODE`** is not vetted as OMB CBSA in **REFERENCE.GEOGRAPHY**.
+    tests:
+      - fact_semantic_bundle:
+          arguments:
+            date_column: date_reference
+            geo_id_column: area_code
+            geo_level_column: geo_level_code
+            enforce_geography_join: false
+            max_future_days: 0
+            min_calendar_year: 1990
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['date_reference', 'area_code']
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(unemployment_rate is null) or (unemployment_rate >= 0 and unemployment_rate <= 100)"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(unemployed_count is null) or (unemployed_count >= 0)"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(employment is null) or (employment >= 0)"
     columns:
       - name: date_reference
         description: Month of observation.
+        tests: [not_null]
       - name: area_code
         description: BLS LAUS metro area code — **do not** assume 5-digit OMB CBSA without validation.
+        tests: [not_null]
       - name: unemployment_rate
         description: Published LAUS unemployment rate at BLS `AREA_CODE` grain (not long-form `VALUE` like county LAUS).
       - name: unemployed_count
         description: Published unemployed level at BLS `AREA_CODE` grain.
       - name: employment
         description: Published employment level at BLS `AREA_CODE` grain.
+      - name: geo_level_code
+        description: Constant `cbsa` — synthetic for semantic-bundle QA only; join to **REFERENCE.GEOGRAPHY** is disabled for this model.

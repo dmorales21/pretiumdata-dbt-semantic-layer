@@ -8,6 +8,8 @@
 | **`{vendor_code}/dictionary.csv`** | Tabular field / metric dictionary (extend as `DESCRIBE` / lineage work completes). |
 | **`{vendor_code}/dictionary.yaml`** | Structured metadata: vendor ids, default grains, `source()` families, links to seeds. |
 
+**Intake mirror (column inventory + long-form guidance):** [`../vendors/`](../vendors/) — one `vendor_metrics.csv` + `vendor_guidance.md` per vendor, regenerated from pretium-ai-dbt `metric.csv` where available (`python3 scripts/docs/generate_all_vendors_intake_full.py`). **`zillow`** there is hand-curated and skipped by the script.
+
 **Machine-readable inventory (all vendors):** [`0_inventory/`](./0_inventory/) — `vendors_inventory.csv`, `vendors_inventory.yaml`, and `README.md`.
 
 **Canonical registry:** Do not invent vendor codes here; **`vendor.csv`** is the source of truth. Regenerate per-vendor stubs after seed changes:

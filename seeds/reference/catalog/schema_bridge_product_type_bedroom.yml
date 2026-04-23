@@ -1,0 +1,35 @@
+version: 2
+
+seeds:
+  - name: bridge_product_type_bedroom_type
+    description: >
+      Authoring bridge **product_type_code** → **bedroom_type_code** with explicit **sort_order** per pair.
+      **product_type.bedroom_type_codes** is machine-derived via
+      **scripts/reference/catalog/sync_product_type_bedroom_codes_from_bridge.py** until the comma column is dropped.
+    config:
+      schema: CATALOG
+    columns:
+      - name: product_type_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('product_type')
+                field: product_type_code
+      - name: bedroom_type_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('bedroom_type')
+                field: bedroom_type_code
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - product_type_code
+              - bedroom_type_code

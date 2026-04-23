@@ -30,10 +30,9 @@ bash "$ROOT/scripts/ci/print_catalog_seed_test_inventory.sh"
 
 if [[ "${RUN_SNOWFLAKE_CHECKS:-0}" == "1" ]]; then
   TARGET="${DBT_TARGET:-dev}"
-  echo "==> dbt build — seed then test (path:seeds/reference/catalog) target=${TARGET}"
-  # Single graph invocation so new seeds (e.g. metric_derived_input) materialize before tests;
-  # separate seed+test runs can leave METRIC_DERIVED_INPUT missing if seed was skipped or stale.
-  dbt build --target "${TARGET}" --select path:seeds/reference/catalog
+  echo "==> dbt build — catalog seeds + TRANSFORM.DEV metric registration QA (selector: catalog_metric_transform_dev_registration_enforcement) target=${TARGET}"
+  # Single graph invocation: catalog seeds/tests, materialize QA lineage, singular **metric_transform_dev_lineage**.
+  dbt build --target "${TARGET}" --selector catalog_metric_transform_dev_registration_enforcement
   echo "==> dbt compile — models/analytics/feature"
   dbt compile --target "${TARGET}" --select path:models/analytics/feature
   echo "==> Snowflake KPI block — concept assignment coverage"

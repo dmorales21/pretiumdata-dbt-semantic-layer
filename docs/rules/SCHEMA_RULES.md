@@ -118,6 +118,8 @@ Jon / David / Spencer rows in the same file are **not** edited here; Alex consum
 
 Matrix row **“Vendor Dataset Cleaned”** (`TRANSFORM` / **`.DEV`** / **FACT**) shows a suffix pattern **`[vendor]_[dataset]_…`**. In **this** repo, canonical migrated objects use **dbt model aliases**: **`FACT_*`**, **`CONCEPT_*`**, and corridor **`REF_*`** (e.g. **`TRANSFORM.DEV.FACT_LODES_OD_WORKPLACE_HEX_ANNUAL`**, **`TRANSFORM.DEV.REF_CORRIDOR_EMPLOYMENT_CENTERS`**). That is still **one Snowflake schema `DEV`**, not a separate **`TRANSFORM.FACT`** schema (Jon PROD pattern on rows 35–36 is different).
 
+**`FACT_*` vs `CONCEPT_*` vs ANALYTICS `FEATURE_*`:** **`FACT_*`** on **`TRANSFORM.DEV`** are **vendor-native** cleaned tables (rename, typing, vendor grain fixes, and vendor-appropriate rollups only). **`CONCEPT_*`** are semantic **concept unions** built from facts with catalog-driven grain and additivity / contract rules. **Wide product panels** that join multiple vendor corridor facts for an application (for example the Multifamily Market Ranker county × month surface) belong in **`ANALYTICS.DBT_*` `FEATURE_*`** (assembly plus light derived fields such as MoM on a single-vendor driver), not as **`FACT_*`**. Rows may still carry **REFERENCE.CATALOG** ``concept_code`` (e.g. `multifamily_market`) for metric registration — that is **bundle vocabulary**, not a physical **`CONCEPT_*`** object prefix.
+
 ### Catalog & enforcement (Alex)
 
 - **§1** — Alex ensures **`REFERENCE.CATALOG`** seeds / dimensions exist for tokens used in **Alex-authored** object names before shipping.

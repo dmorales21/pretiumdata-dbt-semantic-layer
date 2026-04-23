@@ -47,6 +47,13 @@ models:
       HUD housing series at county x month grain (compatibility alias for SERVING.DEMO wave 1).
       Canonical monthly county surface for MET_007 family.
     tests:
+      - fact_semantic_bundle:
+          date_column: date_reference
+          geo_id_column: geo_id
+          geo_level_column: geo_level_code
+          enforce_geography_join: true
+          max_future_days: 0
+          min_calendar_year: 1900
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: ['geo_id', 'date_reference', 'variable']
@@ -70,6 +77,13 @@ models:
       HUD housing series at CBSA x month grain (compatibility alias for SERVING.DEMO wave 1).
       Canonical monthly CBSA surface for MET_008 family.
     tests:
+      - fact_semantic_bundle:
+          date_column: date_reference
+          geo_id_column: geo_id
+          geo_level_column: geo_level_code
+          enforce_geography_join: true
+          max_future_days: 0
+          min_calendar_year: 1900
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: ['geo_id', 'date_reference', 'variable']

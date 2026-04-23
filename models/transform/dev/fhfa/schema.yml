@@ -45,6 +45,13 @@ models:
     description: >
       FHFA house price series at county x month grain for MET_013 family (compatibility alias).
     tests:
+      - fact_semantic_bundle:
+          date_column: date_reference
+          geo_id_column: geo_id
+          geo_level_column: geo_level_code
+          enforce_geography_join: true
+          max_future_days: 0
+          min_calendar_year: 1900
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: ['geo_id', 'date_reference', 'variable']

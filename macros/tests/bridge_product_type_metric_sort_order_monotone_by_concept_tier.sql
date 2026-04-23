@@ -24,7 +24,11 @@ WITH enriched AS (
         ON p.concept_code = m.concept_code
     WHERE COALESCE(
             TRY_TO_NUMBER(TO_VARCHAR(b.is_active)),
-            IFF(TRY_CAST(b.is_active AS BOOLEAN), 1, 0)
+            CASE
+                WHEN UPPER(TRIM(TO_VARCHAR(b.is_active))) IN ('TRUE', 'T', 'Y', 'YES') THEN 1
+                WHEN UPPER(TRIM(TO_VARCHAR(b.is_active))) IN ('FALSE', 'F', 'N', 'NO') THEN 0
+                ELSE NULL
+            END
         ) = 1
 ),
 

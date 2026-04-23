@@ -1,5 +1,0 @@
-lease_term_id,lease_term_code,lease_term_label,months_min,months_max,sort_order,is_active
-LT_001,month_to_month,Month-to-Month,1,1,1,TRUE
-LT_002,6mo,6 Month,6,6,2,TRUE
-LT_003,12mo,12 Month,12,12,3,TRUE
-LT_004,24mo_plus,24 Month+,24,,4,TRUE

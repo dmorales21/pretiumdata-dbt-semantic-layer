@@ -11,17 +11,18 @@
 
 | Artifact | Canonical location | Role |
 |----------|-------------------|------|
-| **`metric.csv`** | **`pretiumdata-dbt-semantic-layer/pretiumdata-dbt-semantic-layer/seeds/reference/catalog/metric.csv`** | **Only** place to add, edit, or retire **`REFERENCE.CATALOG.metric`** rows for this program. |
+| **`metric_raw.csv`** | **`seeds/reference/catalog/metric_raw.csv`** | **Authoring SoT** — add, edit, or retire backlog rows; bulk merges land here. |
+| **`metric.csv`** | **`seeds/reference/catalog/metric.csv`** | **Generated** — run **`scripts/reference/catalog/build_metric_csv_from_metric_raw.py`** (see **`docs/reference/METRIC_CSV_BUILD_SPEC.md`**); REFERENCE loads this file. |
 | **`bridge_product_type_metric.csv`** | Same repo, `seeds/reference/catalog/` | Product / offering exposure of **`metric_code`**; must stay consistent with **`metric`** (FK tests). |
-| **`scripts/_gen_metric_csv.py`** | Same repo, `scripts/` | **Scaffolding only** (coverage gaps, bridge-driven shells). **Curated vendor metrics** replace generator placeholders over time; do not treat generated text as the semantic definition of record. |
-| **`scripts/sync_metric_csv_from_pretium_ai_dbt.py`** | Same repo, `scripts/` | **Bulk intake** from **`pretium-ai-dbt/dbt/seeds/reference/catalog/metric.csv`**: applies FK-safe **`geo_level_code`** remaps only (Oxford ``varies`` → ``cbsa`` / ``national``), normalizes booleans, merges **`bridge_product_type_metric`**-only rows from the current canonical file, writes **`seeds/reference/catalog/metric.csv`**. **`concept_code`** must exist in **`concept.csv`** in this repo (no concept remaps in the script). Re-run after editing the pretium-ai-dbt export. |
+| **`scripts/_gen_metric_csv.py`** | Same repo, `scripts/` | **Scaffolding only** (coverage gaps, bridge-driven shells). Prefer **`metric_raw`** + the build script for durable intake. |
+| **`scripts/sync_metric_csv_from_pretium_ai_dbt.py`** | Same repo, `scripts/` | **Bulk intake** from **`pretium-ai-dbt/.../metric.csv`**: remaps + merges bridge-only rows, writes **`metric_raw.csv`**. Then run **`build_metric_csv_from_metric_raw.py`**. |
 | **`pretium-ai-dbt/dbt/seeds/reference/catalog/metric.csv`** | Legacy / convenience mirror | **Not** a second authority. If a mirror is still needed for older workflows, **copy from the semantic-layer file** in a controlled change; do not fork definitions long-term. Vendor research CSVs under **`pretium-ai-dbt/docs/vendor/metrics/`** are **inputs** to intake, not the catalog. |
 
 **Derived analytics metrics** (`FEATURE_*` / `MODEL_*` / `ESTIMATE_*`) belong in **`metric_derived*.csv`** per **`CATALOG_METRIC_DERIVED_LAYOUT.md`**, not duplicated as warehouse **`metric`** rows unless the column is still a direct observable on **`TRANSFORM.DEV`**.
 
 ---
 
-## 2. `metric.csv` column contract (formatting)
+## 2. `metric_raw.csv` / `metric.csv` column contract (formatting)
 
 Header (exact order for seeds):
 

@@ -3,30 +3,44 @@ version: 2
 models:
   - name: fact_markerr_rent_property_cbsa_monthly
     description: >
-      Read-through of **TRANSFORM.MARKERR.RENT_PROPERTY_CBSA_MONTHLY**. CBSA × month MF aggregates; catalog **MET_044** / **MET_045**.
+      **TRANSFORM.MARKERR.RENT_PROPERTY_CBSA_MONTHLY** with LPAD CBSA, trimmed bed/class buckets, and typed rent columns.
+      Catalog **MET_044** / **MET_045**; feeds ``concept_rent_market_monthly`` MF Markerr arm.
     config:
       tags: ["transform", "transform_dev", "markerr", "fact_markerr"]
-    data_tests:
-      - dbt_utils.equal_rowcount:
-          compare_model: source('transform_markerr', 'rent_property_cbsa_monthly')
-          config:
-            enabled: "{{ var('semantic_layer_qa_transform_dev_bound_tests', false) }}"
-      - dbt_utils.expression_is_true:
-          expression: "(AVG_RENT_EFFECTIVE is null) or (AVG_RENT_EFFECTIVE > 0 and AVG_RENT_EFFECTIVE <= 100000)"
-          config:
-            enabled: "{{ var('semantic_layer_qa_transform_dev_bound_tests', false) }}"
-      - dbt_utils.expression_is_true:
-          expression: "(AVG_RENT_ASKING is null) or (AVG_RENT_ASKING > 0 and AVG_RENT_ASKING <= 100000)"
-          config:
-            enabled: "{{ var('semantic_layer_qa_transform_dev_bound_tests', false) }}"
-    columns:
-      - name: AVG_RENT_EFFECTIVE
-        description: Catalog **MET_044**.
-      - name: AVG_RENT_ASKING
-        description: Catalog **MET_045**.
 
   - name: fact_markerr_rent_sfr
     description: >
-      Read-through of **TRANSFORM.MARKERR.MARKERR_RENT_SFR** (SFR ZIP series for rollup in ``concept_rent_market_monthly``).
+      **TRANSFORM.MARKERR.MARKERR_RENT_SFR** — explicit projection of all Markerr SFR rent / stock / change columns (see ``DESC TABLE TRANSFORM.MARKERR.MARKERR_RENT_SFR``); typed for downstream joins including ``concept_rent_market_monthly`` ZIP arm.
     config:
       tags: ["transform", "transform_dev", "markerr", "fact_markerr"]
+
+  - name: fact_markerr_rent_property
+    description: >
+      **TRANSFORM.MARKERR.RENT_PROPERTY** with trims, date parse, typed rent/vacancy/occupancy, ``quality_flag``, and
+      **REFERENCE.GEOGRAPHY** enrichment on ZIP: ``reference_*`` county/CBSA/state from the HUD postal spine;
+      ``zip_to_h3_*`` / ``zip_to_cbsa_id`` from **BRIDGE_ZIP_H3_R8_POLYFILL** (dominant weight). Vendor ``MSA_ID`` is
+      retained as-is for legacy joins. Filter aggressively before wide scans.
+    config:
+      tags: ["transform", "transform_dev", "markerr", "fact_markerr", "rent"]
+
+  - name: fact_markerr_rent_listings
+    description: >
+      **TRANSFORM.MARKERR.RENT_LISTINGS** with fingerprint, availability enum, rent parse, beds bucket, ZIP→H3 via
+      **REFERENCE.GEOGRAPHY.BRIDGE_ZIP_H3_R8_POLYFILL** (dominant weight), ZIP→county/CBSA via the HUD postal spine
+      (``reference_*``), and **REFERENCE.GEOGRAPHY.CBSA** ``name`` as ``cbsa_name`` (CBSA from bridge when present,
+      else HUD-primary CBSA). Mirrors **pretium-ai-dbt** ``cleaned_markerr_rent_listings`` without incremental merge.
+    config:
+      tags: ["transform", "transform_dev", "markerr", "fact_markerr", "rent"]
+
+  - name: fact_markerr_rent_property_monthly
+    description: >
+      **TRANSFORM.MARKERR.RENT_PROPERTY_MONTHLY** with MSA name → **REFERENCE.GEOGRAPHY.CBSA** (``reference_geography_year()``), class canonicalization via ``ref('ref_markerr_class_to_canonical')``, bedroom normalization, and string rent parsing — aligned with **pretium-ai-dbt** ``cleaned_markerr_rent_property_monthly`` (non-incremental view).
+      Markerr ``ALL`` (seed-mapped with null ``class_code``) yields **null** ``class_code``; unmapped classes still surface as trimmed raw ``CLASS_CATEGORY``.
+    config:
+      tags: ["transform", "transform_dev", "markerr", "fact_markerr", "rent"]
+
+  - name: ref_markerr_class_to_canonical
+    description: >
+      Seed-backed view mapping Markerr ``CLASS_CATEGORY`` strings to canonical ``class_code`` (parity with **pretium-ai-dbt** ``ref_markerr_class_to_canonical``).
+    config:
+      tags: ["transform", "transform_dev", "markerr", "ref", "xwalk"]

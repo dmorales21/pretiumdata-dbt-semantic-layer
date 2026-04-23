@@ -1,6 +1,6 @@
-bedroom_type_id,bedroom_type_code,bedroom_type_label,bedroom_count_min,bedroom_count_max,is_single_family_relevant,is_multifamily_relevant,sort_order,is_active
-BR_001,studio,Studio,0,0,FALSE,TRUE,1,TRUE
-BR_002,1br,1BR,1,1,FALSE,TRUE,2,TRUE
-BR_003,2br,2BR,2,2,TRUE,TRUE,3,TRUE
-BR_004,3br,3BR,3,3,TRUE,TRUE,4,TRUE
-BR_005,4br_plus,4BR+,4,,TRUE,FALSE,5,TRUE
+bedroom_type_id,bedroom_type_code,bedroom_type_label,sort_order,is_active
+BR_001,studio,Studio,1,TRUE
+BR_002,1br,1 bedroom,2,TRUE
+BR_003,2br,2 bedroom,3,TRUE
+BR_004,3br,3 bedroom,4,TRUE
+BR_005,4br_plus,4+ bedrooms,5,TRUE

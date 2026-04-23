@@ -1,0 +1,10 @@
+date_reference,geo_id,geo_level_code,lead_to_appt_conversion_pct,appt_to_tour_conversion_pct,tour_to_application_conversion_pct,lead_to_lease_conversion_pct,pre_tour_follow_up_pct,post_tour_follow_up_pct,last_90d_queue_count,no_show_pct,tour_completed_pct,refreshed_at
+2026-02-07,COMM_A,METRIC,32.5,78.2,45.0,12.1,,,142,15.2,72.3,2026-02-08 10:00:00
+2026-02-07,COMM_B,METRIC,28.0,82.1,38.5,9.8,,,98,12.0,80.0,2026-02-08 10:00:00
+2026-02-07,COMM_C,METRIC,41.2,71.0,52.3,15.4,,,210,18.5,68.2,2026-02-08 10:00:00
+2026-02-06,COMM_A,METRIC,30.1,75.0,42.1,11.2,,,138,16.0,70.0,2026-02-08 10:00:00
+2026-02-06,COMM_B,METRIC,26.5,80.0,40.0,10.1,,,95,14.2,78.5,2026-02-08 10:00:00
+2026-02-06,COMM_C,METRIC,38.8,69.5,48.0,14.2,,,205,19.0,65.0,2026-02-08 10:00:00
+2026-02-05,COMM_A,METRIC,33.0,76.5,44.0,11.8,,,135,14.0,73.0,2026-02-08 10:00:00
+2026-02-05,COMM_B,METRIC,,85.0,35.0,8.5,,,92,10.0,82.0,2026-02-08 10:00:00
+2026-02-05,COMM_C,METRIC,40.0,72.0,50.0,14.8,,,200,17.0,70.0,2026-02-08 10:00:00

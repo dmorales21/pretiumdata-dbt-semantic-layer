@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  # SOURCE_PROD.BANKRATE — state home insurance (PITI / place).
+  - name: bankrate
+    database: SOURCE_PROD
+    schema: BANKRATE
+    tables:
+      - name: insurance_state
+        identifier: INSURANCE_STATE
+        description: >
+          State-level premiums; canonical **FACT_INSURANCE_STATE** in semantic-layer
+          `models/transform/dev/insurance/`. Parity: pretium-ai-dbt `cleaned_bankrate_insurance_state.sql`.
+
+  # SOURCE_PROD.QUADRANT — state rates by dwelling coverage.
+  - name: quadrant
+    database: SOURCE_PROD
+    schema: QUADRANT
+    tables:
+      - name: insurance_state_rates
+        identifier: INSURANCE_STATE_RATES
+        description: >
+          State-level average rates (200K–1000K dwelling); merged into **FACT_INSURANCE_STATE**.
+          Parity: pretium-ai-dbt `cleaned_quadrant_insurance_state_rates.sql`.
+
+  # SOURCE_PROD.TAX_FOUNDATION — county property tax (PITI / policy).
+  - name: tax_foundation
+    database: SOURCE_PROD
+    schema: TAX_FOUNDATION
+    tables:
+      - name: property_taxes_by_county_2025
+        identifier: PROPERTY_TAXES_BY_COUNTY_2025
+        description: >
+          County effective rate + median value / tax paid; **FACT_PROPERTY_TAX_BY_COUNTY** long format.
+          Parity: pretium-ai-dbt `tax_foundation_property_taxes_by_county.sql` + FIPS via REFERENCE.GEOGRAPHY.

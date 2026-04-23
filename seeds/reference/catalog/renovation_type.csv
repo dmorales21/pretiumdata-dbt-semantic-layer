@@ -1,5 +1,0 @@
-renovation_type_id,renovation_type_code,renovation_type_label,sort_order,is_active,cost_psf_min,cost_psf_max
-REN_001,light,Light,1,TRUE,5.0,15.0
-REN_002,moderate,Moderate,2,TRUE,15.0,35.0
-REN_003,heavy,Heavy,3,TRUE,35.0,75.0
-REN_004,gut_rehab,Gut Rehab,4,TRUE,75.0,150.0

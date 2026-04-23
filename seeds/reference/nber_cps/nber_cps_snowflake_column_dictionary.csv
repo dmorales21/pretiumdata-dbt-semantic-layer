@@ -1,0 +1,392 @@
+snowflake_column_name,code_list_variable,match_kind,notes
+P_YEAR,,ingest_metadata,Pipeline / S3 / load; not a CPS microdata mnemonic in code list JSON.
+P_MONTH,,ingest_metadata,Pipeline / S3 / load; not a CPS microdata mnemonic in code list JSON.
+CBSA_CODE,CBSA,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+CBSA_SIZE_CODE,GTCBSASZ,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+CBSA_STATE_CODE,GTCBSAST,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+COUNTY_CODE,COUNTY,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+CSA_CODE,CSA,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+GEOGRAPHIC_INDIVIDUAL_PERSON_CODE,,etl_geography,Geography fields; relate to GTCBSAST/GTCO/GESTFIPS-style keys where applicable.
+GEOGRAPHIC_REGION,,etl_geography,Geography fields; relate to GTCBSAST/GTCO/GESTFIPS-style keys where applicable.
+GEOGRAPHIC_STATE_CENSUS_CODE,,etl_geography,Geography fields; relate to GTCBSAST/GTCO/GESTFIPS-style keys where applicable.
+HOUSEHOLD_CROSS_FAMILY_INCOME,HXFAMINC,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_CROSS_HOUSING_UNIT_TYPE,HXHOUSUT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_CROSS_PHONE_OWNERSHIP,HXPHONEO,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_CROSS_TELEPHONE_AVAILABLE,HXTELAVL,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_CROSS_TELEPHONE_IN_HOUSEHOLD,HXTELHHD,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_CROSS_TENURE,HXTENURE,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_FAMILY_INCOME,HEFAMINC,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_HOUSING_UNIT_TYPE,HEHOUSUT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_ID,HRHHID,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_ID_SECONDARY,HRHHID2,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_MISSING,HRMIS,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_PHONE_OWNERSHIP,HEPHONEO,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_TELEPHONE_AVAILABLE,HETELAVL,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_TELEPHONE_IN_HOUSEHOLD,HETELHHD,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_TENURE,HETENURE,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_TYPE,HRHTYPE,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSEHOLD_WEIGHT,HWHHWGT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+HOUSING_UNIT_BUSINESS,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_BUSINESS_LINE_1,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_BUSINESS_LINE_2,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_BUSINESS_LINE_3,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_BUSINESS_LINE_4,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_FINAL,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_INTERVIEW_TYPE,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_PERSONS_COUNT,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_RESPONDENT_LINE,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_SPANISH,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_TYPE_A,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_TYPE_B,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+HOUSING_UNIT_TYPE_C,,etl_housing_unit,HU-level CPS fields; map to HUBUS/HUFINAL/HUTYP* family in code list as needed.
+INTERVIEW_STATUS,HUFINAL,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+LONGITUDINAL_LINK,HRLONGLK,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+METROPOLITAN_STATUS,GTMETSTA,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+NUMBER_OF_HOUSEHOLD_MEMBERS,HRNUMHOU,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+OCCURRENCE_NUMBER,OCCURNUM,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_ABSENT_PERIOD,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_ABSENT_REASON,PEABSRSN,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_ARMED_FORCES_EVER,PEAFEVER,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_ARMED_FORCES_NOW,PEAFNOW,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_ARMED_FORCES_WHEN_1,PEAFWHN1,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_ARMED_FORCES_WHEN_2,PEAFWHN2,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_ARMED_FORCES_WHEN_3,PEAFWHN3,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_ARMED_FORCES_WHEN_4,PEAFWHN4,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_COHABITING,PECOHAB,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_CROSS_ABSENT_PERIOD,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_ABSENT_REASON,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_AGE,PXAGE,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_CROSS_ARMED_FORCES_EVER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_ARMED_FORCES_NOW,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_ARMED_FORCES_WHEN_1,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_COHABITING,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_CYCLE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DAD_TYPE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DID_WORK_4_WEEKS,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DID_WORK_AVAILABLE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DID_WORK_AVAILABLE_REASON,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DID_WORK_LOOK,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DID_WORK_LOOK_WEEKS,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DID_WORK_REASON,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DID_WORK_WANT,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DID_WORK_WEEK,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DIPLOMA_GED,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DISABILITY_DIFFICULTY_REMEMBERING,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DISABILITY_HEARING,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DISABILITY_OUTSIDE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DISABILITY_PHYSICAL,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DISABILITY_REMEMBERING,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_DISABILITY_SEEING,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS_COVERED,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS_HOURLY_1_OTHER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS_HOURLY_2,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS_HOURLY_RATE_OTHER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS_HOURLY_RATE_YEARLY,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS_LABOR,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS_PERIOD,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS_RATE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS_UNION_OTHER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EARNINGS_WEEKS_PAID,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_EDUCATION,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_FATHER_NATIVITY,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_GRADE_6_CORRECTED,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_GRADE_PROFESSIONAL,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HIGHEST_GRADE_COMPLETED,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HISPANIC_NON_HISPANIC,PXHSPNON,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_CROSS_HOURS_WORKED_ACTIVITY_1,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_ACTIVITY_2,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_ACTIVITY_TOTAL,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_AVAILABLE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_FULL_TIME_PART_TIME,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_REASON_1,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_REASON_2,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_REASON_3,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_USUAL_1,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_USUAL_2,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_USUAL_TOTAL,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_HOURS_WORKED_WANT,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_IMMIGRATION_YEAR,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_INDUSTRY_OCCUPATION_1_CLASS_OF_WORKER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_INDUSTRY_OCCUPATION_1_INDUSTRY_CODE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_INDUSTRY_OCCUPATION_1_OCCUPATION_CODE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_INDUSTRY_OCCUPATION_2_CLASS_OF_WORKER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_INDUSTRY_OCCUPATION_2_INDUSTRY_CODE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_INDUSTRY_OCCUPATION_2_OCCUPATION_CODE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_JOB_HOURS_REASON,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_JOB_HOURS_WANT,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_JOB_HOURS_WOULD_WORK,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LAYOFF_AVAILABLE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LAYOFF_DURATION,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LAYOFF_FULL_TIME_OTHER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LAYOFF_LOOK,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LINE_NUMBER_DAD,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LINE_NUMBER_MOM,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LOOKING_AVAILABLE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LOOKING_DURATION,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LOOKING_FULL_TIME_OTHER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LOOKING_LAST_LOOK_1_OTHER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LOOKING_LAST_LOOK_2_OTHER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LOOKING_LAST_WORK_OTHER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_LOOKING_METHOD_1,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_MARITAL_STATUS,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_MOM_TYPE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_MONTHLY_LABOR_FORCE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_MONTHLY_STATUS_123,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_MOTHER_NATIVITY,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_MULTIPLE_JOBS_NUMBER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_MULTIPLE_JOBS_OTHER,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_NATIVITY,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_NOT_IN_LABOR_FORCE_ACTIVITY,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_NOT_IN_LABOR_FORCE_JOB_HISTORY,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_NOT_IN_LABOR_FORCE_RETIRED,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_PARENT,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_RACE_1,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_RETIREMENT_1,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_RRP,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_SCHOOL_ENROLLED,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_SCHOOL_FULL_TIME,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_SCHOOL_LEVEL,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CROSS_SEX,PXSEX,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_CROSS_SPOUSE,,etl_cross_month,Cross-month or allocation bridge; often pairs with PX* allocation flags in code list.
+PERSON_CYCLE,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_DAD_TYPE,PEPAR1TYP,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_DID_WORK_4_WEEKS,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_DID_WORK_AVAILABLE,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_DID_WORK_AVAILABLE_REASON,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_DID_WORK_LOOK,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_DID_WORK_LOOK_WEEKS,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_DID_WORK_REASON,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_DID_WORK_WANT,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_DID_WORK_WEEK,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_DIPLOMA_GED,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_DISABILITY_DIFFICULTY_REMEMBERING,PEDISDRS,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_DISABILITY_HEARING,PEDISEAR,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_DISABILITY_OUTSIDE,PEDISOUT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_DISABILITY_PHYSICAL,PEDISPHY,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_DISABILITY_REMEMBERING,PEDISREM,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_DISABILITY_SEEING,PEDISEYE,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_EARNINGS,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EARNINGS_COVERED,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EARNINGS_HOURLY_1_OTHER,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EARNINGS_HOURLY_2,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EARNINGS_HOURLY_RATE_OTHER,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EARNINGS_HOURLY_RATE_YEARLY,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EARNINGS_LABOR,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EARNINGS_PERIOD,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EARNINGS_RATE,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EARNINGS_UNION_OTHER,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EARNINGS_WEEKS_PAID,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_EDUCATION,PEEDUCA,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_FATHER_NATIVITY,PEFNTVTY,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_GRADE_6_CORRECTED,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_GRADE_PROFESSIONAL,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HIGHEST_GRADE_COMPLETED,PEHGCOMP,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_HISPANIC_NON_HISPANIC,PEHSPNON,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_HOURS_WORKED_ACTIVITY_1,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_ACTIVITY_2,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_ACTIVITY_TOTAL,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_AVAILABLE,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_FULL_TIME_PART_TIME,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_REASON_1,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_REASON_2,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_REASON_3,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_USUAL_1,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_USUAL_2,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_USUAL_TOTAL,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_HOURS_WORKED_WANT,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_INDUSTRY_OCCUPATION_1_CLASS_OF_WORKER,PEIO1COW,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_INDUSTRY_OCCUPATION_1_INDUSTRY_CODE,PEIO1ICD,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_INDUSTRY_OCCUPATION_1_OCCUPATION_CODE,PTIO1OCD,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_INDUSTRY_OCCUPATION_2_CLASS_OF_WORKER,PEIO2COW,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_INDUSTRY_OCCUPATION_2_INDUSTRY_CODE,PEIO2ICD,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_INDUSTRY_OCCUPATION_2_OCCUPATION_CODE,PTIO2OCD,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_JOB_HOURS_REASON,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_JOB_HOURS_WANT,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_JOB_HOURS_WOULD_WORK,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_LAYOFF_AVAILABLE,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_LAYOFF_DURATION,PELAYDUR,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_LAYOFF_FULL_TIME_OTHER,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_LAYOFF_LOOK,PELAYLK,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_LINE_NUMBER_DAD,PEPAR1,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_LINE_NUMBER_MOM,PEPAR2,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_LOOKING_AVAILABLE,PELKAVL,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_LOOKING_DURATION,PELKDUR,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_LOOKING_FULL_TIME_OTHER,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_LOOKING_LAST_LOOK_1_OTHER,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_LOOKING_LAST_LOOK_2_OTHER,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_LOOKING_LAST_WORK_OTHER,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_LOOKING_METHOD_1,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_MARITAL_STATUS,PEMARITL,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_MOM_TYPE,PEPAR2TYP,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_MONTHLY_LABOR_FORCE,PEMLR,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_MONTHLY_STATUS_123,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_MOTHER_NATIVITY,PEMNTVTY,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_MULTIPLE_JOBS_NUMBER,PEMJNUM,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_MULTIPLE_JOBS_OTHER,PEMJOT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_NATIVITY,PENATVTY,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_NOT_IN_LABOR_FORCE_ACTIVITY,PENLFACT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_NOT_IN_LABOR_FORCE_JOB_HISTORY,PENLFJH,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_NOT_IN_LABOR_FORCE_RETIRED,PENLFRET,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PARENT,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_PROCESSED_ABSENT_REASON,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_AGE,PRTAGE,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_AGRICULTURE,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_CHILDREN,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_CITIZENSHIP,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_CITIZEN_FLAG,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_CIVILIAN_LABOR_FORCE,PRCIVLF,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_CLASS_OF_WORKER_1,PRCOW1,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_CLASS_OF_WORKER_2,PRCOW2,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_CLASS_OF_WORKER_PUBLIC_GOVERNMENT,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DETAIL_ASIAN,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DETAIL_CLASS_OF_WORKER_1,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DETAIL_CLASS_OF_WORKER_2,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DETAIL_HISPANIC,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DETAIL_INDUSTRY_1,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DETAIL_INDUSTRY_2,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DETAIL_OCCUPATION_1,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DETAIL_OCCUPATION_2,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DETAIL_TRACE,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DISABILITY,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_DISABILITY_FLAG,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_EARNINGS_ELIGIBILITY,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_EARNINGS_HOURLY,PTERNHLY,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_EARNINGS_WEEKLY_ANNUAL,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_EMPLOYED,,etl_processed,Binary employed recode paired with PERSON_PROCESSED_WORK_STATUS for civilian-LF–consistent employed/unemployed partition; not a single PEMLR/PRWKSTAT passthrough.
+PERSON_PROCESSED_EMPLOYED_HOURS,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_EMPLOYED_NOT,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_EXPERIENCE_LABOR_FORCE,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_FAMILY_NUMBER,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_FAMILY_RELATIONSHIP,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_FAMILY_TYPE,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_FULL_TIME_LABOR_FORCE,PRFTLF,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_HERNAL,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_HOURS_USUAL,PEHRUSLT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_IMMIGRATION_YEAR,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_INDUSTRY_MAJOR_1,PRDTIND1,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_INDUSTRY_MAJOR_2,PRDTIND2,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_IO_ELIGIBILITY,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_JOB_SEARCH,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_MAJOR_INDUSTRY_1,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_MAJOR_INDUSTRY_2,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_MAJOR_OCCUPATION_1,PRDTOCC1,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_MAJOR_OCCUPATION_2,PRDTOCC2,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_MAJOR_OCCUPATION_GROUP,PRMJOCGR,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_PROCESSED_MARITAL_STATUS,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_NAGPWS,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_NAGWS,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_NOT_LABOR_FORCE_SCHOOL,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_NUMBER_CHILDREN,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_OLD_RRP,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_PART_TIME_HOURS,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_PART_TIME_REASON,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_PROPERTY_TYPE,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_SAME_JOB_MULTIPLE_JOBS,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_THR,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_TOPCODED_AGE,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_TOT,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_TWK,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_UNEMPLOYMENT_DURATION,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_UNEMPLOYMENT_TYPE,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_WANT_JOB,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_WERNAL,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_WORK_SCHEDULE,,etl_processed,NBER/Pretium processed field; derive from raw mnemonics (PE*/PU*/PR*) per replace_cps_basic3_long_labor_consistent.sql.
+PERSON_PROCESSED_WORK_STATUS,,etl_processed,Employed-at-work style binary/recoded flag used with PERSON_PROCESSED_EMPLOYED in replace_cps_basic3_long_labor_consistent.sql — not raw PRWKSTAT (PRWKSTAT uses multi-code work status).
+PERSON_RELATIONSHIP,PERRP,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_RETIREMENT_1,,unmapped,Add manual_alias or confirm identity; re-export columns from Snowflake if schema changed.
+PERSON_SCHOOL_ENROLLED,PESCHENR,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_SCHOOL_FULL_TIME,PESCHFT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_SCHOOL_LEVEL,PESCHLVL,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_SEX,PESEX,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_SPOUSE,PESPOUSE,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_UNIVERSE_ABSENT_OTHER,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_BUSINESS_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_BUSINESS_2_OTHER,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_BUSINESS_CHECK_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_BUSINESS_CHECK_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_BUSINESS_CHECK_3,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_BUSINESS_CHECK_4,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_CHANGE_IN_HOUSEHOLD,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_DID_WORK_CHECK_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_DID_WORK_CHECK_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_DID_WORK_CHECK_3,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_DID_WORK_CHECK_4,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_DID_WORK_CHECK_5,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_DISABILITY,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_DISABILITY_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_DISABILITY_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_EARNINGS_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_EARNINGS_HOURLY_1_CORRECTED,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_ELIGIBILITY,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_CHECK_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_CHECK_12,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_CHECK_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_CHECK_3,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_CHECK_4,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_CHECK_5,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_CHECK_6,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_CHECK_7,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_OFF_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_OFF_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_OTHER_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_HOURS_OTHER_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_INDUSTRY_OCCUPATION_1_MANUFACTURING,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_INDUSTRY_OCCUPATION_2_MANUFACTURING,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_INDUSTRY_OCCUPATION_CHECK_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_INDUSTRY_OCCUPATION_CHECK_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_INDUSTRY_OCCUPATION_CHECK_3,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_INDUSTRY_OCCUPATION_DETAIL_PROCESSED_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_INDUSTRY_OCCUPATION_DETAIL_PROCESSED_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_INDUSTRY_OCCUPATION_DETAIL_PROCESSED_3,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_JOB_HISTORY_CHECK_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_JOB_HISTORY_CHECK_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_JOB_HISTORY_CHECK_3,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_JOB_HISTORY_CHECK_4,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_JOB_HISTORY_CHECK_5,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_JOB_HISTORY_DETAIL_PROCESSED_1_OTHER,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LAYOFF,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LAYOFF_6_MONTHS,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LAYOFF_AVAILABLE_REASON,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LAYOFF_CHECK_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LAYOFF_CHECK_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LAYOFF_CHECK_3,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LAYOFF_DATE,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LINE_NUMBER,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_AVAILABLE_REASON,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_DK_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_DK_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_DK_3,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_DK_4,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_DK_5,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_DK_6,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_METHOD_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_METHOD_3,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_METHOD_4,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_METHOD_5,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_METHOD_6,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_PS_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_PS_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_PS_3,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_PS_4,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_PS_5,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_LOOKING_PS_6,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_NOT_LABOR_FORCE_CHECK_1,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_NOT_LABOR_FORCE_CHECK_2,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_RETOT,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_SLFPRX,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_UNIVERSE_WORK,,etl_universe_flag,Universe/edit flag from extract; pair with PEMLR/PEIO* etc. in code list.
+PERSON_WEIGHT_COMPOSITE,PWCMPWGT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_WEIGHT_FAMILY,PWFMWGT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_WEIGHT_LONGITUDINAL,PWLGWGT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_WEIGHT_OUTGOING_ROTATION,PWORWGT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_WEIGHT_SUPPLEMENT,PWSSWGT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+PERSON_WEIGHT_VETERAN,PWVETWGT,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+QUESTION_NUMBER,,etl_metadata,NBER ingest control / questionnaire instance id (numeric); not Census QSTNUM (string unique household id).
+REFERENCE_MONTH,HRMONTH,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+REFERENCE_YEAR,HRYEAR4,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+STATE_FIPS_CODE,STATE,manual_alias,Curated Snowflake friendly name → Census mnemonic in cps_code_list.md.
+SURVEY_MONTH,,ingest_metadata,Pipeline / S3 / load; not a CPS microdata mnemonic in code list JSON.
+S3_FILE_PATH,,ingest_metadata,Pipeline / S3 / load; not a CPS microdata mnemonic in code list JSON.
+LOAD_TIMESTAMP,,ingest_metadata,Pipeline / S3 / load; not a CPS microdata mnemonic in code list JSON.

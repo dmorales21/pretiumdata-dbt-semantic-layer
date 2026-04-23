@@ -15,7 +15,8 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
+# This file lives at scripts/reference/catalog/<name>.py → repo root is three levels up.
+REPO = Path(__file__).resolve().parents[3]
 TSV = REPO / "docs/migration/artifacts/cybersyn_global_government_catalog_table_names.tsv"
 OUT = REPO / "seeds/reference/catalog/cybersyn_catalog_table_vendor_map.csv"
 

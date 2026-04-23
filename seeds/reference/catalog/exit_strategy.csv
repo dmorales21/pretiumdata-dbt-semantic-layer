@@ -1,6 +1,0 @@
-exit_strategy_id,exit_strategy_code,exit_strategy_label,vertical_code,sort_order,is_active
-EX_001,bulk_sale,Bulk Sale,,1,TRUE
-EX_002,individual_sale,Individual Sale,,2,TRUE
-EX_003,refinance,Refinance,,3,TRUE
-EX_004,recapitalization,Recapitalization,,4,TRUE
-EX_005,ipo,IPO,,5,TRUE

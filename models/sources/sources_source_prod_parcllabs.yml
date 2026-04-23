@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  # SOURCE_PROD.PARCLLABS — listings API (cleaning in **fact_parcllabs_rent_listings_cleaned**).
+  - name: parcllabs
+    database: SOURCE_PROD
+    schema: PARCLLABS
+    tables:
+      - name: rent_listings
+        description: >
+          Rental listing rows; **RENT** may contain spaces — use ``TRY_TO_DOUBLE(REPLACE(TO_VARCHAR(RENT),' ',''))``.
+          Canonical parsing: **pretium-ai-dbt** ``cleaned_parcllabs_rent_listings.sql`` — mirrored here.

@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: fact_parcllabs_rent_listings_cleaned
+    description: >
+      **SOURCE_PROD.PARCLLABS.RENT_LISTINGS** with safe rent parsing and ZIP filters — same contract as **pretium-ai-dbt** ``cleaned_parcllabs_rent_listings``.
+    config:
+      tags: ["transform", "transform_dev", "parcllabs", "fact_parcllabs", "rent"]

@@ -5,6 +5,8 @@ seeds:
     description: Vendor registry covering all external data suppliers in the Pretium data ecosystem
     config:
       schema: CATALOG
+      column_types:
+        contract_expiry_date: date
     columns:
       - name: vendor_id
         tests: [not_null, unique]
@@ -48,8 +50,6 @@ seeds:
           - accepted_values:
               arguments:
                 values: [s3, api, snowflake_share, motherduck_share, sftp, manual]
-      - name: is_motherduck_served
-        tests: [not_null]
       - name: vertical_codes
         description: Comma-separated applicable verticals; null = applies to all
 
@@ -57,6 +57,13 @@ seeds:
     description: Dataset registry mapping vendor x concept x geo x frequency; one row per distinct dataset grain
     config:
       schema: CATALOG
+      # Keep slug joins stable vs bridge seeds (see schema_dataset_bridges.yml) and avoid legacy inferred types.
+      full_refresh: true
+      # New column on existing Snowflake table — first load after adding requires `dbt seed --full-refresh --select dataset`.
+      column_types:
+        dataset_code: varchar(256)
+        product_type_codes: varchar(16777216)
+        last_refresh_date: date
     columns:
       - name: dataset_id
         tests: [not_null, unique]
@@ -125,7 +132,7 @@ seeds:
           - not_null
           - relationships:
               arguments:
-                to: ref('data_status')
+                to: ref('erf__data_status')
                 field: data_status_code
       - name: is_motherduck_served
         tests: [not_null]
@@ -140,12 +147,12 @@ seeds:
                 field: opco_code
               severity: warn
       - name: product_type_codes
-        description: Comma-separated applicable product types; null = all
-      - name: vertical_codes
-        description: Comma-separated applicable verticals; null = all
+        description: >
+          **Machine-derived** from **dataset_product_type** — do not hand-edit. Author bridge rows only;
+          run **scripts/reference/catalog/sync_dataset_product_type_from_bridge.py** to refresh this
+          column. A follow-up PR will drop the column once consumers use the bridge only.
+          Governance: **DATASET_PRODUCT_TYPE_CODES_FROZEN.txt** in this folder.
 
-  # metric: canonical seed is **metric.csv** (this folder) → **REFERENCE.CATALOG.metric**.
-  # Authority: only this repo path is the long-term source of truth — not pretium-ai-dbt/dbt/seeds/reference/catalog/metric.csv (downstream mirror if needed).
-  # Policy + column contract + vendor execution: docs/migration/MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md
-  # Rows use **table_path** (e.g. TRANSFORM.DEV.FACT_*); add **ANALYTICS.DBT_DEV** paths for published FEATURE_/MODEL_/ESTIMATE_ columns per MODEL_FEATURE_ESTIMATION_PLAYBOOK.md.
-  # Draft mirror (if present): seeds/reference/draft/catalog_metric.csv — do not fork definitions; extend **metric.csv** here.
+  # metric / metric_raw: see **schema_metric.yml** and **schema_metric_raw.yml**.
+  # Authoring: **metric_raw.csv**; built **metric.csv** from **scripts/reference/catalog/build_metric_csv_from_metric_raw.py**
+  # (**docs/reference/METRIC_CSV_BUILD_SPEC.md**). Policy: docs/migration/MIGRATION_TASKS_VENDOR_METRIC_CATALOG_INTAKE.md

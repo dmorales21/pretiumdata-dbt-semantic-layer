@@ -1,0 +1,21 @@
+# Offering × concept routing weights (Presley L1 ontology bridge)
+#
+# **concept_offering_weight.csv** is generated as a **dense** matrix (every active offering × every
+# **concept_code** in ``concept.csv``, including inactive vocabulary rows) with default weight **0**;
+# rows listed here **override** defaults.
+# Regenerate after edits:
+#   python3 scripts/reference/catalog/sync_concept_offering_weight_from_matrix.py
+#
+# Weight scale: 0 = none, 5 = strongest signal for the offering. `is_primary`: at most one TRUE per
+# offering_code (enforced in the sync script when multiple YAML rows set it).
+version: 1
+weights:
+  - { offering_code: property_tearsheet_resi, concept_code: rent, weight: 5, is_primary: true }
+  - { offering_code: property_tearsheet_resi, concept_code: occupancy, weight: 5, is_primary: false }
+  - { offering_code: property_tearsheet_resi, concept_code: vacancy, weight: 3, is_primary: false }
+  - { offering_code: property_tearsheet_resi, concept_code: homeprice, weight: 3, is_primary: false }
+  - { offering_code: ic_signal_monitor_resi, concept_code: rent, weight: 5, is_primary: true }
+  - { offering_code: ic_signal_monitor_resi, concept_code: supply_pipeline, weight: 5, is_primary: false }
+  - { offering_code: ic_signal_monitor_resi, concept_code: absorption, weight: 3, is_primary: false }
+  - { offering_code: opco_market_pack_req, concept_code: permits, weight: 5, is_primary: true }
+  - { offering_code: opco_market_pack_req, concept_code: population, weight: 3, is_primary: false }

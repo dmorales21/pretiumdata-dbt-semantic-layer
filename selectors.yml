@@ -255,3 +255,82 @@ selectors:
           value: fact_sfdc_properties_c
         - method: fqn
           value: fact_sfdc_submarket_c
+
+  - name: multifamily_market_ranker_semantic_stack
+    description: >
+      Multifamily Market Ranker — **CONCEPT_MULTIFAMILY_MARKET_MONTHLY** plus **FEATURE_** / **MODEL_** / **ESTIMATE_**
+      read surfaces. Prereqs: **TRANSFORM.DEV** landings registered in
+      `sources_transform_dev_corridor_transaction_facts.yml` (Markerr rent county, Cherre stock + MF snapshot,
+      RCA MF construction, ACS demographics county) and a successful **`fact_bls_laus_county`** build for LAUS joins.
+      After changing **`seeds/reference/catalog`**, run **`dbt seed --select path:seeds/reference/catalog`** before
+      **`dbt test`** on `bridge_product_type_metric` / `metric`.
+    definition:
+      union:
+        - method: fqn
+          value: fact_bls_laus_county
+        - method: fqn
+          value: concept_multifamily_market_monthly
+        - method: fqn
+          value: feature_multifamily_market_ranker_monthly_spine
+        - method: fqn
+          value: model_multifamily_market_ranker_score_county
+        - method: fqn
+          value: estimate_multifamily_market_ranker_score_point_county
+
+  - name: transform_dev_vendor_bootstrap
+    description: >
+      **TRANSFORM.DEV** vendor landings: ApartmentIQ + Green Street read-throughs, entire **jbrec** subtree
+      (raw **fact_jbrec_*** read-throughs plus **fact_jbrec_btr_rent_occupancy_cleaned**). Run: ``dbt run --selector transform_dev_vendor_bootstrap``.
+    definition:
+      union:
+        - method: path
+          value: models/transform/dev/apartmentiq
+        - method: path
+          value: models/transform/dev/green_street
+        - method: path
+          value: models/transform/dev/jbrec
+
+  - name: monthly_geography_spine_qa
+    description: >
+      Low-frequency **REFERENCE.GEOGRAPHY** spine coverage tests (tag **spine_coverage**). Requires
+      ``--vars '{"enable_laus_county_geography_spine_miss_rate_test": true}'`` (or set vars in project) so tests
+      are not skipped. Example: ``dbt test --selector monthly_geography_spine_qa --vars '{"enable_laus_county_geography_spine_miss_rate_test": true}'``.
+    definition:
+      tag: spine_coverage
+
+  - name: catalog_hard_gates
+    description: >
+      Blocking catalog singular tests (Q6 active metric path/column, Q7 MotherDuck refresh, Q11 raw→metric
+      promotion, Q19 duplicate metric_code). Run after catalog seeds resolve:
+      ``dbt compile --select tag:catalog_hard_gate`` (no warehouse) or full ``dbt test --select tag:catalog_hard_gate`` on Snowflake.
+    definition:
+      intersection:
+        - resource_type: test
+        - tag: catalog_hard_gate
+
+  - name: layer_gate_before_fact_bls_laus
+    description: >
+      **Jon silver → Alex FACT gate:** data tests on **TRANSFORM.BLS** sources that feed ``fact_bls_laus_*``.
+      Run before ``dbt run`` on those FACT models: ``dbt test --selector layer_gate_before_fact_bls_laus`` (see
+      ``scripts/ci/dbt_layer_gate_raw_transform_before_facts.sh``). Expand the pattern by tagging additional
+      ``source()`` definitions with **pretium_layer_gate_before_fact_dev_readthrough**.
+    definition:
+      intersection:
+        - tag: pretium_layer_gate_before_fact_dev_readthrough
+        - resource_type: source
+
+  - name: catalog_metric_transform_dev_registration_enforcement
+    description: >
+      **Snowflake:** **REFERENCE.CATALOG** seeds (including seed tests), materialize
+      **qa_catalog_metric_transform_dev_lineage**, then singular tests tagged **metric_transform_dev_lineage**
+      (active **MET_*** rows with **TRANSFORM.DEV** ``table_path`` vs **TRANSFORM.INFORMATION_SCHEMA**).
+      Same sequence as ``scripts/ci/dbt_enforce_catalog_metric_registration.sh``. For **metric_derived** FEATURE
+      checks (**ANALYTICS.DBT_DEV**), set ``ENFORCE_CATALOG_METRIC_DERIVED_FEATURE=1`` on that script or run
+      ``dbt test --select tag:catalog_registration`` after building feature models.
+    definition:
+      union:
+        - method: path
+          value: seeds/reference/catalog
+        - method: fqn
+          value: qa_catalog_metric_transform_dev_lineage
+        - tag: metric_transform_dev_lineage

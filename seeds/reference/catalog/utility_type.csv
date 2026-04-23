@@ -1,7 +1,0 @@
-utility_type_id,utility_type_code,utility_type_label,is_owner_paid,sort_order,is_active
-UTL_001,water,Water,TRUE,1,TRUE
-UTL_002,sewer,Sewer,TRUE,2,TRUE
-UTL_003,trash,Trash,TRUE,3,TRUE
-UTL_004,electric,Electric,FALSE,4,TRUE
-UTL_005,gas,Gas,FALSE,5,TRUE
-UTL_006,internet,Internet,FALSE,6,TRUE

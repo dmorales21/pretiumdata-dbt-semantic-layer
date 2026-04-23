@@ -1,8 +1,10 @@
 version: 2
 
 # REFERENCE.DRAFT seeds — Alex owns
-# Objects here are in-progress; promote to REFERENCE.CATALOG on owner approval
-# catalog_metric (CATALOG_METRIC) promotes to metric in REFERENCE.CATALOG once TRANSFORM.FACT exists
+# Objects here are in-progress; promote to REFERENCE.CATALOG on owner approval.
+# catalog_metric (CATALOG_METRIC) promotes to metric in REFERENCE.CATALOG once TRANSFORM.FACT exists.
+# Canonical concept prose: **concept_explanation** seed under `seeds/reference/catalog/` (REFERENCE.CATALOG).
+# Any legacy DRAFT.concept_explanations copy should be treated as scratch only—do not serve downstream from DRAFT.
 
 seeds:
   - name: catalog_metric

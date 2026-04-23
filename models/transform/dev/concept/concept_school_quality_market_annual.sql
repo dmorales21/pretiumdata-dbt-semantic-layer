@@ -1,11 +1,12 @@
 {#-
-  **School quality** — annual **CBSA** spine.
+  **School quality** — annual **CBSA** spine (Stanford) plus optional **ACS** at **CBSA** and **county**.
 
   - **Stanford SEDA** (``ref('fact_stanford_seda_h3_r8_snapshot')``): enrollment-weighted ``school_score_avg`` and ``ses_avg``
     rolled up from H3 hex rows to ``cbsa_id``. ``month_start`` = Dec 31 of ``vars.concept_acs5_cbsa_reference_year`` (shared ACS anchor).
 
-  - **ACS5 H3 snapshot** (``ref('fact_census_acs5_h3_r8_snapshot')``): population-weighted ``school_age_share`` and ``bachelors_plus_share``
-    (demand / attainment context — not SEDA achievement). Disable: ``vars.concept_school_quality_include_acs_branch: false``.
+  - **ACS5 H3 snapshot** — CBSA from ``fact_census_acs5_h3_r8_snapshot``; county from ``int_acs5_h3_r8_county_demographics_rollups``
+    (population-weighted ``school_age_share`` and ``bachelors_plus_share`` — demand / attainment context, not SEDA achievement).
+    Disable: ``vars.concept_school_quality_include_acs_branch: false``.
 -#}
 
 {{ config(
@@ -94,6 +95,16 @@ acs_cbsa AS (
     GROUP BY 1
 ),
 
+acs_county AS (
+    SELECT
+        LPAD(TRIM(TO_VARCHAR(r.county_fips)), 5, '0') AS county_fips,
+        r.school_age_share_wavg,
+        r.bachelors_plus_share_wavg
+    FROM {{ ref('int_acs5_h3_r8_county_demographics_rollups') }} AS r
+    WHERE r.county_fips IS NOT NULL
+      AND TRIM(TO_VARCHAR(r.county_fips)) <> ''
+),
+
 acs_long AS (
     SELECT
         DATE_FROM_PARTS({{ _yr }}, 12, 31)::DATE AS month_start,
@@ -109,6 +120,24 @@ acs_long AS (
         'acs5_h3_bachelors_plus_share_wavg_cbsa' AS metric_id_observe,
         bachelors_plus_share_wavg AS metric_value
     FROM acs_cbsa
+    WHERE bachelors_plus_share_wavg IS NOT NULL
+),
+
+acs_county_long AS (
+    SELECT
+        DATE_FROM_PARTS({{ _yr }}, 12, 31)::DATE AS month_start,
+        county_fips,
+        'acs5_h3_school_age_share_wavg_county' AS metric_id_observe,
+        school_age_share_wavg AS metric_value
+    FROM acs_county
+    WHERE school_age_share_wavg IS NOT NULL
+    UNION ALL
+    SELECT
+        DATE_FROM_PARTS({{ _yr }}, 12, 31)::DATE AS month_start,
+        county_fips,
+        'acs5_h3_bachelors_plus_share_wavg_county' AS metric_id_observe,
+        bachelors_plus_share_wavg AS metric_value
+    FROM acs_county
     WHERE bachelors_plus_share_wavg IS NOT NULL
 ),
 
@@ -136,6 +165,32 @@ acs_out AS (
         ON c.cbsa_id = h.cbsa_id
        AND c.metric_id_observe = h.metric_id_observe
        AND h.month_start = DATEADD('year', -1, c.month_start)
+),
+
+acs_county_out AS (
+    SELECT
+        'school_quality' AS concept_code,
+        'CENSUS_ACS5_H3_COUNTY' AS vendor_code,
+        c.month_start,
+        'county' AS geo_level_code,
+        c.county_fips AS geo_id,
+        CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+        c.county_fips,
+        SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+        TRUE AS has_census_geo,
+        'int_acs5_h3_r8_county_demographics_rollups' AS census_geo_source,
+        c.metric_id_observe,
+        CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('school_quality', 'current') }},
+        CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('school_quality', 'historical') }},
+        CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('school_quality', 'forecast') }},
+        CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+        CAST(NULL AS DATE) AS forecast_month_start,
+        CURRENT_TIMESTAMP() AS dbt_updated_at
+    FROM acs_county_long AS c
+    LEFT JOIN acs_county_long AS h
+        ON c.county_fips = h.county_fips
+       AND c.metric_id_observe = h.metric_id_observe
+       AND h.month_start = DATEADD('year', -1, c.month_start)
 )
 {% endif %}
 
@@ -143,4 +198,6 @@ SELECT * FROM stanford_out
 {% if _acs %}
 UNION ALL
 SELECT * FROM acs_out
+UNION ALL
+SELECT * FROM acs_county_out
 {% endif %}

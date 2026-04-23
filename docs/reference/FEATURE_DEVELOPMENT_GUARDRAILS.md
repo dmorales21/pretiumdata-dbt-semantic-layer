@@ -4,6 +4,8 @@ Companion to [`SEMANTIC_VALIDATION_SLUGS.md`](./SEMANTIC_VALIDATION_SLUGS.md) (m
 
 **Rent / AVM / valuation concept contracts** (grain, `month_start` semantics, Cherre overlap, FEATURE vs CONSUME routing, `equal_rowcount` drift policy): [`CONTRACT_RENT_AVM_VALUATION.md`](./CONTRACT_RENT_AVM_VALUATION.md).
 
+**Thin spine parity backlog** (P0–P2 concept → `FEATURE_*`, SERVING / Iceberg first, v1 top-5): [`FEATURE_SPINE_PARITY_BACKLOG.md`](./FEATURE_SPINE_PARITY_BACKLOG.md).
+
 ## Implemented (repo)
 
 | # | Slug | Artifact | Purpose |

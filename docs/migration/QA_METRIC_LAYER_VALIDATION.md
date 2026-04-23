@@ -102,17 +102,16 @@
 
 Details: [CATALOG_METRIC_DERIVED_LAYOUT.md](../reference/CATALOG_METRIC_DERIVED_LAYOUT.md).
 
-### 3a Registration checkpoints (FACT / CONCEPT / FEATURE)
+### 3a Registration checkpoints (TRANSFORM.DEV MET_* / FEATURE MDV_*)
 
 Row-level **catalog ↔ Snowflake** checks beyond seed YAML:
 
 | Checkpoint | QA surface | Singular test (expect 0 rows) |
 |------------|------------|-------------------------------|
-| **FACT** `MET_*` | `qa_catalog_metric_transform_dev_lineage` — object name `FACT%`; seed join limits to **`data_status_code = active`** | `tests/catalog_registration/assert_catalog_metric_fact_registration_lineage.sql` |
-| **CONCEPT** `MET_*` | Same model — object name `CONCEPT%`; same **`active`** filter | `tests/catalog_registration/assert_catalog_metric_concept_registration_lineage.sql` |
+| **TRANSFORM.DEV** `MET_*` (FACT / CONCEPT / REF / …) | `qa_catalog_metric_transform_dev_lineage` — **`data_status_code = active`** | `tests/catalog_registration/assert_catalog_metric_transform_dev_active_lineage_ok.sql` (**tag:** `metric_transform_dev_lineage`) |
 | **FEATURE** `MDV_*` | `qa_catalog_metric_derived_feature_lineage` — `metric_derived` (feature, active) vs **`ANALYTICS.DBT_DEV`** | `tests/catalog_registration/assert_catalog_metric_derived_feature_registration_lineage.sql` |
 
-**Run order (Snowflake):** `dbt seed --select path:seeds/reference/catalog` → `dbt run --selector catalog_metric_transform_dev_surface` (or vendor subset) → `dbt run --select path:models/analytics/feature` → `dbt run --selector catalog_registration_lineage` → `dbt test --select tag:catalog_registration`. Extend `feature_physical_map` in `qa_catalog_metric_derived_feature_lineage.sql` when adding a new **active** feature-layer `metric_derived` row.
+**Run order (Snowflake):** `dbt build --selector catalog_metric_transform_dev_registration_enforcement` (or `scripts/ci/dbt_enforce_catalog_metric_registration.sh`) for **MET_*** on **TRANSFORM.DEV**. For full **tag:catalog_registration** (includes FEATURE singular), add `dbt run --selector catalog_metric_transform_dev_surface` (or vendor subset) → `dbt run --select path:models/analytics/feature` → `dbt run --select qa_catalog_metric_derived_feature_lineage` → `dbt test --select tag:catalog_registration`. Extend `feature_physical_map` in `qa_catalog_metric_derived_feature_lineage.sql` when adding a new **active** feature-layer `metric_derived` row.
 
 ---
 
@@ -154,3 +153,4 @@ Six **GOV_*** labels are **QA categories** only — not **`REFERENCE.CATALOG`** 
 | **0.5** | §0.2 / CI: catalog path uses **`dbt build`** so **`metric_derived_input`** seeds before tests (avoids **`METRIC_DERIVED_INPUT` 42S02**). |
 | **0.6** | §3a **catalog_registration** singular tests + `qa_catalog_metric_derived_feature_lineage`; selector **`catalog_registration_lineage`**. |
 | **0.7** | §1: **`catalog_metric_registration_coverage.sql`** + METRIC_INTAKE scale note (**67K** vs **`MET_*`**). |
+| **0.8** | §3a: unified **`assert_catalog_metric_transform_dev_active_lineage_ok`** (**tag:** `metric_transform_dev_lineage`); selector **`catalog_metric_transform_dev_registration_enforcement`**; **`dbt_enforce_catalog_metric_registration.sh`**; seed test **`metric_active_transform_dev_requires_column_and_three_part_path`**. |

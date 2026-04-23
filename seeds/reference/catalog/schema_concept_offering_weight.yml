@@ -1,0 +1,40 @@
+version: 2
+
+seeds:
+  - name: concept_offering_weight
+    description: >
+      Presley routing weights (offering × concept). Source matrix:
+      **offering_concept_weight_matrix.yml** — regenerate CSV with
+      `python3 scripts/reference/catalog/sync_concept_offering_weight_from_matrix.py`.
+      Thin **offering_signal_relevance** remains for tier + sort metadata.
+    config:
+      schema: CATALOG
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('concept')
+                field: concept_code
+      - name: offering_code
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('offering')
+                field: offering_code
+      - name: weight
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1, 2, 3, 4, 5]
+      - name: is_primary
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - concept_code
+              - offering_code

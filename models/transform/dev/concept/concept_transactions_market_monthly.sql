@@ -1,12 +1,16 @@
 {#-
-  **Transactions** — monthly **CBSA** spine.
+  **Transactions** — monthly **CBSA** spine plus optional **county** rollups.
 
   - **Zillow** — ``ref('fact_zillow_sales')`` (existing primary series via ``concept_transactions_market_zillow_metric_pattern``).
-  - **Cherre Recorder** — SFR + MF H3 monthly facts rolled to CBSA × month (**sale_count** sum) from
-    ``source('transform_dev_corridor_transaction_facts', …)`` (**TRANSFORM.DEV** tables).
-  - **RCA** — MF closed-sale H3 monthly → CBSA × month (**sale_count** sum).
-  - **Zonda** — deeds H3 monthly → CBSA × month (**sale_count** sum); branch is empty until the fact is populated.
-  - **Zonda SFR** — ``FACT_ZONDA_SFR_H3_R8_MONTHLY`` → CBSA × month (**sfr_annual_closings_wavg** sum across H3 rows).
+  - **Cherre Recorder** — SFR + MF **H3** monthly → CBSA × month from ``source('transform_dev_corridor_transaction_facts', …)``.
+    **County:** **vendor-native** ``FACT_*_COUNTY_MONTHLY`` in the same source (recording-county aggregates from dbt facts —
+    not H3→dominant-county).
+  - **RCA** — MF **H3** → CBSA × month. **County:** **vendor-native** ``FACT_RCA_MF_TRANSACTIONS_COUNTY_MONTHLY`` (county from
+    RCA geo pipeline in the fact build).
+  - **Zonda** — deeds H3 monthly → CBSA × month (**sale_count** sum); branch is empty until the fact is populated. **County:**
+    H3 → ``int_h3_r8_hex_dominant_county`` (no native county fact in this source yet).
+  - **Zonda SFR** — ``FACT_ZONDA_SFR_H3_R8_MONTHLY`` → CBSA × month (**sfr_annual_closings_wavg** sum). **County:** dominant-county
+    from H3 until a native county table exists in **TRANSFORM.DEV**.
 
   Disable non-Zillow branches: ``vars.concept_transactions_include_cherre_rca_zonda: false``.
   Disable Zonda SFR only: ``vars.concept_transactions_include_zonda_sfr: false``.
@@ -113,6 +117,43 @@ cherre_sfr_out AS (
        AND h.month_start = ADD_MONTHS(c.month_start, -12)
 ),
 
+cherre_sfr_county AS (
+    SELECT
+        DATE_TRUNC('month', s.recorded_month)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(s.county_fips)), 5, '0') AS county_fips,
+        TRY_TO_DOUBLE(TO_VARCHAR(s.sale_count))::DOUBLE AS metric_value
+    FROM {{ source('transform_dev_corridor_transaction_facts', 'fact_cherre_recorder_sfr_county_monthly') }} AS s
+    WHERE s.recorded_month IS NOT NULL
+      AND s.county_fips IS NOT NULL
+      AND TRIM(TO_VARCHAR(s.county_fips)) <> ''
+      AND s.sale_count IS NOT NULL
+),
+
+cherre_sfr_county_out AS (
+    SELECT
+        'transactions' AS concept_code,
+        'CHERRE_RECORDER_SFR_COUNTY' AS vendor_code,
+        c.month_start,
+        'county' AS geo_level_code,
+        c.county_fips AS geo_id,
+        CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+        c.county_fips,
+        SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+        TRUE AS has_census_geo,
+        'fact_cherre_recorder_sfr_county_monthly' AS census_geo_source,
+        'concept_transactions_cherre_recorder_sfr_sale_count_county_monthly' AS metric_id_observe,
+        CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('transactions', 'current') }},
+        CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('transactions', 'historical') }},
+        CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('transactions', 'forecast') }},
+        CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+        CAST(NULL AS DATE) AS forecast_month_start,
+        CURRENT_TIMESTAMP() AS dbt_updated_at
+    FROM cherre_sfr_county AS c
+    LEFT JOIN cherre_sfr_county AS h
+        ON c.county_fips = h.county_fips
+       AND h.month_start = ADD_MONTHS(c.month_start, -12)
+),
+
 cherre_mf_cbsa AS (
     SELECT
         DATE_TRUNC('month', s.recorded_month)::DATE AS month_start,
@@ -147,6 +188,43 @@ cherre_mf_out AS (
     FROM cherre_mf_cbsa AS c
     LEFT JOIN cherre_mf_cbsa AS h
         ON c.cbsa_id = h.cbsa_id
+       AND h.month_start = ADD_MONTHS(c.month_start, -12)
+),
+
+cherre_mf_county AS (
+    SELECT
+        DATE_TRUNC('month', s.recorded_month)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(s.county_fips)), 5, '0') AS county_fips,
+        TRY_TO_DOUBLE(TO_VARCHAR(s.sale_count))::DOUBLE AS metric_value
+    FROM {{ source('transform_dev_corridor_transaction_facts', 'fact_cherre_recorder_mf_county_monthly') }} AS s
+    WHERE s.recorded_month IS NOT NULL
+      AND s.county_fips IS NOT NULL
+      AND TRIM(TO_VARCHAR(s.county_fips)) <> ''
+      AND s.sale_count IS NOT NULL
+),
+
+cherre_mf_county_out AS (
+    SELECT
+        'transactions' AS concept_code,
+        'CHERRE_RECORDER_MF_COUNTY' AS vendor_code,
+        c.month_start,
+        'county' AS geo_level_code,
+        c.county_fips AS geo_id,
+        CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+        c.county_fips,
+        SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+        TRUE AS has_census_geo,
+        'fact_cherre_recorder_mf_county_monthly' AS census_geo_source,
+        'concept_transactions_cherre_recorder_mf_sale_count_county_monthly' AS metric_id_observe,
+        CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('transactions', 'current') }},
+        CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('transactions', 'historical') }},
+        CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('transactions', 'forecast') }},
+        CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+        CAST(NULL AS DATE) AS forecast_month_start,
+        CURRENT_TIMESTAMP() AS dbt_updated_at
+    FROM cherre_mf_county AS c
+    LEFT JOIN cherre_mf_county AS h
+        ON c.county_fips = h.county_fips
        AND h.month_start = ADD_MONTHS(c.month_start, -12)
 ),
 
@@ -187,6 +265,43 @@ rca_mf_tx_out AS (
        AND h.month_start = ADD_MONTHS(c.month_start, -12)
 ),
 
+rca_mf_tx_county AS (
+    SELECT
+        DATE_TRUNC('month', r.as_of_month)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(r.county_fips)), 5, '0') AS county_fips,
+        TRY_TO_DOUBLE(TO_VARCHAR(r.sale_count))::DOUBLE AS metric_value
+    FROM {{ source('transform_dev_corridor_transaction_facts', 'fact_rca_mf_transactions_county_monthly') }} AS r
+    WHERE r.as_of_month IS NOT NULL
+      AND r.county_fips IS NOT NULL
+      AND TRIM(TO_VARCHAR(r.county_fips)) <> ''
+      AND r.sale_count IS NOT NULL
+),
+
+rca_mf_tx_county_out AS (
+    SELECT
+        'transactions' AS concept_code,
+        'RCA_MF_TRANSACTIONS_COUNTY' AS vendor_code,
+        c.month_start,
+        'county' AS geo_level_code,
+        c.county_fips AS geo_id,
+        CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+        c.county_fips,
+        SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+        TRUE AS has_census_geo,
+        'fact_rca_mf_transactions_county_monthly' AS census_geo_source,
+        'concept_transactions_rca_mf_sale_count_county_monthly' AS metric_id_observe,
+        CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('transactions', 'current') }},
+        CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('transactions', 'historical') }},
+        CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('transactions', 'forecast') }},
+        CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+        CAST(NULL AS DATE) AS forecast_month_start,
+        CURRENT_TIMESTAMP() AS dbt_updated_at
+    FROM rca_mf_tx_county AS c
+    LEFT JOIN rca_mf_tx_county AS h
+        ON c.county_fips = h.county_fips
+       AND h.month_start = ADD_MONTHS(c.month_start, -12)
+),
+
 zonda_deeds_cbsa AS (
     SELECT
         DATE_TRUNC('month', z.as_of_month)::DATE AS month_start,
@@ -221,6 +336,46 @@ zonda_deeds_out AS (
     FROM zonda_deeds_cbsa AS c
     LEFT JOIN zonda_deeds_cbsa AS h
         ON c.cbsa_id = h.cbsa_id
+       AND h.month_start = ADD_MONTHS(c.month_start, -12)
+),
+
+zonda_deeds_county AS (
+    SELECT
+        DATE_TRUNC('month', z.as_of_month)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(dc.county_fips)), 5, '0') AS county_fips,
+        SUM(z.sale_count)::DOUBLE AS metric_value
+    FROM {{ source('transform_dev_corridor_transaction_facts', 'fact_zonda_deeds_h3_r8_monthly') }} AS z
+    INNER JOIN {{ ref('int_h3_r8_hex_dominant_county') }} AS dc
+        ON TRIM(TO_VARCHAR(z.h3_r8_hex)) = dc.h3_r8_hex
+    WHERE z.as_of_month IS NOT NULL
+      AND z.h3_r8_hex IS NOT NULL
+      AND TRIM(TO_VARCHAR(z.h3_r8_hex)) <> ''
+      AND dc.county_fips IS NOT NULL
+    GROUP BY 1, 2
+),
+
+zonda_deeds_county_out AS (
+    SELECT
+        'transactions' AS concept_code,
+        'ZONDA_DEEDS_COUNTY' AS vendor_code,
+        c.month_start,
+        'county' AS geo_level_code,
+        c.county_fips AS geo_id,
+        CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+        c.county_fips,
+        SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+        TRUE AS has_census_geo,
+        'fact_zonda_deeds_h3_r8_monthly' AS census_geo_source,
+        'concept_transactions_zonda_deeds_sale_count_county_monthly' AS metric_id_observe,
+        CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('transactions', 'current') }},
+        CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('transactions', 'historical') }},
+        CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('transactions', 'forecast') }},
+        CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+        CAST(NULL AS DATE) AS forecast_month_start,
+        CURRENT_TIMESTAMP() AS dbt_updated_at
+    FROM zonda_deeds_county AS c
+    LEFT JOIN zonda_deeds_county AS h
+        ON c.county_fips = h.county_fips
        AND h.month_start = ADD_MONTHS(c.month_start, -12)
 ),
 
@@ -259,6 +414,46 @@ zonda_sfr_out AS (
     LEFT JOIN zonda_sfr_cbsa AS h
         ON c.cbsa_id = h.cbsa_id
        AND h.month_start = ADD_MONTHS(c.month_start, -12)
+),
+
+zonda_sfr_county AS (
+    SELECT
+        DATE_TRUNC('month', s.as_of_month)::DATE AS month_start,
+        LPAD(TRIM(TO_VARCHAR(dc.county_fips)), 5, '0') AS county_fips,
+        SUM(COALESCE(TRY_TO_DOUBLE(TO_VARCHAR(s.sfr_annual_closings_wavg)), 0::DOUBLE))::DOUBLE AS metric_value
+    FROM {{ source('transform_dev_corridor_transaction_facts', 'fact_zonda_sfr_h3_r8_monthly') }} AS s
+    INNER JOIN {{ ref('int_h3_r8_hex_dominant_county') }} AS dc
+        ON TRIM(TO_VARCHAR(s.h3_r8_hex)) = dc.h3_r8_hex
+    WHERE s.as_of_month IS NOT NULL
+      AND s.h3_r8_hex IS NOT NULL
+      AND TRIM(TO_VARCHAR(s.h3_r8_hex)) <> ''
+      AND dc.county_fips IS NOT NULL
+    GROUP BY 1, 2
+),
+
+zonda_sfr_county_out AS (
+    SELECT
+        'transactions' AS concept_code,
+        'ZONDA_SFR_COUNTY' AS vendor_code,
+        c.month_start,
+        'county' AS geo_level_code,
+        c.county_fips AS geo_id,
+        CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+        c.county_fips,
+        SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+        TRUE AS has_census_geo,
+        'fact_zonda_sfr_h3_r8_monthly' AS census_geo_source,
+        'concept_transactions_zonda_sfr_annual_closings_wsum_county_monthly' AS metric_id_observe,
+        CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('transactions', 'current') }},
+        CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('transactions', 'historical') }},
+        CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('transactions', 'forecast') }},
+        CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+        CAST(NULL AS DATE) AS forecast_month_start,
+        CURRENT_TIMESTAMP() AS dbt_updated_at
+    FROM zonda_sfr_county AS c
+    LEFT JOIN zonda_sfr_county AS h
+        ON c.county_fips = h.county_fips
+       AND h.month_start = ADD_MONTHS(c.month_start, -12)
 )
 
 SELECT * FROM zillow_out
@@ -266,13 +461,23 @@ SELECT * FROM zillow_out
 UNION ALL
 SELECT * FROM cherre_sfr_out
 UNION ALL
+SELECT * FROM cherre_sfr_county_out
+UNION ALL
 SELECT * FROM cherre_mf_out
+UNION ALL
+SELECT * FROM cherre_mf_county_out
 UNION ALL
 SELECT * FROM rca_mf_tx_out
 UNION ALL
+SELECT * FROM rca_mf_tx_county_out
+UNION ALL
 SELECT * FROM zonda_deeds_out
+UNION ALL
+SELECT * FROM zonda_deeds_county_out
 {% endif %}
 {% if _zsf %}
 UNION ALL
 SELECT * FROM zonda_sfr_out
+UNION ALL
+SELECT * FROM zonda_sfr_county_out
 {% endif %}

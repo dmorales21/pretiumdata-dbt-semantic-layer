@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: cleaned_deephaven_properties
+    description: OpCo footprint row shape for Deephaven (property, CBSA, ZIP); feeds fact_footprint_deephaven_properties.
+    config:
+      tags: ['transform', 'transform_dev', 'deephaven', 'cleaned']
+  - name: fact_footprint_deephaven_properties
+    description: >
+      Deephaven property footprint (presence metric) on **TRANSFORM.DEV**. Migrated from pretium-ai-dbt
+      **FACT_FOOTPRINT_DEEPHAVEN_PROPERTIES**; sources **SOURCE_ENTITY.DEEPHAVEN**, **TRANSFORM.REF.H3_XWALK_6810_CANON**,
+      **REFERENCE.GEOGRAPHY.CBSA**.
+    config:
+      tags: ['transform', 'transform_dev', 'deephaven', 'footprint']
+    columns:
+      - name: date_reference
+      - name: geo_id
+      - name: geo_level_code
+      - name: metric_id
+      - name: value
+      - name: vendor_name
+      - name: quality_flag
+      - name: row_id

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""One-off generator: rebuild seeds/reference/catalog/metric.csv from bridge_product_type_metric + extras."""
+"""Legacy one-off generator for bridge-driven shells.
+
+Prefer **metric_raw.csv** + **scripts/reference/catalog/build_metric_csv_from_metric_raw.py**
+for REFERENCE.CATALOG.METRIC (see **docs/reference/METRIC_CSV_BUILD_SPEC.md**).
+"""
 
 from __future__ import annotations
 
@@ -466,7 +470,7 @@ def main() -> None:
             "cybersyn_fhfa_house_price_timeseries_value",
             "FHFA house price Cybersyn timeseries (VALUE, county)",
             "FHFA HPI long-form VALUE at county grain on TRANSFORM.DEV.FACT_FHFA_HOUSE_PRICE_COUNTY.",
-            "home_price",
+            "homeprice",
             "fhfa",
             False,
             "Cybersyn FHFA",
@@ -485,7 +489,7 @@ def main() -> None:
             "cybersyn_fhfa_house_price_timeseries_value_cbsa",
             "FHFA house price Cybersyn timeseries (VALUE, CBSA)",
             "FHFA HPI long-form VALUE at CBSA grain on TRANSFORM.DEV.FACT_FHFA_HOUSE_PRICE_CBSA.",
-            "home_price",
+            "homeprice",
             "fhfa",
             False,
             "Cybersyn FHFA",
@@ -542,7 +546,7 @@ def main() -> None:
             "cybersyn_fhfa_uniform_appraisal_value_county",
             "FHFA uniform appraisal (VALUE, county)",
             "FHFA UAD long-form VALUE at county grain on TRANSFORM.DEV.FACT_FHFA_UNIFORM_APPRAISAL_COUNTY.",
-            "home_price",
+            "homeprice",
             "fhfa",
             False,
             "Cybersyn FHFA",
@@ -561,7 +565,7 @@ def main() -> None:
             "cybersyn_fhfa_uniform_appraisal_value_cbsa",
             "FHFA uniform appraisal (VALUE, CBSA)",
             "FHFA UAD long-form VALUE at CBSA grain on TRANSFORM.DEV.FACT_FHFA_UNIFORM_APPRAISAL_CBSA.",
-            "home_price",
+            "homeprice",
             "fhfa",
             False,
             "Cybersyn FHFA",
@@ -732,7 +736,7 @@ def main() -> None:
             "zillow_days_on_market_and_price_cuts_metric_value",
             "Zillow DOM and price cuts long-form (METRIC_VALUE)",
             "Zillow research DOM/price cuts unpivot on TRANSFORM.DEV.FACT_ZILLOW_DAYS_ON_MARKET_AND_PRICE_CUTS.",
-            "absorption",
+            "listings",
             "zillow",
             False,
             "Zillow",
@@ -751,7 +755,7 @@ def main() -> None:
             "zillow_for_sale_listings_metric_value",
             "Zillow for-sale listings long-form (METRIC_VALUE)",
             "Zillow research for-sale listings unpivot on TRANSFORM.DEV.FACT_ZILLOW_FOR_SALE_LISTINGS.",
-            "home_price",
+            "listings",
             "zillow",
             False,
             "Zillow",
@@ -1151,7 +1155,7 @@ def main() -> None:
             "zillow_home_values_observe",
             "Zillow home values long-form (observe)",
             "Zillow research home values unpivot on TRANSFORM.DEV.FACT_ZILLOW_HOME_VALUES.",
-            "home_price",
+            "homeprice",
             "zillow",
             False,
             "Zillow",
@@ -1170,7 +1174,7 @@ def main() -> None:
             "zillow_sales_observe",
             "Zillow sales long-form (observe)",
             "Zillow research sales unpivot on TRANSFORM.DEV.FACT_ZILLOW_SALES.",
-            "home_price",
+            "transactions",
             "zillow",
             False,
             "Zillow",
@@ -1189,7 +1193,7 @@ def main() -> None:
             "zillow_affordability_observe",
             "Zillow affordability long-form (observe)",
             "Zillow research affordability unpivot on TRANSFORM.DEV.FACT_ZILLOW_AFFORDABILITY.",
-            "home_price",
+            "homeprice",
             "zillow",
             False,
             "Zillow",
@@ -1208,7 +1212,7 @@ def main() -> None:
             "zillow_home_values_forecasts_observe",
             "Zillow home value forecasts long-form (observe)",
             "Zillow research home value forecasts unpivot on TRANSFORM.DEV.FACT_ZILLOW_HOME_VALUES_FORECASTS.",
-            "home_price",
+            "homeprice",
             "zillow",
             False,
             "Zillow",
@@ -1246,7 +1250,7 @@ def main() -> None:
             "zillow_new_construction_observe",
             "Zillow new construction long-form (observe)",
             "Zillow research new construction unpivot on TRANSFORM.DEV.FACT_ZILLOW_NEW_CONSTRUCTION.",
-            "home_price",
+            "homeprice",
             "zillow",
             False,
             "Zillow",
@@ -1284,7 +1288,7 @@ def main() -> None:
             "fhfa_house_price_observe",
             "FHFA house price umbrella (observe-only)",
             "Compatibility umbrella table TRANSFORM.DEV.FACT_FHFA_HOUSE_PRICE (mixed geo); prefer sliced county/CBSA monthly facts for governed reads.",
-            "home_price",
+            "homeprice",
             "fhfa",
             False,
             "Cybersyn FHFA",
@@ -1303,7 +1307,7 @@ def main() -> None:
             "fhfa_uniform_appraisal_observe",
             "FHFA uniform appraisal umbrella (observe-only)",
             "Compatibility umbrella table TRANSFORM.DEV.FACT_FHFA_UNIFORM_APPRAISAL (mixed geo); prefer sliced county/CBSA monthly facts.",
-            "home_price",
+            "homeprice",
             "fhfa",
             False,
             "Cybersyn FHFA",
@@ -1417,7 +1421,7 @@ def main() -> None:
             "cherre_recorder_sale_transactions_county_planned",
             "Cherre recorder sale transactions county (planned)",
             "Placeholder for future Cherre recorder sale transactions FACT at county grain.",
-            "home_price",
+            "transactions",
             "cherre",
             False,
             "Cherre",
@@ -1649,8 +1653,8 @@ def main() -> None:
             if "mortgage_performance" in s:
                 return "fhfa", "delinquency", "unmapped", False
             if "uniform_appraisal" in s:
-                return "fhfa", "home_price", "unmapped", False
-            return "fhfa", "home_price", "unmapped", False
+                return "fhfa", "homeprice", "unmapped", False
+            return "fhfa", "homeprice", "unmapped", False
 
         if "hud_housing" in s:
             return "cybersyn", "occupancy", "unmapped", False

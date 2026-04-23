@@ -1,0 +1,20 @@
+version: 2
+
+seeds:
+  - name: nber_cps_snowflake_column_dictionary
+    description: >
+      Synced from pretium-ai-dbt: one row per column on SOURCE_PROD.NBER.CPS_BASIC3_LOADED with link to
+      Census CPS API / cps_code_list.md variable keys where mapped. Regenerate in pretium-ai-dbt via
+      scripts/docs/build_nber_cps_snowflake_column_dictionary.py, then copy this CSV here.
+    config:
+      tags: ["nber", "cps", "dictionary", "seed"]
+    columns:
+      - name: snowflake_column_name
+        description: "Physical column on CPS_BASIC3_LOADED."
+        tests: [not_null, unique]
+      - name: code_list_variable
+        description: "Key in cps_code_list.md variables JSON; empty if ingest/ETL-only."
+      - name: match_kind
+        description: "How the link was established (identity, manual_alias, ingest_metadata, etl_metadata, etl_*, unmapped)."
+      - name: notes
+        description: "Short rationale or next step for unmapped columns."

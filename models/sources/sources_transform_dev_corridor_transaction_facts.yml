@@ -7,21 +7,38 @@ sources:
     database: TRANSFORM
     schema: DEV
     description: >
-      Corridor / transaction FACT tables at H3 or county grain materialized in **TRANSFORM.DEV** for
-      **concept_transactions_market_monthly** (CBSA rollups) and **concept_supply_pipeline_market_monthly**.
+      Corridor / transaction FACT tables materialized in **TRANSFORM.DEV** for
+      **concept_transactions_market_monthly** and **concept_supply_pipeline_market_monthly**.
+      **H3** tables feed CBSA rollups; **county** tables are **vendor-native county** companions from
+      **pretium-ai-dbt** `analytics/facts` (physical `TRANSFORM.DEV` when `analytics_facts_to_transform_dev` is true).
+      County arms in concepts **read these county facts**, not H3→dominant-county polyfills, for Cherre + RCA.
 
     tables:
       - name: fact_cherre_recorder_sfr_h3_r8_monthly
         identifier: FACT_CHERRE_RECORDER_SFR_H3_R8_MONTHLY
+      - name: fact_cherre_recorder_sfr_county_monthly
+        identifier: FACT_CHERRE_RECORDER_SFR_COUNTY_MONTHLY
       - name: fact_cherre_recorder_mf_h3_r8_monthly
         identifier: FACT_CHERRE_RECORDER_MF_H3_R8_MONTHLY
+      - name: fact_cherre_recorder_mf_county_monthly
+        identifier: FACT_CHERRE_RECORDER_MF_COUNTY_MONTHLY
       - name: fact_rca_mf_transactions_h3_r8_monthly
         identifier: FACT_RCA_MF_TRANSACTIONS_H3_R8_MONTHLY
+      - name: fact_rca_mf_transactions_county_monthly
+        identifier: FACT_RCA_MF_TRANSACTIONS_COUNTY_MONTHLY
       - name: fact_zonda_deeds_h3_r8_monthly
         identifier: FACT_ZONDA_DEEDS_H3_R8_MONTHLY
       - name: fact_markerr_rent_listings_county_monthly
         identifier: FACT_MARKERR_RENT_LISTINGS_COUNTY_MONTHLY
       - name: fact_rca_mf_construction_county_monthly
         identifier: FACT_RCA_MF_CONSTRUCTION_COUNTY_MONTHLY
+      - name: fact_markerr_rent_county_monthly
+        identifier: FACT_MARKERR_RENT_COUNTY_MONTHLY
+      - name: fact_cherre_stock_county
+        identifier: FACT_CHERRE_STOCK_COUNTY
+      - name: fact_cherre_mf_county_snapshot
+        identifier: FACT_CHERRE_MF_COUNTY_SNAPSHOT
+      - name: fact_acs_demographics_county
+        identifier: FACT_ACS_DEMOGRAPHICS_COUNTY
       - name: fact_zonda_sfr_h3_r8_monthly
         identifier: FACT_ZONDA_SFR_H3_R8_MONTHLY

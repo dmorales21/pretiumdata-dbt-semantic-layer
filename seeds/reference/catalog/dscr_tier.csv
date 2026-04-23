@@ -1,5 +1,0 @@
-dscr_tier_id,dscr_tier_code,dscr_tier_label,rate_min,rate_max,sort_order,is_active
-DSC_001,sub_1,Sub 1.0x,0.0,1.0,4,TRUE
-DSC_002,1_to_1_25,1.0–1.25x,1.0,1.25,3,TRUE
-DSC_003,1_25_to_1_5,1.25–1.5x,1.25,1.5,2,TRUE
-DSC_004,1_5_plus,1.5x+,1.5,,1,TRUE

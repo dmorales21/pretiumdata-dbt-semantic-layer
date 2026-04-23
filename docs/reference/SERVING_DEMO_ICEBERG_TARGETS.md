@@ -78,6 +78,7 @@ you get **market truth + vocabulary** for lake consumers with minimal moving par
 
 ## Related docs
 
+- [SNOWFLAKE_ICEBERG_EXPORT_DUCKDB_BEST_PRACTICES.md](./SNOWFLAKE_ICEBERG_EXPORT_DUCKDB_BEST_PRACTICES.md) — **Snowflake Iceberg / Parquet export** tuning for **DuckDB** pushdown (`SERVING.DEMO`, `SERVING.ICEBERG`)  
 - [SERVING_DEMO_RELEASE_BUNDLE_ICEBERG_GATE.md](../runbooks/SERVING_DEMO_RELEASE_BUNDLE_ICEBERG_GATE.md) — **release bundle** `dbt` selectors, replication readiness SQL, release pin checklist  
 - [DUCKLAKE_CATALOG_INVENTORY_PRIORITY.md](./DUCKLAKE_CATALOG_INVENTORY_PRIORITY.md) — P0 catalog inventory and Duck Lake / share targets  
 - [SERVING_DEMO_METRICS_CATALOG_MAP.md](./SERVING_DEMO_METRICS_CATALOG_MAP.md) — first metrics / feature population list vs `metric` / `metric_derived`  

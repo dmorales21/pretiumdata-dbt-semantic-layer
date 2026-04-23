@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: fact_jbrec_btr_rent_occupancy
+    description: >
+      Vendor-native read-through of **SOURCE_PROD.JBREC.BTR_RENT_AND_OCCUPANCY**. For CBSA-typed rent/occupancy use **fact_jbrec_btr_rent_occupancy_cleaned**.
+    config:
+      tags: ["transform", "transform_dev", "jbrec", "fact_jbrec", "rent", "observe_only"]
+
+  - name: fact_jbrec_sfr_metro
+    description: >
+      Read-through of **SOURCE_PROD.JBREC.SFR_METRO** (legacy metro SFR panel).
+    config:
+      tags: ["transform", "transform_dev", "jbrec", "fact_jbrec", "sfr", "observe_only"]
+
+  - name: fact_jbrec_btr_rent_occupancy_cleaned
+    description: >
+      **SOURCE_PROD.JBREC.BTR_RENT_AND_OCCUPANCY** with CBSA remap, currency/% parsing, and DFW MDivision collapse — same contract as **pretium-ai-dbt** ``cleaned_jbrec_btr_rent_and_occupancy``.
+    config:
+      tags: ["transform", "transform_dev", "jbrec", "fact_jbrec", "rent"]

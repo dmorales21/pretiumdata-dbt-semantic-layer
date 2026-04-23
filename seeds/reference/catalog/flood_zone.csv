@@ -1,9 +1,0 @@
-flood_zone_id,flood_zone_code,flood_zone_label,fema_zone,is_high_risk,sort_order,is_active
-FLZ_001,ae,AE – High Risk Floodplain,AE,TRUE,1,TRUE
-FLZ_002,ve,VE – Coastal High Risk,VE,TRUE,2,TRUE
-FLZ_003,ao,AO – Shallow Flooding,AO,TRUE,3,TRUE
-FLZ_004,ah,AH – Shallow Ponding,AH,TRUE,4,TRUE
-FLZ_005,a,A – High Risk (No BFE),A,TRUE,5,TRUE
-FLZ_006,x_shaded,X (Shaded) – Moderate Risk,X,FALSE,6,TRUE
-FLZ_007,x_unshaded,X (Unshaded) – Minimal Risk,X,FALSE,7,TRUE
-FLZ_008,d,D – Undetermined,D,FALSE,8,TRUE

@@ -1,5 +1,0 @@
-absorption_tier_id,absorption_tier_code,absorption_tier_label,rate_min,rate_max,sort_order,is_active
-ABS_001,sub_5pct,Sub 5%,0.0,5.0,1,TRUE
-ABS_002,5_to_10pct,5–10%,5.0,10.0,2,TRUE
-ABS_003,10_to_20pct,10–20%,10.0,20.0,3,TRUE
-ABS_004,20pct_plus,20%+,20.0,,4,TRUE

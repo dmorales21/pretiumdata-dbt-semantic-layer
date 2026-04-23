@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: feature_multifamily_market_ranker_monthly_spine
+    description: >
+      **ANALYTICS.DBT_DEV.FEATURE_MULTIFAMILY_MARKET_RANKER_MONTHLY** — county × month Multifamily Market Ranker panel.
+      Assembles **TRANSFORM.DEV** corridor vendor sources plus **ref(fact_bls_laus_county)**; light MoM on Markerr driver.
+      **`concept_code`** is **REFERENCE.CATALOG** bundle vocabulary only (no physical **`CONCEPT_*`** union). **MDV_005** in ``metric_derived``.
+    config:
+      tags: ["analytics", "feature", "multifamily_market", "mfr_ranker"]
+    columns:
+      - name: concept_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["multifamily_market"]
+      - name: vendor_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: geo_level_code
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["county"]
+      - name: geo_id
+        tests: [not_null]
+      - name: cbsa_id
+      - name: state_fips
+      - name: rent_mom_pct_change
+      - name: avg_asking_rent
+      - name: avg_concession_mom_pct_change
+      - name: median_market_ppsf
+      - name: market_phase
+      - name: median_months_to_completion
+      - name: units_garden
+      - name: units_under_construction
+      - name: total_households
+      - name: pct_pre_1980
+      - name: renter_share
+      - name: pct_25_44
+      - name: rent_burden_30_plus_share
+      - name: unemployment_rate
+      - name: pretium_score
+      - name: custom_score
+      - name: rent_trend_flag
+      - name: dbt_updated_at

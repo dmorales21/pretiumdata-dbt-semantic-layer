@@ -24,6 +24,30 @@ seeds:
       - name: is_active
         tests: [not_null]
 
+  - name: bedroom_type
+    description: >
+      Canonical bedroom-band vocabulary for product-type applicability (studio through 4+).
+      **bridge_product_type_bedroom_type** is the authoring bridge; **product_type.bedroom_type_codes** is
+      machine-synced from that bridge until the comma column is dropped.
+    config:
+      schema: CATALOG
+    columns:
+      - name: bedroom_type_id
+        tests: [not_null, unique]
+      - name: bedroom_type_code
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: [studio, 1br, 2br, 3br, 4br_plus]
+      - name: bedroom_type_label
+        tests: [not_null]
+      - name: sort_order
+        tests: [not_null]
+      - name: is_active
+        tests: [not_null]
+
   - name: product_type
     description: Investment product type with vertical, SFR/MF flags, and bedroom/size defaults
     config:
@@ -59,11 +83,14 @@ seeds:
         tests:
           - relationships:
               arguments:
-                to: ref('market_tier')
+                to: ref('erf__market_tier')
                 field: market_tier_code
               severity: warn
       - name: bedroom_type_codes
-        description: Comma-separated applicable bedroom types
+        description: >
+          **Machine-derived** from **bridge_product_type_bedroom_type** — do not hand-edit. Run
+          **scripts/reference/catalog/sync_product_type_bedroom_codes_from_bridge.py** after bridge
+          changes. Dropped in a follow-up PR once consumers read the bridge only.
       - name: typical_unit_size_sqft
         description: Typical unit size for underwriting defaults
 
@@ -86,6 +113,9 @@ seeds:
       - name: opco_full_name
         tests: [not_null]
       - name: vertical_code
+        description: >
+          Nullable for fund-level OpCo **`pretium`** — spans RESI/REQ/RED; see **catalog_entity_note**
+          on that row. Other OpCos should reference **vertical**.
         tests:
           - relationships:
               arguments:
@@ -102,7 +132,7 @@ seeds:
         tests:
           - relationships:
               arguments:
-                to: ref('investment_strategy')
+                to: ref('erf__investment_strategy')
                 field: strategy_code
               severity: warn
       - name: primary_product_type_code
@@ -116,11 +146,14 @@ seeds:
         tests:
           - relationships:
               arguments:
-                to: ref('geography_status')
+                to: ref('erf__geography_status')
                 field: geo_status_code
               severity: warn
       - name: unit_count
         description: Total units owned; populate from portfolio source of truth
+      - name: catalog_entity_note
+        description: >
+          Optional row-level governance note (e.g. why **vertical_code** is null). Not a FK.
 
   - name: business_team
     description: Consumer team registry with Snowflake role and MotherDuck access flag

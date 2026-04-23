@@ -11,8 +11,9 @@
 
   **Cherre:** typed zero-row scaffold.
 
-  **Markerr** — ``ref('fact_markerr_rent_property_cbsa_monthly')`` (MF CBSA aggregates; bedroom/class filters via vars);
-  ``ref('fact_markerr_rent_sfr')`` ZIP → same ``zip_enriched`` spine → CBSA (asking mean).
+  **Markerr** — catalog ``vendor_code`` = **``markerr``** for both product lines; discriminate MF vs SFR with
+  ``metric_id_observe`` (``markerr_avg_rent_effective`` vs ``markerr_rent_asking_mean_zip_agg_cbsa``) and MF bedroom/class **vars**.
+  Sources: ``ref('fact_markerr_rent_property_cbsa_monthly')`` (MF CBSA aggregates) and ``ref('fact_markerr_rent_sfr')`` ZIP → ``zip_enriched`` → CBSA.
 
   **HUD** — ``ref('fact_hud_housing_series')`` when ``concept_rent_market_hud_include`` and
   ``REGEXP_LIKE(LOWER(VARIABLE), concept_rent_market_hud_variable_regex)`` (excludes ``parent`` / ``homeless`` noise).
@@ -463,7 +464,7 @@ markerr_mf_base AS (
 markerr_mf_market AS (
     SELECT
         'rent_market' AS concept_code,
-        'MARKERR_MF' AS vendor_code,
+        'markerr' AS vendor_code,
         c.month_start,
         'cbsa' AS geo_level_code,
         c.cbsa_id AS geo_id,
@@ -520,7 +521,7 @@ markerr_sfr_cbsa_month AS (
 markerr_sfr_market AS (
     SELECT
         'rent_market' AS concept_code,
-        'MARKERR_SFR' AS vendor_code,
+        'markerr' AS vendor_code,
         c.month_start,
         'cbsa' AS geo_level_code,
         c.cbsa_id AS geo_id,

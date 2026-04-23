@@ -1,5 +1,5 @@
 {#-
-  **Population** — CBSA sum of ``total_population_wavg`` across H3 cells from ACS5 snapshot (demand-stock proxy, not official PEP).
+  **Population** — **CBSA** and **county** sum of ``total_population_wavg`` across H3 cells from ACS5 snapshot (demand-stock proxy, not official PEP).
 
   For official PEP county/CBSA annuals, enable ``census_pep_readthrough_enabled`` and extend with ``fact_census_pep_*`` later.
 -#}
@@ -18,6 +18,15 @@ WITH acs AS (
         r.cbsa_id,
         r.total_population_wavg_sum AS metric_value
     FROM {{ ref('int_acs5_h3_r8_cbsa_demographics_rollups') }} AS r
+    WHERE r.total_population_wavg_sum IS NOT NULL
+),
+
+acs_county AS (
+    SELECT
+        DATE_FROM_PARTS({{ _yr }}, 12, 31)::DATE AS month_start,
+        r.county_fips,
+        r.total_population_wavg_sum AS metric_value
+    FROM {{ ref('int_acs5_h3_r8_county_demographics_rollups') }} AS r
     WHERE r.total_population_wavg_sum IS NOT NULL
 )
 
@@ -42,4 +51,29 @@ SELECT
 FROM acs AS c
 LEFT JOIN acs AS h
     ON c.cbsa_id = h.cbsa_id
+   AND h.month_start = DATEADD('year', -1, c.month_start)
+
+UNION ALL
+
+SELECT
+    'population' AS concept_code,
+    'CENSUS_ACS5_H3_COUNTY' AS vendor_code,
+    c.month_start,
+    'county' AS geo_level_code,
+    c.county_fips AS geo_id,
+    CAST(NULL AS VARCHAR(5)) AS cbsa_id,
+    c.county_fips,
+    SUBSTRING(c.county_fips, 1, 2) AS state_fips,
+    TRUE AS has_census_geo,
+    'int_acs5_h3_r8_county_demographics_rollups' AS census_geo_source,
+    'census_acs5_h3_r8_total_population_wavg_sum_county' AS metric_id_observe,
+    CAST(c.metric_value AS DOUBLE) AS {{ concept_metric_slot('population', 'current') }},
+    CAST(h.metric_value AS DOUBLE) AS {{ concept_metric_slot('population', 'historical') }},
+    CAST(NULL AS DOUBLE) AS {{ concept_metric_slot('population', 'forecast') }},
+    CAST(NULL AS VARCHAR(512)) AS metric_id_forecast,
+    CAST(NULL AS DATE) AS forecast_month_start,
+    CURRENT_TIMESTAMP() AS dbt_updated_at
+FROM acs_county AS c
+LEFT JOIN acs_county AS h
+    ON c.county_fips = h.county_fips
    AND h.month_start = DATEADD('year', -1, c.month_start)

@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: fact_apartmentiq_propertykpi_bh
+    description: >
+      **TRANSFORM.APARTMENTIQ.PROPERTYKPI_BH** read-through on **TRANSFORM.DEV** (migration/catalog parity with pretium-ai-dbt).
+    config:
+      tags: ['transform', 'transform_dev', 'apartmentiq', 'fact_apartmentiq', 'rent', 'observe_only']
+
+  - name: fact_apartmentiq_unitkpi_bh
+    description: >
+      **TRANSFORM.APARTMENTIQ.UNITKPI_BH** read-through on **TRANSFORM.DEV**.
+    config:
+      tags: ['transform', 'transform_dev', 'apartmentiq', 'fact_apartmentiq', 'rent', 'observe_only']

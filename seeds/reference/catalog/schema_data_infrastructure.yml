@@ -1,335 +1,294 @@
 version: 2
-
 seeds:
-  - name: geo_level
-    description: >
-      Canonical geography grain vocabulary for REFERENCE.CATALOG.geo_level plus SOURCE_SNOW Cybersyn
-      GEOGRAPHY_INDEX.LEVEL crosswalk (source_snow_cybersyn_level). Single source of truth for geo levels.
-    config:
-      schema: CATALOG
-      # If Snowflake GEO_LEVEL predates new CSV columns, seed sync can error: invalid identifier SOURCE_SNOW_CYBERSYN_LEVEL.
-      # full_refresh recreates the table from CSV (small dimension).
-      full_refresh: true
-    columns:
-      - name: geo_level_id
-        tests: [not_null, unique]
-      - name: geo_level_code
-        tests:
-          - not_null
-          - unique
-          - accepted_values:
-              arguments:
-                values:
-                  - property
-                  - zip
-                  - county
-                  - cbsa
-                  - state
-                  - national
-                  - zcta
-                  - tract
-                  - block_group
-                  - city
-                  - country
-                  - metro_division
-                  - census_region
-                  - census_division
-                  - county_subdivision
-                  - admin1
-                  - territory
-                  - disputed_territory
-                  - airport
-                  - continuum_of_care
-                  - padd
-                  - gas_storage_region
-                  - unmapped
-                  - neighborhood
-      - name: geo_level_label
-        tests: [not_null]
-      - name: grain_rank
-        tests: [not_null]
-      - name: fips_available
-        tests: [not_null]
-      - name: h3_available
-        tests: [not_null]
-      - name: is_active
-        tests: [not_null]
-      - name: source_snow_cybersyn_level
-        description: >
-          Exact LEVEL string on SOURCE_SNOW.GLOBAL_GOVERNMENT.CYBERSYN.GEOGRAPHY_INDEX (and related geo tables).
-          Null when this geo_level_code is catalog-only (e.g. property, zip, national).
-        tests:
-          - unique:
-              config:
-                where: "source_snow_cybersyn_level is not null and trim(source_snow_cybersyn_level) <> ''"
-      - name: geography_class
-        tests: [not_null]
-      - name: supported_in_reference
-        tests: [not_null]
-      - name: shape_expected
-        tests: [not_null]
-      - name: code_system
-        tests: [not_null]
-      - name: geo_level_notes
+- name: geo_level
+  description: 'Canonical geography grain vocabulary for REFERENCE.CATALOG.geo_level plus SOURCE_SNOW Cybersyn GEOGRAPHY_INDEX.LEVEL
+    crosswalk (source_snow_cybersyn_level). Single source of truth for geo levels.
 
-  - name: frequency
-    description: Canonical time grain vocabulary
-    config:
-      schema: CATALOG
-    columns:
-      - name: frequency_id
-        tests: [not_null, unique]
-      - name: frequency_code
-        tests:
-          - not_null
-          - unique
-          - accepted_values:
-              arguments:
-                values: [daily, weekly, monthly, quarterly, annual, varies]
-      - name: frequency_label
-        tests: [not_null]
-      - name: days_interval
-        tests: [not_null]
-      - name: sort_order
-        tests: [not_null]
-      - name: is_active
-        tests: [not_null]
+    '
+  config:
+    schema: CATALOG
+    full_refresh: true
+  columns:
+  - name: geo_level_id
+    tests:
+    - not_null
+    - unique
+  - name: geo_level_code
+    tests:
+    - not_null
+    - unique
+    - accepted_values:
+        arguments:
+          values:
+          - property
+          - zip
+          - county
+          - cbsa
+          - state
+          - national
+          - zcta
+          - tract
+          - block_group
+          - city
+          - country
+          - metro_division
+          - census_region
+          - census_division
+          - county_subdivision
+          - admin1
+          - territory
+          - disputed_territory
+          - airport
+          - continuum_of_care
+          - padd
+          - gas_storage_region
+          - unmapped
+          - neighborhood
+  - name: geo_level_label
+    tests:
+    - not_null
+  - name: grain_rank
+    tests:
+    - not_null
+  - name: fips_available
+    tests:
+    - not_null
+  - name: h3_available
+    tests:
+    - not_null
+  - name: is_active
+    tests:
+    - not_null
+  - name: source_snow_cybersyn_level
+    description: 'Exact LEVEL string on SOURCE_SNOW.GLOBAL_GOVERNMENT.CYBERSYN.GEOGRAPHY_INDEX (and related geo tables). Null
+      when this geo_level_code is catalog-only (e.g. property, zip, national).
 
-  - name: concept
-    description: Canonical concept vocabulary
-    config:
-      schema: CATALOG
-    columns:
-      - name: concept_id
-        tests: [not_null, unique]
-      - name: concept_code
-        tests: [not_null, unique]
-      - name: concept_label
-        tests: [not_null]
-      - name: domain
-        tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values: [demand, supply, macro, portfolio]
-      - name: unit
-        tests: [not_null]
-      - name: direction
-        tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values: [positive, negative, neutral]
-      - name: is_active
-        tests: [not_null]
-      - name: geo_level_codes
-        tests: [not_null]
-      - name: frequency_codes
-        tests: [not_null]
-      - name: metric_category_code
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('metric_category')
-                field: category_code
-      - name: vertical_codes
-        description: Null = applies to all verticals
+      '
+    tests:
+    - unique:
+        config:
+          where: source_snow_cybersyn_level is not null and trim(source_snow_cybersyn_level) <> ''
+  - name: geography_class
+    tests:
+    - not_null
+  - name: supported_in_reference
+    tests:
+    - not_null
+  - name: shape_expected
+    tests:
+    - not_null
+  - name: code_system
+    tests:
+    - not_null
+  - name: geo_level_notes
+- name: frequency
+  description: Canonical time grain vocabulary
+  config:
+    schema: CATALOG
+  columns:
+  - name: frequency_id
+    tests:
+    - not_null
+    - unique
+  - name: frequency_code
+    tests:
+    - not_null
+    - unique
+    - accepted_values:
+        arguments:
+          values:
+          - daily
+          - weekly
+          - monthly
+          - quarterly
+          - annual
+          - varies
+  - name: frequency_label
+    tests:
+    - not_null
+  - name: days_interval
+    tests:
+    - not_null
+  - name: sort_order
+    tests:
+    - not_null
+  - name: is_active
+    tests:
+    - not_null
+- name: concept
+  description: Canonical concept vocabulary
+  config:
+    schema: CATALOG
+  columns:
+  - name: concept_id
+    tests:
+    - not_null
+    - unique
+  - name: concept_code
+    tests:
+    - not_null
+    - unique
+  - name: concept_label
+    tests:
+    - not_null
+  - name: domain
+    description: FK to REFERENCE.CATALOG.DOMAIN.domain_code (seed domain.csv). Policy docs/rules/CONCEPT_DOMAIN_POLICY.md
+    tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('domain')
+          field: domain_code
+  - name: unit
+    tests:
+    - not_null
+  - name: direction
+    tests:
+    - not_null
+    - accepted_values:
+        arguments:
+          values:
+          - positive
+          - negative
+          - neutral
+  - name: is_active
+    tests:
+    - not_null
+  - name: metric_category_code
+    tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('erf__metric_category')
+          field: category_code
+- name: concept_geo_level
+  description: 'Bridge from concept_code to supported geo_level_code values (replaces comma-delimited CONCEPT.geo_level_codes).
+    Empty / missing lists in the legacy column were never valid; grain is explicit per row.
 
-  - name: metric_category
-    description: Leading/lagging/coincident classification
-    config:
-      schema: CATALOG
-    columns:
-      - name: category_id
-        tests: [not_null, unique]
-      - name: category_code
-        tests:
-          - not_null
-          - unique
-          - accepted_values:
-              arguments:
-                values: [leading, lagging, coincident]
-      - name: category_label
-        tests: [not_null]
-      - name: description
-        tests: [not_null]
-      - name: is_active
-        tests: [not_null]
+    '
+  config:
+    schema: CATALOG
+  columns:
+  - name: concept_code
+    tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('concept')
+          field: concept_code
+  - name: geo_level_code
+    tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('geo_level')
+          field: geo_level_code
+  - name: is_primary
+    tests:
+    - not_null
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - concept_code
+        - geo_level_code
+- name: concept_frequency
+  description: 'Bridge from concept_code to supported frequency_code values (replaces comma-delimited CONCEPT.frequency_codes).
 
-  - name: function
-    description: Controlled vocabulary for FEATURE function types
-    config:
-      schema: CATALOG
-    columns:
-      - name: function_id
-        tests: [not_null, unique]
-      - name: function_code
-        tests:
-          - not_null
-          - unique
-          - accepted_values:
-              arguments:
-                values: [index, score, rank, delta, pct, flag, smooth]
-      - name: function_label
-        tests: [not_null]
-      - name: description
-        tests: [not_null]
-      - name: output_unit
-        tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values: [index, pct, boolean, float, integer, varies]
-      - name: is_active
-        tests: [not_null]
+    '
+  config:
+    schema: CATALOG
+  columns:
+  - name: concept_code
+    tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('concept')
+          field: concept_code
+  - name: frequency_code
+    tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('frequency')
+          field: frequency_code
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - concept_code
+        - frequency_code
+- name: concept_vertical
+  description: 'Bridge from concept_code to vertical_code. NULL legacy vertical_codes meant “all verticals”; that scope is
+    represented as one row per vertical from reference.catalog.vertical.
 
-  - name: model_type
-    description: Controlled vocabulary for MODEL types
-    config:
-      schema: CATALOG
-    columns:
-      - name: model_type_id
-        tests: [not_null, unique]
-      - name: model_type_code
-        tests:
-          - not_null
-          - unique
-          - accepted_values:
-              arguments:
-                values: [score, composite, forecast, cluster, regression]
-      - name: model_type_label
-        tests: [not_null]
-      - name: description
-        tests: [not_null]
-      - name: output_type
-        tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values: [float, integer, label]
-      - name: is_active
-        tests: [not_null]
+    '
+  config:
+    schema: CATALOG
+  columns:
+  - name: concept_code
+    tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('concept')
+          field: concept_code
+  - name: vertical_code
+    tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('vertical')
+          field: vertical_code
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - concept_code
+        - vertical_code
+- name: cybersyn_catalog_table_vendor_map
+  description: 'Maps each distinct Snowflake table_name from the Cybersyn GLOBAL_GOVERNMENT share list to an underlying statistical-agency
+    vendor_code (not the Snowflake republisher alone). Used by dbt tests and governance reviews; keep aligned with CYBERSYN_GLOBAL_GOVERNMENT_BRING_IN_MATRIX.md
+    tiers.
 
-  - name: estimate_type
-    description: Controlled vocabulary for ESTIMATE types
-    config:
-      schema: CATALOG
-    columns:
-      - name: estimate_type_id
-        tests: [not_null, unique]
-      - name: estimate_type_code
-        tests:
-          - not_null
-          - unique
-          - accepted_values:
-              arguments:
-                values: [point, lower, upper, scenario_base, scenario_bull, scenario_bear]
-      - name: estimate_type_label
-        tests: [not_null]
-      - name: is_interval
-        tests: [not_null]
-      - name: scenario_group
-        description: Null for point/lower/upper
-      - name: sort_order
-        tests: [not_null]
-      - name: is_active
-        tests: [not_null]
-
-  - name: data_status
-    description: Lifecycle status governing read and promotion permissions
-    config:
-      schema: CATALOG
-    columns:
-      - name: data_status_id
-        tests: [not_null, unique]
-      - name: data_status_code
-        tests:
-          - not_null
-          - unique
-          - accepted_values:
-              arguments:
-                values: [active, deprecated, under_review, blocked]
-      - name: data_status_label
-        tests: [not_null]
-      - name: allows_read
-        tests: [not_null]
-      - name: allows_promotion
-        tests: [not_null]
-      - name: description
-        tests: [not_null]
-      - name: is_active
-        tests: [not_null]
-
-  - name: promotion_gate
-    description: DEV/STAGE/PROD promotion gate rules
-    config:
-      schema: CATALOG
-    columns:
-      - name: gate_id
-        tests: [not_null, unique]
-      - name: gate_code
-        tests:
-          - not_null
-          - unique
-          - accepted_values:
-              arguments:
-                values: [dev, stage, prod]
-      - name: gate_label
-        tests: [not_null]
-      - name: required_qa_status
-        tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values: [0_errors]
-      - name: allows_warn
-        tests: [not_null]
-      - name: promotion_target
-        description: Null for prod (terminal gate)
-      - name: approver
-        tests: [not_null]
-      - name: writes_to_pipeline_alert
-        tests: [not_null]
-      - name: sort_order
-        tests: [not_null]
-      - name: is_active
-        tests: [not_null]
-      - name: min_row_count
-        tests: [not_null]
-
-  # Cybersyn GLOBAL_GOVERNMENT — vendor-by-vendor attribution for every CYBERSYN_DATA_CATALOG.table_name
-  # Regenerate: python3 scripts/reference/catalog/regenerate_cybersyn_catalog_table_vendor_map.py
-  - name: cybersyn_catalog_table_vendor_map
-    description: >
-      Maps each distinct Snowflake table_name from the Cybersyn GLOBAL_GOVERNMENT share list to an
-      underlying statistical-agency vendor_code (not the Snowflake republisher alone). Used by dbt tests
-      and governance reviews; keep aligned with CYBERSYN_GLOBAL_GOVERNMENT_BRING_IN_MATRIX.md tiers.
-    config:
-      schema: CATALOG
-    columns:
-      - name: table_name
-        tests:
-          - not_null
-          - unique
-      - name: domain_family_key
-        tests: [not_null]
-      - name: underlying_vendor_code
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('vendor')
-                field: vendor_code
-      - name: matrix_tier
-        tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values: [1, 2, 3, 4, 5, 6, 88, 99]
-      - name: is_pit_companion
-        tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values: ["true", "false"]
+    '
+  config:
+    schema: CATALOG
+  columns:
+  - name: table_name
+    tests:
+    - not_null
+    - unique
+  - name: domain_family_key
+    tests:
+    - not_null
+  - name: underlying_vendor_code
+    tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('vendor')
+          field: vendor_code
+  - name: matrix_tier
+    tests:
+    - not_null
+    - accepted_values:
+        arguments:
+          values:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 88
+          - 99
+  - name: is_pit_companion
+    tests:
+    - not_null
+    - accepted_values:
+        arguments:
+          values:
+          - 'true'
+          - 'false'

@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  # SOURCE_ENTITY.DEEPHAVEN — OpCo footprint (migrated from pretium-ai-dbt cleaned_deephaven_properties).
+  - name: source_entity_deephaven
+    database: SOURCE_ENTITY
+    schema: DEEPHAVEN
+    description: >
+      Deephaven mortgage property landings. Canonical cleaning + **FACT_FOOTPRINT_DEEPHAVEN_PROPERTIES**
+      live in **pretiumdata-dbt-semantic-layer** `models/transform/dev/deephaven/` (no legacy prod transform reads).
+    tables:
+      - name: deephaven_properties
+        identifier: DEEPHAVEN_PROPERTIES
+        description: >
+          Property rows with ZIP / lat-lon; CBSA from source or **TRANSFORM.REF.H3_XWALK_6810_CANON**;
+          CBSA title from **REFERENCE.GEOGRAPHY.CBSA** when source title blank.

@@ -16,6 +16,9 @@ This folder holds **dbt models** that compile to **`TRANSFORM.DEV`** (and relate
 - **`cherre/`** — passthrough views (`CHERRE_*`) over **`TRANSFORM.CHERRE`** Dynamic Tables / tables (`source('cherre_transform', …)`); Jon-owned silver — dbt read surface only.
 - **`fund_opco/`** — **`FACT_PROGRESS_YARDI_PROPERTY`**, **`FACT_BH_YARDI_PROPERTY`**, **`FACT_*_YARDI_UNIT`**, **`FACT_PROGRESS_YARDI_LEDGER`**, **`FACT_BH_YARDI_LEDGER`** over **`source('transform_yardi', …)`** (silver) and legacy **`yardi_bh.TRANS`** for BH ledger when **`yardi_bh_available`**; see folder **`README.md`** and **`MIGRATION_TASKS_YARDI_BH_PROGRESS.md`**.
 - **`catalog_qa/`** — **`QA_CATALOG_METRIC_TRANSFORM_DEV_LINEAGE`**: materialized **`TRANSFORM.DEV`** checks that **`REFERENCE.CATALOG.METRIC`** `table_path` / `snowflake_column` align with **`TRANSFORM.INFORMATION_SCHEMA`** (see **`docs/migration/QA_TRANSFORM_DEV_CATALOG_REGISTRATIONS.md`**).
+- **`deephaven/`** — **`FACT_FOOTPRINT_DEEPHAVEN_PROPERTIES`** from **SOURCE_ENTITY.DEEPHAVEN** + **TRANSFORM.REF.H3_XWALK_6810_CANON** + **REFERENCE.GEOGRAPHY.CBSA** (replaces pretium-ai-dbt `cleaned_deephaven_properties` + `fact_footprint_deephaven_properties` without legacy prod transform reads).
+- **`insurance/`** — **`FACT_INSURANCE_STATE`** (Bankrate + Quadrant state premiums/rates) from **SOURCE_PROD** (replaces pretium-ai-dbt `cleaned_bankrate_*` / `cleaned_quadrant_*` + `fact_insurance_state`).
+- **`tax_foundation/`** — **`FACT_PROPERTY_TAX_BY_COUNTY`** long metrics from **SOURCE_PROD.TAX_FOUNDATION** + **REFERENCE.GEOGRAPHY.COUNTY** for FIPS (replaces pretium-ai-dbt `tax_foundation_property_taxes_by_county` + `ref_property_tax_county_resolved` + `fact_property_tax_by_county` graph).
 
 Add new vendor folders here when cutting over from pretium-ai-dbt; pair each with:
 

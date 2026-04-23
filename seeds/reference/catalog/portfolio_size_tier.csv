@@ -1,6 +1,0 @@
-portfolio_size_tier_id,portfolio_size_tier_code,portfolio_size_tier_label,unit_min,unit_max,sort_order,is_active,product_type_code
-PST_001,sub_100,Sub 100 Units,0,99,1,TRUE,
-PST_002,100_500,100–500 Units,100,500,2,TRUE,
-PST_003,500_2000,500–2000 Units,500,2000,3,TRUE,
-PST_004,2000_5000,2000–5000 Units,2000,5000,4,TRUE,
-PST_005,5000_plus,5000+ Units,5000,,5,TRUE,
